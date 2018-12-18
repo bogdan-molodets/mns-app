@@ -1,0 +1,65 @@
+<div class="ui icon massive blue inverted menu">
+  <a class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></a>
+  <div class="header item">{{currentSession | async }}</div>
+  <!--<a class="item">Submit</a>-->
+  <!--<div class="right menu">
+    <a class="item">Sign Up</a>
+    <a class="item">Help</a>
+  </div>-->
+</div>
+<div class='ui pushable'>
+  <div class="ui left blue inline sidebar inverted vertical menu">
+    <a class="item ui header sidebarToggle">
+      <h1>Меню</h1>
+    </a>
+    <a class="item ui header sidebarToggle">
+      <h3>Відкрити</h3>
+    </a>
+    <a class="item ui header sidebarToggle">
+      <h3>Створити</h3>
+    </a>
+    <a class="item ui header sidebarToggle">
+      <h3>Експорт</h3>
+    </a>
+  </div>
+  <div class='pusher'>
+    <div class='ui container'>
+      <form class='ui form'>
+        <div class='fields'>
+          <div class="field four wide">
+            <input [(ngModel)]="params.x" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number" placeholder="X">
+          </div>
+          <div class="field four wide">
+            <input [(ngModel)]="params.y" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number" placeholder="Y">
+          </div>
+          <div class="field four wide">
+            <input [(ngModel)]="params.z" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number" placeholder="Z">
+          </div>
+          <div class="field four wide">
+            <button class='ui blue button'>Додати</button>
+          </div>
+        </div>
+      </form>
+
+      <table class='ui blue large table celled stripped'>
+        <thead>
+          <tr class='center aligned'>
+            <th> #</th>
+            <th>X</th>
+            <th>Y</th>
+            <th>Z</th>
+            <th>&#9651;X</th>
+            <th>&#9651;Y</th>
+            <th>&#9651;Z</th>
+            <th>Час</th>
+          </tr>
+
+        </thead>
+        <tbody>
+          <tr></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
