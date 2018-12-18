@@ -23,9 +23,14 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "semantic/dist/semantic.min.css"
+
             ],
-            "scripts": []
+            "scripts": [
+              "semantic/dist/semantic.min.js",
+              "node_modules/jquery/dist/jquery.min.js"
+            ]
           },
           "configurations": {
             "production": {
