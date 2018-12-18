@@ -1,6 +1,6 @@
-<div class="ui icon massive blue inverted menu">
+<div class="ui massive menu icon  blue inverted">
   <a class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></a>
-  <div class="header item">{{currentSession | async }}</div>
+  <div class="ui massive header item">{{currentSession | async }}</div>
   <!--<a class="item">Submit</a>-->
   <!--<div class="right menu">
     <a class="item">Sign Up</a>
@@ -26,17 +26,20 @@
     <div class='ui container'>
       <form class='ui form'>
         <div class='fields'>
-          <div class="field four wide">
-            <input [(ngModel)]="params.x" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number" placeholder="X">
+          <div class="field four wide ui massive input">
+            <input [(ngModel)]="params.x" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
+              placeholder="X">
+          </div>
+          <div class="field four wide ui massive input">
+            <input [(ngModel)]="params.y" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
+              placeholder="Y">
+          </div>
+          <div class="field four wide ui massive input">
+            <input [(ngModel)]="params.z" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
+              placeholder="Z">
           </div>
           <div class="field four wide">
-            <input [(ngModel)]="params.y" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number" placeholder="Y">
-          </div>
-          <div class="field four wide">
-            <input [(ngModel)]="params.z" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number" placeholder="Z">
-          </div>
-          <div class="field four wide">
-            <button class='ui blue button'>Додати</button>
+            <button class='ui blue button massive'>Додати</button>
           </div>
         </div>
       </form>
@@ -44,7 +47,7 @@
       <table class='ui blue large table celled stripped'>
         <thead>
           <tr class='center aligned'>
-            <th> #</th>
+            <th>#</th>
             <th>X</th>
             <th>Y</th>
             <th>Z</th>
@@ -56,10 +59,61 @@
 
         </thead>
         <tbody>
-          <tr></tr>
+          <tr class='center aligned' *ngFor='let target of targets | async'>
+            <td>{{target.targetId}}</td>
+            <td>{{target.X0}}</td>
+            <td>{{target.Y0}}</td>
+            <td>{{target.H0}}</td>
+            <td>{{target.dX}}</td>
+            <td>{{target.dY}}</td>
+            <td>{{target.dH}}</td>
+            <td>{{target.lastUpdate | date}}</td>
+          </tr>
         </tbody>
       </table>
     </div>
   </div>
 
 </div>
+
+<div class='ui modal notification'>
+  <div class="header">Попередження</div>
+  <div class='content'>
+    <h3 class='ui header'>Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.</h3>
+  </div>
+  <div class='actions'>
+    <a class='ui massive cancel blue button'>Створити нову сесію</a>
+    <a class='ui massive ok button'>Відкрити сесію з архіву</a>
+  </div>
+</div>
+
+<div class='ui modal history'>
+  <div class="header">Архів сесій</div>
+  <div class='content'>
+
+  </div>
+  <div class="actions">
+    <a class='ui massive ok blue button'>Підтвердити</a>
+    <!-- <a class='ui cancel button'>Повернутись</a> -->
+  </div>
+</div>
+
+<div class='ui modal creator'>
+  <div class="header">Створити нову сесію</div>
+  <div class='content'>
+    <form class='ui form'>
+      <div class='fields'>
+        <div class="field eight wide"><input class='ui input' placeholder='Id сесії'></div>
+        <div class="field eight wide"><input class='ui input' placeholder='Довірчий інтервал'></div>
+
+
+      </div>
+    </form>
+  </div>
+  <div class="actions">
+    <a class='ui massive ok blue button'>Підтвердити</a>
+    <!-- <a class='ui cancel button'>Повернутись</a> -->
+  </div>
+</div>
+
+<button class='ui button circular blue massive icon play-button'><i class='icon play'></i></button>
