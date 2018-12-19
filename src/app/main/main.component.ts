@@ -18,9 +18,9 @@ export class MainComponent implements OnInit {
   }
 
   params = {
-    x: 1,
-    y: 2,
-    z: 3
+    x: null,
+    y: null,
+    z: null
   }
   target = {}
   ngOnInit() {
@@ -76,7 +76,7 @@ export class MainComponent implements OnInit {
 
   getTargets(){
     return new Promise((resolve, reject)=>{
-      let tmp = [new Target('s1',1,2,2,'ww','sd',0.2,0.9,0.8,'09-07-18')];
+      let tmp = [new Target('s1',990,200,200,'ww','sd',0.255,0.955,0.855,'09-07-18')];
       resolve(tmp);
     })
   }
