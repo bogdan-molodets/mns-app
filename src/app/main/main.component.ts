@@ -15,7 +15,7 @@ declare const $: any;
   styleUrls: ['./main.component.css']
 })
 export class MainComponent implements OnInit {
-  initId:number=101;
+  initId: number = 101;
   currentSession: Observable<any>;
   notification: string = '';
   targets: Promise<any>;// = [];
@@ -85,10 +85,10 @@ export class MainComponent implements OnInit {
     this.currentSession.subscribe(res => {
       console.log(res);
       if (typeof res == 'undefined') {
-        this.openedSession.subscribe(result=>{
+        this.openedSession.subscribe(result => {
           if (typeof result == 'undefined') {
             $('.ui.modal.notification').modal('show');
-          }else{
+          } else {
             this.targets = this.getTargets(result.session_id);
             this.selectedSessionId = result.session_id;
           }
@@ -100,16 +100,23 @@ export class MainComponent implements OnInit {
     })
   }
 
-  openModalArchive(){
+  openModalArchive() {
     $('.ui.modal.history').modal('show');
   }
 
-  selectSessionId(session_id){
+  selectSessionId(session_id) {
     this.selectedSessionId = session_id;
   }
 
-  openSession(){
-    this.targets = this.getTargets(this.selectedSessionId)
+  openSession() {
+    this.targets = this.getTargets(this.selectedSessionId);
+    this.targets.then(res => {
+      if (res['length'] == 0) {
+        this.initId = 100;
+      } else {
+        this.initId = +res[res['length'] - 1].target_id;
+      }
+    })
     $('.ui.modal.history').modal('hide');
   }
 
@@ -140,7 +147,7 @@ export class MainComponent implements OnInit {
   }
 
   stopMonitoring() {
-    this.monitoringService.deleteMonitoringProcess("123").toPromise().then(res => {
+    this.monitoringService.deleteMonitoringProcess(this.selectedSessionId).toPromise().then(res => {
       if (res.status == "Ok") {
         console.log("stopped");
         this.isMonitoring = false;
@@ -148,10 +155,10 @@ export class MainComponent implements OnInit {
     })
   }
   runMonitoring() {
-    this.monitoringService.runMonitoringProcess("123").toPromise().then(res => {
+    this.monitoringService.runMonitoringProcess(this.selectedSessionId).toPromise().then(res => {
       if (res.status == 'Ok') {
         this.isMonitoring = true;
-        this.monitoringService.getMonitoringProcessState("123").pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+        this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
           if (res.state == "alarm") {
             console.log("alarm");
           }
@@ -172,9 +179,11 @@ export class MainComponent implements OnInit {
   }
 
   addTarget() {
-    this.targetService.createTarget("123", this.initId.toString(), new Target((this.initId++).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22")).then(res => {
+
+    this.targetService.createTarget("123", this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22")).then(res => {
       if (res.status == 'Ok') {
         console.log('created');
+        this.targets = this.getTargets(this.selectedSessionId);
       }
     })
   }

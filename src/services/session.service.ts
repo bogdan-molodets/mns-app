@@ -35,7 +35,7 @@ export class SessionService {
    * @param sessionId 
    */
   createSession(session: Session): Observable<any> {
-    return this.httpClient.post<any>(`${environment.apiUrl}/session`, { session: session });
+    return this.httpClient.post<any>(`${environment.apiUrl}/session`,  session );
   }
 
   /**
