@@ -16,12 +16,15 @@ declare const $: any;
 })
 export class MainComponent implements OnInit {
   initId:number=101;
-  currentSession: Observable<any>;
+  // currentSession: Observable<any>;
   notification: string = '';
-  targets: Promise<any>;// = [];
-  archiveSessions: Observable<any>;
+  // targets: Promise<any>;
+  // archiveSessions: Observable<any>;
   selectedSessionId = '';
-  openedSession: Observable<any>;
+  // openedSession: Observable<any>;
+  currentSession;
+  archiveSessions;
+  targets;
 
   isMonitoring: boolean = false;
   targetToUpdate: Target = null;
@@ -48,8 +51,9 @@ export class MainComponent implements OnInit {
     $('.ui.dropdown')
       .dropdown()
       ;
-    this.currentSession = this.sessionService.getActiveSession();
-    this.openedSession = this.sessionService.getOpenedSession();
+    //this.currentSession = this.sessionService.getActiveSession();
+    //this.openedSession = this.sessionService.getOpenedSession();
+    
     this.notification = 'Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.'
     $('.ui.modal.creator').modal({
       closable: false,
@@ -81,8 +85,24 @@ export class MainComponent implements OnInit {
         $('.ui.modal.history').modal('show');
       }
     })
-    this.archiveSessions = this.sessionService.getSessions();
-    this.currentSession.subscribe(res => {
+    this.sessionService.getSessions().subscribe(res=>{
+      this.archiveSessions = res;
+      if(res.find(el => { return el.state == 'active' })){
+        this.currentSession = res.find(el => { return el.state == 'active' });
+        this.getTargets(this.currentSession.session_id).then(res=>{
+          this.targets = res;
+        })
+      }else if(res.find(el => { return el.state == 'opened' })){
+        this.currentSession = res.find(el => { return el.state == 'opened' });
+        this.getTargets(this.currentSession.session_id).then(res=>{
+          this.targets = res;
+        })
+      }else{
+        $('.ui.modal.notification').modal('show');
+      }
+    });
+    //this.archiveSessions = this.sessionService.getSessions();
+    /**this.currentSession.subscribe(res => {
       console.log(res);
       if (typeof res == 'undefined') {
         this.openedSession.subscribe(result=>{
@@ -97,7 +117,7 @@ export class MainComponent implements OnInit {
         this.targets = this.getTargets(res.session_id);
         this.selectedSessionId = res.session_id;
       }
-    })
+    })**/
   }
 
   openModalArchive(){
@@ -109,8 +129,13 @@ export class MainComponent implements OnInit {
   }
 
   openSession(){
-    this.targets = this.getTargets(this.selectedSessionId)
-    $('.ui.modal.history').modal('hide');
+    //this.targets = this.getTargets(this.selectedSessionId)
+    this.getTargets(this.selectedSessionId).then(res=>{
+      console.log(res);
+      this.targets = res;
+      $('.ui.modal.history').modal('hide');
+    });
+    
   }
 
   getCurrentSesion() {

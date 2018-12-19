@@ -1,14 +1,14 @@
 <div class="ui massive menu icon  blue inverted">
   <a class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></a>
-  <div class="ui massive header item" *ngIf='currentSession | async as current; else noActiveSession'>{{current.session_id
+  <div class="ui massive header item" *ngIf='currentSession != undefined'>{{currentSession.session_id
     }}</div>
-  <ng-template #noActiveSession>
-    <div class="ui massive header item" *ngIf='openedSession | async as current; else noOpenedSession'>{{current.session_id
+  <!-- <ng-template #noActiveSession>
+    <div class="ui massive header item" *ngIf='openedSession as current; else noOpenedSession'>{{current.session_id
     }}</div>
   </ng-template>
   <ng-template #noOpenedSession>
     <div class="ui massive header item">{{selectedSessionId}}</div>
-  </ng-template>
+  </ng-template> -->
 </div>
 <div class='ui pushable'>
   <div class="ui left blue inline sidebar inverted vertical menu">
@@ -27,7 +27,7 @@
   </div>
   <div class='pusher'>
     <div class='ui container'>
-      <form *ngIf="targets | async" class='ui form'>
+      <form *ngIf="targets!=undefined" class='ui form'>
         <div class='fields'>
           <div class="field four  ui  input disabled">
             <input [(ngModel)]="params.x" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
@@ -51,7 +51,7 @@
         </div>
       </form>
 
-      <table *ngIf="targets | async" class='ui blue large table celled stripped'>
+      <table *ngIf="targets!=undefined" class='ui blue large table celled stripped'>
         <thead>
           <tr class='center aligned'>
             <th></th>
@@ -83,7 +83,7 @@
 
         </thead>
         <tbody>
-          <tr class='center aligned' *ngFor='let target of targets | async'>
+          <tr class='center aligned' *ngFor='let target of targets'>
             <td class="collapsing">
               <!--<div class='ui button massive blue icon'><i class="icon pencil alternate"></i></div>-->
               <div class='ui button massive blue icon' (click)='deleteTarget(target)'><i class="icon trash alternate"></i></div>
@@ -139,7 +139,7 @@
       <i class="dropdown icon"></i>
       <div class="default text">Оберіть Id сесії</div>
       <div class="menu ">
-        <ng-container *ngFor='let archiveSession of archiveSessions | async'>
+        <ng-container *ngFor='let archiveSession of archiveSessions'>
           <div class="item" (click)='selectSessionId(archiveSession.session_id)'>
             <h1>{{archiveSession.session_id}}</h1>
           </div>
