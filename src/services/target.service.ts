@@ -47,7 +47,8 @@ export class TargetService {
    * @param target new Target object
    */
   updateTarget(sessionId: string, targetId: string, target: Target): Observable<any> {
-    return this.httpClient.put<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { target: target });
+    return of(createRes);
+    //return this.httpClient.put<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { target: target });
   }
 
   /**
@@ -57,7 +58,8 @@ export class TargetService {
    * @param target 
    */
   deleteTarget(sessionId: string, targetId: string, target: Target): Observable<any> {
-    return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`);
+    return of(createRes);
+    //return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`);
     //return this.httpClient.request('delete', `${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { body: target });
   }
 

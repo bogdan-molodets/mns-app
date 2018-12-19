@@ -19,6 +19,7 @@ export class MainComponent implements OnInit {
   notification: string = '';
   targets: Promise<any>;// = [];
   isMonitoring: boolean = false;
+  targetToUpdate: Target = null;
   constructor(private sessionService: SessionService,
     private monitoringService: MonitoringService,
     private targetService: TargetService,
@@ -37,7 +38,7 @@ export class MainComponent implements OnInit {
       .sidebar('setting', 'transition', 'overlay')
       .sidebar('attach events', '.menu .item.sidebarToggle')
       ;
-     
+
     this.currentSession = this.sessionService.getActiveSession();// this.getActiveSession();  
     this.targets = this.getTargets();
     this.notification = 'Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.'
@@ -104,12 +105,20 @@ export class MainComponent implements OnInit {
 
   }
 
+  stopMonitoring() {
+    this.monitoringService.deleteMonitoringProcess("123").toPromise().then(res => {
+      if (res.status == "Ok") {
+        console.log("stopped");
+        this.isMonitoring = false;
+      }
+    })
+  }
   runMonitoring() {
     this.monitoringService.runMonitoringProcess("123").toPromise().then(res => {
       if (res.status == 'Ok') {
         this.isMonitoring = true;
         this.monitoringService.getMonitoringProcessState("123").pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
-          if(res.state=="alarm"){
+          if (res.state == "alarm") {
             console.log("alarm");
           }
           console.log(res);
@@ -121,11 +130,56 @@ export class MainComponent implements OnInit {
   runExistingMonitoring() {
     this.isMonitoring = true;
     this.monitoringService.getMonitoringProcessState("123").pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
-      if(res.state=="alarm"){
+      if (res.state == "alarm") {
         console.log("alarm");
       }
       console.log(res);
     })
+  }
+
+  addTarget() {
+    if (this.targetToUpdate) {
+      let updatedTarget = new Target(this.targetToUpdate.target_id,
+        this.params.x,
+        this.params.y,
+        this.params.z,
+        this.targetToUpdate.HA,
+        this.targetToUpdate.VA,
+        this.targetToUpdate.dX,
+        this.targetToUpdate.dY,
+        this.targetToUpdate.dH,
+        this.targetToUpdate.last_upd);
+      this.targetService.updateTarget("123", "1234", updatedTarget).toPromise().then(res => {
+        if (res.status == 'Ok') {
+          this.targetToUpdate = null;
+          console.log('updated');
+          this.params.x = "";
+          this.params.y = "";
+          this.params.z = "";
+        }
+      });
+    } else {
+      this.targetService.createTarget("123", "1234", new Target("124", this.params.x, this.params.y, this.params.z, "", "", 0, 0, 0, "12-12-12")).then(res => {
+        if (res.status == 'Ok') {
+          console.log('created');
+        }
+      })
+    }
+  }
+
+  editTarget(target: Target) {
+    this.targetToUpdate = target;
+    this.params.x = target.X0;
+    this.params.y = target.Y0;
+    this.params.z = target.H0;
+  }
+
+  deleteTarget(target: Target) {
+    this.targetService.deleteTarget("123", target.target_id, target).toPromise().then(res => {
+      if (res.status == 'Ok') {
+        console.log('deleted');
+      }
+    });
   }
 
 }

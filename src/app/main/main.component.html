@@ -39,7 +39,7 @@
               placeholder="Z">
           </div>
           <div class="field four wide">
-            <button class='ui blue button massive'>Додати</button>
+            <button class='ui blue button massive' (click)='addTarget()'>Додати</button>
           </div>
         </div>
       </form>
@@ -61,7 +61,7 @@
         </thead>
         <tbody>
           <tr class='center aligned' *ngFor='let target of targets | async'>
-            <td class="collapsing"><div class='ui button massive blue icon'><i class="icon pencil alternate"></i></div><div class='ui button massive blue icon'><i class="icon trash alternate"></i></div></td>
+            <td class="collapsing"><div class='ui button massive blue icon' (click)='editTarget(target)'><i class="icon pencil alternate"></i></div><div class='ui button massive blue icon' (click)='deleteTarget(target)'><i class="icon trash alternate"></i></div></td>
             <td><h3>{{target.target_id}}</h3></td>
             <td><h3>{{target.X0}}</h3></td>
             <td><h3>{{target.Y0}}</h3></td>
@@ -117,5 +117,9 @@
     <!-- <a class='ui cancel button'>Повернутись</a> -->
   </div>
 </div>
-
-<button class='ui button circular blue massive icon play-button'><i class='icon play'></i></button>
+<div *ngIf="!isMonitoring">
+  <button class='ui button circular blue massive icon play-button' (click)='runMonitoring()'><i class='icon play'></i></button>
+</div>
+<div *ngIf="isMonitoring">
+  <button class='ui button circular blue massive icon play-button' (click)='stopMonitoring()'><i class='icon stop'></i></button>
+</div>

@@ -42,7 +42,8 @@ export class MonitoringService {
    * @param sessionId 
    */
   deleteMonitoringProcess(sessionId: string): Observable<any> {
-    return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
+    return of(createRes);
+    //return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
   }
 
 
