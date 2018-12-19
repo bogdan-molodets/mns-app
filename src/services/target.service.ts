@@ -16,9 +16,8 @@ export class TargetService {
    * @param sessionId 
    * @param targetId 
    */
-  createTarget(sessionId: string, targetId: string, target: Target): Promise<any> {    
-    console.log(target);
-    return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}`, target ).toPromise();
+  createTarget(sessionId: string, targetId: string, target: Target): Promise<any> { 
+    return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/target`, target ).toPromise();
   }
 
   /**
