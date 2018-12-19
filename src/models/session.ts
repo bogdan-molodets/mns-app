@@ -2,7 +2,7 @@ export class Session {
     /**
      *
      */
-    constructor(readonly sessionId: string,
+    constructor(readonly session_id: string,
         readonly description: string,
         readonly lat: number,
         readonly lon: number,

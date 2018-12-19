@@ -2,7 +2,7 @@ export class Target {
     /**
      *
      */
-    constructor(readonly targetId: string,
+    constructor(readonly target_id: string,
         readonly X0: number,
         readonly Y0: number,
         readonly H0: number,
@@ -11,7 +11,7 @@ export class Target {
         readonly dX: number,
         readonly dY: number,
         readonly dH: number,
-        readonly lastUpdate: string
+        readonly last_upd: string
     ) {
 
 

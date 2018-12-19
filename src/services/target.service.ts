@@ -15,8 +15,8 @@ export class TargetService {
    * @param sessionId 
    * @param targetId 
    */
-  createTarget(sessionId: string, targetId: string): Observable<any> {
-    return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`, {});
+  createTarget(sessionId: string, targetId: string, target: Target): Observable<any> {
+    return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { target: target });
   }
 
   /**
@@ -53,7 +53,8 @@ export class TargetService {
    * @param target 
    */
   deleteTarget(sessionId: string, targetId: string, target: Target): Observable<any> {
-    return this.httpClient.request('delete', `${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { body: target });
+    return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`);
+    //return this.httpClient.request('delete', `${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { body: target });
   }
 
 
