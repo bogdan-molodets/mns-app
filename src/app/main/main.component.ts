@@ -126,6 +126,9 @@ export class MainComponent implements OnInit {
   openModalArchive() {
     $('.ui.modal.history').modal('show');
   }
+  openSessionCreation() {
+    $('.ui.modal.creator').modal('show');
+  }
 
   selectSessionId(session_id) {
     this.selectedSessionId = session_id;
@@ -133,13 +136,23 @@ export class MainComponent implements OnInit {
 
 
   openSession() {
+
     this.sessionService.updateSession(this.selectedSessionId, "opened").toPromise().then(res => {
       console.log('update to opened');
       this.sessionService.getSessions().toPromise().then(res => {
+        console.log('req on open');
         this.currentSession = res.find(el => { return el.session_id == this.selectedSessionId });
         this.selectedSessionId = this.currentSession.session_id;
+
+        let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
+        if (opened) {
+          this.sessionService.updateSession(opened.session_id, "string").toPromise().then(res => { });
+        }
+
+
       });
     });
+
 
     //this.targets = this.getTargets(this.selectedSessionId)
     this.getTargets(this.selectedSessionId).then(res => {
@@ -209,10 +222,11 @@ export class MainComponent implements OnInit {
   runExistingMonitoring() {
     this.sessionService.updateSession(this.selectedSessionId, "active").toPromise().then(res => {
       console.log('update to active');
-    });
-    this.isMonitoring = true;
-    this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
-      this.targets = res;
+
+      this.isMonitoring = true;
+      this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+        this.targets = res;
+      });
     });
   }
 
@@ -259,10 +273,24 @@ export class MainComponent implements OnInit {
         this.initSessionId = +res[res['length'] - 1].session_id;
 
       }
+      // let openedSession = res.find(el => { return el.state == "opened" });
+      // if (openedSession) {
+      //   this.sessionService.updateSession(openedSession.session_id, "string").toPromise().then(res => {
+      //     console.log('update to string');
+      //   });
+      // }
+
+
       let session = new Session((++this.initSessionId).toString(), "string", 0, 0, 0, "12-12-12", "opened", +$("#dopusk").val());
       this.sessionService.createSession(session).toPromise().then(res => {
         this.targets = [];
         this.sessionService.getSessions().toPromise().then(res => {
+          let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
+          if (opened) {
+            this.sessionService.updateSession(opened.session_id, "string").toPromise().then(res => { });
+          }
+          this.archiveSessions = res;
+          console.log('req on create');
           this.currentSession = res.find(el => { return el.session_id == session.session_id });
           this.selectedSessionId = this.currentSession.session_id;
         });
