@@ -285,14 +285,17 @@ export class MainComponent implements OnInit {
       this.sessionService.createSession(session).toPromise().then(res => {
         this.targets = [];
         this.sessionService.getSessions().toPromise().then(res => {
-          let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
-          if (opened) {
-            this.sessionService.updateSession(opened.session_id, "string").toPromise().then(res => { });
-          }
           this.archiveSessions = res;
           console.log('req on create');
           this.currentSession = res.find(el => { return el.session_id == session.session_id });
           this.selectedSessionId = this.currentSession.session_id;
+          let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
+          console.log(opened);
+          if (opened) {
+            this.sessionService.updateSession(opened.session_id, "string").toPromise().then(res => {
+              console.log('update to string in create');
+            });
+          }
         });
       });
     });

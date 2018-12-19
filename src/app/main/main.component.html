@@ -41,7 +41,7 @@
             <input [(ngModel)]="params.h" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
               placeholder="H">
           </div>
-         
+
           <div class="field four">
             <button class='ui blue button massive' (click)='getCoordinates()'>Отримати координати</button>
           </div>
@@ -160,7 +160,7 @@
   <div class='content'>
     <form class='ui form'>
       <div class='fields'>
-        
+
         <div class="field eight wide ui input massive"><input id="dopusk" placeholder='Допуск'></div>
 
 
@@ -172,7 +172,7 @@
     <!-- <a class='ui cancel button'>Повернутись</a> -->
   </div>
 </div>
-<div *ngIf="!isMonitoring">
+<div *ngIf="!isMonitoring && targets!=undefined && targets.length!=0">
   <button class='ui button circular blue massive icon play-button' (click)='runMonitoring()'><i class='icon play'></i></button>
 </div>
 <div *ngIf="isMonitoring">
