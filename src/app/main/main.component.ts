@@ -5,6 +5,7 @@ import { SessionService } from 'src/services/session.service';
 import { MonitoringService } from 'src/services/monitoring.service';
 import { TargetService } from 'src/services/target.service';
 import { ConfigService } from 'src/services/config.service';
+import { Observable } from 'rxjs';
 
 declare const $: any;
 @Component({
@@ -13,7 +14,7 @@ declare const $: any;
   styleUrls: ['./main.component.css']
 })
 export class MainComponent implements OnInit {
-  currentSession: Promise<any>;
+  currentSession: Observable<any>;
   notification: string = '';
   targets: Promise<any>;// = [];
 
@@ -35,7 +36,8 @@ export class MainComponent implements OnInit {
       .sidebar('setting', 'transition', 'overlay')
       .sidebar('attach events', '.menu .item.sidebarToggle')
       ;
-    this.currentSession = this.getActiveSession();  
+     
+    this.currentSession =this.sessionService.getActiveSession();// this.getActiveSession();  
     this.notification = 'Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.'
     $('.ui.modal.creator').modal({
       closable: false,
@@ -72,7 +74,7 @@ export class MainComponent implements OnInit {
         $('.ui.modal.history').modal('show');
       }
     })
-    this.currentSession.then(res=>{
+    this.currentSession.subscribe(res=>{
       console.log(res);
       if(typeof res == 'undefined'){
         $('.ui.modal.notification').modal('show');
@@ -99,12 +101,12 @@ export class MainComponent implements OnInit {
   }
 
   getActiveSession() {
-    return new Promise((resolve, reject) => {
-      this.sessionService.getSessions().then(res => {
-        let activeSession = res.sessions.find(el => { return el.state == 'active' });      
-        resolve(activeSession);
-      });
-    })
+    // return new Promise((resolve, reject) => {
+    //   this.sessionService.getSessions().then(res => {
+    //     let activeSession = res.sessions.find(el => { return el.state == 'active' });      
+    //     resolve(activeSession);
+    //   });
+    // })
 
   }
 
