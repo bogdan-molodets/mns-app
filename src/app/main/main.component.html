@@ -29,20 +29,24 @@
     <div class='ui container'>
       <form *ngIf="targets | async" class='ui form'>
         <div class='fields'>
-          <div class="field four wide ui massive input">
+          <div class="field four  ui  input disabled">
             <input [(ngModel)]="params.x" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
               placeholder="X">
           </div>
-          <div class="field four wide ui massive input">
+          <div class="field four  ui  input disabled">
             <input [(ngModel)]="params.y" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
               placeholder="Y">
           </div>
-          <div class="field four wide ui massive input">
-            <input [(ngModel)]="params.z" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
-              placeholder="Z">
+          <div class="field four  ui  input disabled">
+            <input [(ngModel)]="params.h" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
+              placeholder="H">
           </div>
-          <div class="field four wide">
-            <button class='ui blue button massive'>Додати</button>
+         
+          <div class="field four">
+            <button class='ui blue button massive' (click)='getCoordinates()'>Отримати координати</button>
+          </div>
+          <div class="field four">
+            <button class='ui blue button massive' (click)='addTarget()'>Додати</button>
           </div>
         </div>
       </form>
@@ -168,6 +172,9 @@
     <!-- <a class='ui cancel button'>Повернутись</a> -->
   </div>
 </div>
-
-<button *ngIf='currentSession | async; let current = currentSession' class='ui button circular blue massive icon play-button'><i
-    [ngClass]='{square: current}' class='icon'></i></button>
+<div *ngIf="!isMonitoring">
+  <button class='ui button circular blue massive icon play-button' (click)='runMonitoring()'><i class='icon play'></i></button>
+</div>
+<div *ngIf="isMonitoring">
+  <button class='ui button circular blue massive icon play-button' (click)='stopMonitoring()'><i class='icon stop'></i></button>
+</div>

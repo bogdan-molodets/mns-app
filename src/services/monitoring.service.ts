@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { createRes, monitoringActive } from 'src/models/mock';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,8 @@ export class MonitoringService {
    * @param sessionId 
    */
   getMonitoringProcessState(sessionId: string): Observable<any> {
-    return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
+    return of(monitoringActive);
+    //return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
   }
 
   /**
@@ -23,7 +25,8 @@ export class MonitoringService {
    * @param sessionId 
    */
   runMonitoringProcess(sessionId: string): Observable<any> {
-    return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/monprc`, {});
+    return of(createRes);
+    //return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/monprc`, {});
   }
 
   /**
@@ -39,7 +42,8 @@ export class MonitoringService {
    * @param sessionId 
    */
   deleteMonitoringProcess(sessionId: string): Observable<any> {
-    return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
+    return of(createRes);
+    //return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
   }
 
 

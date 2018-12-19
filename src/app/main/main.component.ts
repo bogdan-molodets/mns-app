@@ -5,7 +5,8 @@ import { SessionService } from 'src/services/session.service';
 import { MonitoringService } from 'src/services/monitoring.service';
 import { TargetService } from 'src/services/target.service';
 import { ConfigService } from 'src/services/config.service';
-import { Observable } from 'rxjs';
+import { Observable, interval } from 'rxjs';
+import { repeatWhen, takeUntil, takeWhile } from 'rxjs/operators';
 
 declare const $: any;
 @Component({
@@ -14,6 +15,7 @@ declare const $: any;
   styleUrls: ['./main.component.css']
 })
 export class MainComponent implements OnInit {
+  initId:number=101;
   currentSession: Observable<any>;
   notification: string = '';
   targets: Promise<any>;// = [];
@@ -21,6 +23,8 @@ export class MainComponent implements OnInit {
   selectedSessionId = '';
   openedSession: Observable<any>;
 
+  isMonitoring: boolean = false;
+  targetToUpdate: Target = null;
   constructor(private sessionService: SessionService,
     private monitoringService: MonitoringService,
     private targetService: TargetService,
@@ -31,7 +35,9 @@ export class MainComponent implements OnInit {
   params = {
     x: null,
     y: null,
-    z: null
+    h: null,
+    ha: null,
+    va: null
   }
   target = {}
   ngOnInit() {
@@ -133,5 +139,65 @@ export class MainComponent implements OnInit {
 
   }
 
+  stopMonitoring() {
+    this.monitoringService.deleteMonitoringProcess("123").toPromise().then(res => {
+      if (res.status == "Ok") {
+        console.log("stopped");
+        this.isMonitoring = false;
+      }
+    })
+  }
+  runMonitoring() {
+    this.monitoringService.runMonitoringProcess("123").toPromise().then(res => {
+      if (res.status == 'Ok') {
+        this.isMonitoring = true;
+        this.monitoringService.getMonitoringProcessState("123").pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+          if (res.state == "alarm") {
+            console.log("alarm");
+          }
+          console.log(res);
+        })
+      }
+    })
+  }
+
+  runExistingMonitoring() {
+    this.isMonitoring = true;
+    this.monitoringService.getMonitoringProcessState("123").pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+      if (res.state == "alarm") {
+        console.log("alarm");
+      }
+      console.log(res);
+    })
+  }
+
+  addTarget() {
+    this.targetService.createTarget("123", this.initId.toString(), new Target((this.initId++).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22")).then(res => {
+      if (res.status == 'Ok') {
+        console.log('created');
+      }
+    })
+  }
+
+  getCoordinates() {
+    this.configService.getCoordinates().subscribe(res => {
+      if (res.point.X) {
+        this.params.x = res.point.X;
+        this.params.y = res.point.Y;
+        this.params.h = res.point.H;
+        this.params.ha = res.point.HA;
+        this.params.va = res.point.VA;
+      }
+    });
+  }
+
+
+  deleteTarget(target: Target) {
+    this.targetService.deleteTarget("123", target.target_id, target).toPromise().then(res => {
+      if (res.status == 'Ok') {
+        console.log('deleted');
+      }
+    });
+  }
 
 }

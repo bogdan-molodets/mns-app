@@ -125,6 +125,6 @@ export const targetsEmpty = {
 }
 export const monitoringActive = {
     "status": "Ok",
-    "state": "string",
+    "state": "alarm",
     "timestamp": "string"
 }

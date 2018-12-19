@@ -25,4 +25,8 @@ export class ConfigService {
   updateConfig(language: string, email: string): Observable<any> {
     return this.httpClient.put(`${environment.apiUrl}/config`, { config: { language: language, email: email } });
   }
+
+  getCoordinates():Observable<any> {
+    return this.httpClient.get(`${environment.apiUrl}/TS/data`);
+  }
 }
