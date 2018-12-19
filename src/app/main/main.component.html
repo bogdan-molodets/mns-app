@@ -1,6 +1,6 @@
 <div class="ui massive menu icon  blue inverted">
   <a class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></a>
-  <div class="ui massive header item">{{currentSession | async }}</div>
+  <div class="ui massive header item">{{(currentSession | async)?.session_id }}</div>
   <!--<a class="item">Submit</a>-->
   <!--<div class="right menu">
     <a class="item">Sign Up</a>
@@ -60,14 +60,14 @@
         </thead>
         <tbody>
           <tr class='center aligned' *ngFor='let target of targets | async'>
-            <td>{{target.targetId}}</td>
+            <td>{{target.target_id}}</td>
             <td>{{target.X0}}</td>
             <td>{{target.Y0}}</td>
             <td>{{target.H0}}</td>
             <td>{{target.dX}}</td>
             <td>{{target.dY}}</td>
             <td>{{target.dH}}</td>
-            <td>{{target.lastUpdate | date}}</td>
+            <td>{{target.last_upd | date}}</td>
           </tr>
         </tbody>
       </table>

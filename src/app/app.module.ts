@@ -7,6 +7,7 @@ import { MainComponent } from './main/main.component';
 import { MonitoringService } from 'src/services/monitoring.service';
 import { TargetService } from 'src/services/target.service';
 import { SessionService } from 'src/services/session.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { SessionService } from 'src/services/session.service';
   ],
   imports: [
     BrowserModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule
   ],
   providers: [MonitoringService,TargetService,SessionService],
   bootstrap: [AppComponent]

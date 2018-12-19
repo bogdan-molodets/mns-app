@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment.prod';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Session } from 'src/models/session';
+import { activeSession } from 'src/models/mock';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +15,9 @@ export class SessionService {
   /**
    * Retrieve a list of existing monitoring sessions
    */
-  getSessions(): Observable<any> {
-    return this.httpClient.get<any>(`${environment.apiUrl}/session`);
+  getSessions(): Promise<any> {
+    return of(activeSession).toPromise();
+    //return this.httpClient.get<any>(`${environment.apiUrl}/session`);
   }
 
   /**
