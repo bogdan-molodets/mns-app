@@ -5,7 +5,7 @@ import { SessionService } from 'src/services/session.service';
 import { MonitoringService } from 'src/services/monitoring.service';
 import { TargetService } from 'src/services/target.service';
 import { ConfigService } from 'src/services/config.service';
-import { Observable, interval } from 'rxjs';
+import { Observable, interval, from } from 'rxjs';
 import { repeatWhen, takeUntil, takeWhile } from 'rxjs/operators';
 
 declare const $: any;
@@ -15,7 +15,8 @@ declare const $: any;
   styleUrls: ['./main.component.css']
 })
 export class MainComponent implements OnInit {
-  initId:number=101;
+  initId: number = 101;
+  initSessionId: number = 10;
   // currentSession: Observable<any>;
   notification: string = '';
   // targets: Promise<any>;
@@ -53,7 +54,7 @@ export class MainComponent implements OnInit {
       ;
     //this.currentSession = this.sessionService.getActiveSession();
     //this.openedSession = this.sessionService.getOpenedSession();
-    
+
     this.notification = 'Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.'
     $('.ui.modal.creator').modal({
       closable: false,
@@ -85,19 +86,21 @@ export class MainComponent implements OnInit {
         $('.ui.modal.history').modal('show');
       }
     })
-    this.sessionService.getSessions().subscribe(res=>{
+    this.sessionService.getSessions().subscribe(res => {
       this.archiveSessions = res;
-      if(res.find(el => { return el.state == 'active' })){
+      if (res.find(el => { return el.state == 'active' })) {
         this.currentSession = res.find(el => { return el.state == 'active' });
-        this.getTargets(this.currentSession.session_id).then(res=>{
+        this.selectedSessionId = this.currentSession.session_id;
+        this.getTargets(this.currentSession.session_id).then(res => {
           this.targets = res;
         })
-      }else if(res.find(el => { return el.state == 'opened' })){
+      } else if (res.find(el => { return el.state == 'opened' })) {
         this.currentSession = res.find(el => { return el.state == 'opened' });
-        this.getTargets(this.currentSession.session_id).then(res=>{
+        this.selectedSessionId = this.currentSession.session_id;
+        this.getTargets(this.currentSession.session_id).then(res => {
           this.targets = res;
         })
-      }else{
+      } else {
         $('.ui.modal.notification').modal('show');
       }
     });
@@ -128,10 +131,18 @@ export class MainComponent implements OnInit {
     this.selectedSessionId = session_id;
   }
 
-  
-  openSession(){
+
+  openSession() {
+    this.sessionService.updateSession(this.selectedSessionId, "opened").toPromise().then(res => {
+      console.log('update to opened');
+      this.sessionService.getSessions().toPromise().then(res => {
+        this.currentSession = res.find(el => { return el.session_id == this.selectedSessionId });
+        this.selectedSessionId = this.currentSession.session_id;
+      });
+    });
+
     //this.targets = this.getTargets(this.selectedSessionId)
-    this.getTargets(this.selectedSessionId).then(res=>{
+    this.getTargets(this.selectedSessionId).then(res => {
       if (res['length'] == 0) {
         this.initId = 100;
       } else {
@@ -140,7 +151,7 @@ export class MainComponent implements OnInit {
       this.targets = res;
       $('.ui.modal.history').modal('hide');
     });
-    
+
   }
 
   getCurrentSesion() {
@@ -152,7 +163,7 @@ export class MainComponent implements OnInit {
   getTargets(session_id) {
     return new Promise((resolve, reject) => {
       //let tmp = [new Target('s1', 1, 2, 2, 'ww', 'sd', 0.2, 0.9, 0.8, '09-07-18')];
-      this.targetService.getTargetList(session_id).then(res => {
+      this.targetService.getTargetList(session_id).toPromise().then(res => {
         resolve(res);
       })
 
@@ -174,42 +185,46 @@ export class MainComponent implements OnInit {
       if (res.status == "Ok") {
         console.log("stopped");
         this.isMonitoring = false;
+        this.sessionService.updateSession(this.selectedSessionId, "opened").toPromise().then(res => {
+          console.log('update to opened');
+        });
       }
     })
   }
   runMonitoring() {
+
     this.monitoringService.runMonitoringProcess(this.selectedSessionId).toPromise().then(res => {
       if (res.status == 'Ok') {
+        this.sessionService.updateSession(this.selectedSessionId, "active").toPromise().then(res => {
+          console.log('update to active');
+        });
         this.isMonitoring = true;
-        this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
-          if (res.state == "alarm") {
-            console.log("alarm");
-          }
-          console.log(res);
-        })
+        this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+          this.targets = res;
+        });
       }
     })
   }
 
   runExistingMonitoring() {
+    this.sessionService.updateSession(this.selectedSessionId, "active").toPromise().then(res => {
+      console.log('update to active');
+    });
     this.isMonitoring = true;
-    this.monitoringService.getMonitoringProcessState("123").pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
-      if (res.state == "alarm") {
-        console.log("alarm");
-      }
-      console.log(res);
-    })
+    this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+      this.targets = res;
+    });
   }
 
   addTarget() {
 
-    this.targetService.createTarget("123", this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22")).then(res => {
+    this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22")).then(res => {
       if (res.status == 'Ok') {
         console.log('created');
-        this.getTargets(this.selectedSessionId).then(res=>{
+        this.getTargets(this.selectedSessionId).then(res => {
           this.targets = res;
         })
-        //this.targets = this.getTargets(this.selectedSessionId);
+
       }
     })
   }
@@ -228,11 +243,33 @@ export class MainComponent implements OnInit {
 
 
   deleteTarget(target: Target) {
-    this.targetService.deleteTarget("123", target.target_id, target).toPromise().then(res => {
+    this.targetService.deleteTarget(this.selectedSessionId, target.target_id, target).toPromise().then(res => {
       if (res.status == 'Ok') {
         console.log('deleted');
       }
     });
   }
+
+
+  createSession(tolerance) {
+    this.sessionService.getSessions().toPromise().then(res => {
+      if (res['length'] == 0) {
+        this.initSessionId = 10;
+      } else {
+        this.initSessionId = +res[res['length'] - 1].session_id;
+
+      }
+      let session = new Session((++this.initSessionId).toString(), "string", 0, 0, 0, "12-12-12", "opened", +$("#dopusk").val());
+      this.sessionService.createSession(session).toPromise().then(res => {
+        this.targets = [];
+        this.sessionService.getSessions().toPromise().then(res => {
+          this.currentSession = res.find(el => { return el.session_id == session.session_id });
+          this.selectedSessionId = this.currentSession.session_id;
+        });
+      });
+    });
+
+  }
+
 
 }

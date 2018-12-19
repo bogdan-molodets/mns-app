@@ -24,8 +24,8 @@ export class TargetService {
    * get list of targets by session id
    * @param sessionId 
    */
-  getTargetList(sessionId: string): Promise<any> {   
-    return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/target`).toPromise();
+  getTargetList(sessionId: string): Observable<any> {   
+    return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/target`);
   }
 
   /**

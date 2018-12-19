@@ -4,7 +4,7 @@ import { environment } from 'src/environments/environment.prod';
 import { Observable, of } from 'rxjs';
 import { Session } from 'src/models/session';
 import { activeSession, archiveSessions } from 'src/models/mock';
-import {filter, map} from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
@@ -17,14 +17,14 @@ export class SessionService {
    */
   getActiveSession(): Observable<any> {
     //return of(archiveSessions).pipe(map(val=>val.sessions.find(el => { return el.state == 'active' })))
-    return this.httpClient.get<any>(`${environment.apiUrl}/session`).pipe(map(sessions=>sessions.find(el => { return el.state == 'active' })))
+    return this.httpClient.get<any>(`${environment.apiUrl}/session`).pipe(map(sessions => sessions.find(el => { return el.state == 'active' })))
   }
 
   getOpenedSession(): Observable<any> {
-    return this.httpClient.get<any>(`${environment.apiUrl}/session`).pipe(map(sessions=>sessions.find(el => { return el.state == 'opened' })))
+    return this.httpClient.get<any>(`${environment.apiUrl}/session`).pipe(map(sessions => sessions.find(el => { return el.state == 'opened' })))
   }
 
-  getSessions():Observable<any>{
+  getSessions(): Observable<any> {
     return this.httpClient.get<any>(`${environment.apiUrl}/session`);//.pipe(map(sessions=>sessions));
     //return this.httpClient.get<any>(`${environment.apiUrl}/session`)
   }
@@ -35,7 +35,7 @@ export class SessionService {
    * @param sessionId 
    */
   createSession(session: Session): Observable<any> {
-    return this.httpClient.post<any>(`${environment.apiUrl}/session`,  session );
+    return this.httpClient.post<any>(`${environment.apiUrl}/session`, session);
   }
 
   /**
@@ -51,5 +51,9 @@ export class SessionService {
    */
   deleteSelectedSession(sessionId: string): Observable<any> {
     return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}`);
+  }
+
+  updateSession(sessionId: string, state: string): Observable<any> {
+    return this.httpClient.put<any>(`${environment.apiUrl}/session/${sessionId}`, {state:state});
   }
 }

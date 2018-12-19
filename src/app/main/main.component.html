@@ -160,15 +160,15 @@
   <div class='content'>
     <form class='ui form'>
       <div class='fields'>
-        <div class="field eight wide ui input massive"><input placeholder='Id сесії'></div>
-        <div class="field eight wide ui input massive"><input placeholder='Довірчий інтервал'></div>
+        
+        <div class="field eight wide ui input massive"><input id="dopusk" placeholder='Допуск'></div>
 
 
       </div>
     </form>
   </div>
   <div class="actions">
-    <a class='ui massive ok blue button'>Підтвердити</a>
+    <a class='ui massive ok blue button' (click)='createSession()'>Підтвердити</a>
     <!-- <a class='ui cancel button'>Повернутись</a> -->
   </div>
 </div>
