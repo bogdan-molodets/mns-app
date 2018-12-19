@@ -26,19 +26,23 @@
     <div class='ui container'>
       <form class='ui form'>
         <div class='fields'>
-          <div class="field four wide ui massive input">
+          <div class="field four  ui  input disabled">
             <input [(ngModel)]="params.x" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
               placeholder="X">
           </div>
-          <div class="field four wide ui massive input">
+          <div class="field four  ui  input disabled">
             <input [(ngModel)]="params.y" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
               placeholder="Y">
           </div>
-          <div class="field four wide ui massive input">
-            <input [(ngModel)]="params.z" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
-              placeholder="Z">
+          <div class="field four  ui  input disabled">
+            <input [(ngModel)]="params.h" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
+              placeholder="H">
           </div>
-          <div class="field four wide">
+         
+          <div class="field four">
+            <button class='ui blue button massive' (click)='getCoordinates()'>Отримати координати</button>
+          </div>
+          <div class="field four">
             <button class='ui blue button massive' (click)='addTarget()'>Додати</button>
           </div>
         </div>
@@ -61,7 +65,7 @@
         </thead>
         <tbody>
           <tr class='center aligned' *ngFor='let target of targets | async'>
-            <td class="collapsing"><div class='ui button massive blue icon' (click)='editTarget(target)'><i class="icon pencil alternate"></i></div><div class='ui button massive blue icon' (click)='deleteTarget(target)'><i class="icon trash alternate"></i></div></td>
+            <td class="collapsing"><div class='ui button massive blue icon' (click)='deleteTarget(target)'><i class="icon trash alternate"></i></div></td>
             <td><h3>{{target.target_id}}</h3></td>
             <td><h3>{{target.X0}}</h3></td>
             <td><h3>{{target.Y0}}</h3></td>

@@ -16,18 +16,17 @@ export class TargetService {
    * @param sessionId 
    * @param targetId 
    */
-  createTarget(sessionId: string, targetId: string, target: Target): Promise<any> {
-    return of(createRes).toPromise();
-    //return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { target: target });
+  createTarget(sessionId: string, targetId: string, target: Target): Promise<any> {    
+    console.log(target);
+    return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { target: target }).toPromise();
   }
 
   /**
    * get list of targets by session id
    * @param sessionId 
    */
-  getTargetList(sessionId: string): Promise<any> {
-    return of(targets).toPromise();
-    //return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/target`);
+  getTargetList(sessionId: string): Promise<any> {   
+    return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/target`).toPromise();
   }
 
   /**
@@ -58,8 +57,8 @@ export class TargetService {
    * @param target 
    */
   deleteTarget(sessionId: string, targetId: string, target: Target): Observable<any> {
-    return of(createRes);
-    //return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`);
+   
+    return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`);
     //return this.httpClient.request('delete', `${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { body: target });
   }
 

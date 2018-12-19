@@ -15,6 +15,7 @@ declare const $: any;
   styleUrls: ['./main.component.css']
 })
 export class MainComponent implements OnInit {
+  initId:number=101;
   currentSession: Observable<any>;
   notification: string = '';
   targets: Promise<any>;// = [];
@@ -30,7 +31,9 @@ export class MainComponent implements OnInit {
   params = {
     x: null,
     y: null,
-    z: null
+    h: null,
+    ha: null,
+    va: null
   }
   target = {}
   ngOnInit() {
@@ -89,7 +92,7 @@ export class MainComponent implements OnInit {
     return new Promise((resolve, reject) => {
       //let tmp = [new Target('s1', 1, 2, 2, 'ww', 'sd', 0.2, 0.9, 0.8, '09-07-18')];
       this.targetService.getTargetList("123").then(res => {
-        resolve(res.target);
+        resolve(res);
       })
 
     })
@@ -138,41 +141,25 @@ export class MainComponent implements OnInit {
   }
 
   addTarget() {
-    if (this.targetToUpdate) {
-      let updatedTarget = new Target(this.targetToUpdate.target_id,
-        this.params.x,
-        this.params.y,
-        this.params.z,
-        this.targetToUpdate.HA,
-        this.targetToUpdate.VA,
-        this.targetToUpdate.dX,
-        this.targetToUpdate.dY,
-        this.targetToUpdate.dH,
-        this.targetToUpdate.last_upd);
-      this.targetService.updateTarget("123", "1234", updatedTarget).toPromise().then(res => {
-        if (res.status == 'Ok') {
-          this.targetToUpdate = null;
-          console.log('updated');
-          this.params.x = "";
-          this.params.y = "";
-          this.params.z = "";
-        }
-      });
-    } else {
-      this.targetService.createTarget("123", "1234", new Target("124", this.params.x, this.params.y, this.params.z, "", "", 0, 0, 0, "12-12-12")).then(res => {
-        if (res.status == 'Ok') {
-          console.log('created');
-        }
-      })
-    }
+    this.targetService.createTarget("123", this.initId.toString(), new Target((this.initId++).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22")).then(res => {
+      if (res.status == 'Ok') {
+        console.log('created');
+      }
+    })
   }
 
-  editTarget(target: Target) {
-    this.targetToUpdate = target;
-    this.params.x = target.X0;
-    this.params.y = target.Y0;
-    this.params.z = target.H0;
+  getCoordinates() {
+    this.configService.getCoordinates().subscribe(res => {
+      if (res.point.X) {
+        this.params.x = res.point.X;
+        this.params.y = res.point.Y;
+        this.params.h = res.point.H;
+        this.params.ha = res.point.HA;
+        this.params.va = res.point.VA;
+      }
+    });
   }
+
 
   deleteTarget(target: Target) {
     this.targetService.deleteTarget("123", target.target_id, target).toPromise().then(res => {
