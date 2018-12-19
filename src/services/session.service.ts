@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment.prod';
 import { Observable, of } from 'rxjs';
 import { Session } from 'src/models/session';
-import { activeSession } from 'src/models/mock';
-
+import { activeSession, archiveSessions } from 'src/models/mock';
+import {filter, map} from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
@@ -13,12 +13,18 @@ export class SessionService {
   constructor(private httpClient: HttpClient) { }
 
   /**
-   * Retrieve a list of existing monitoring sessions
+   * get active session
    */
-  getSessions(): Promise<any> {
-    return of(activeSession).toPromise();
-    //return this.httpClient.get<any>(`${environment.apiUrl}/session`);
+  getActiveSession(): Observable<any> {
+    return of(activeSession).pipe(map(val=>val.sessions.find(el => { return el.state == 'active' })))
+    //return this.httpClient.get<any>(`${environment.apiUrl}/session`)
   }
+
+  getSessions():Observable<any>{
+    return of(archiveSessions).pipe(map(val=>val.sessions));
+    //return this.httpClient.get<any>(`${environment.apiUrl}/session`)
+  }
+
 
   /**
    * create new session
