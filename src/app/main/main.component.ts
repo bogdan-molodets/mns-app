@@ -36,7 +36,6 @@ export class MainComponent implements OnInit {
       .sidebar('attach events', '.menu .item.sidebarToggle')
       ;
     this.currentSession = this.getActiveSession();  
-    this.targets = this.getTargets();
     this.notification = 'Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.'
     $('.ui.modal.creator').modal({
       closable: false,
@@ -72,7 +71,15 @@ export class MainComponent implements OnInit {
         $('.ui.modal.notification').modal('hide');
         $('.ui.modal.history').modal('show');
       }
-    }).modal('show');
+    })
+    this.currentSession.then(res=>{
+      console.log(res);
+      if(typeof res == 'undefined'){
+        $('.ui.modal.notification').modal('show');
+      }else{
+        this.targets = this.getTargets(res.session_id);
+      }
+    })
   }
 
   getCurrentSesion() {
@@ -81,10 +88,10 @@ export class MainComponent implements OnInit {
     })
   }
 
-  getTargets() {
+  getTargets(session_id) {
     return new Promise((resolve, reject) => {
       //let tmp = [new Target('s1', 1, 2, 2, 'ww', 'sd', 0.2, 0.9, 0.8, '09-07-18')];
-     this.targetService.getTargetList("123").then(res=>{
+     this.targetService.getTargetList(session_id).then(res=>{
       resolve(res.target);
      })
       

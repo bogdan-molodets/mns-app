@@ -13,18 +13,18 @@
       <h1>Меню</h1>
     </a>
     <a class="item ui header sidebarToggle">
-      <h3>Відкрити</h3>
+      <h2>Відкрити</h2>
     </a>
     <a class="item ui header sidebarToggle">
-      <h3>Створити</h3>
+      <h2>Створити</h2>
     </a>
     <a class="item ui header sidebarToggle">
-      <h3>Експорт</h3>
+      <h2>Експорт</h2>
     </a>
   </div>
   <div class='pusher'>
     <div class='ui container'>
-      <form class='ui form'>
+      <form *ngIf="targets | async" class='ui form'>
         <div class='fields'>
           <div class="field four wide ui massive input">
             <input [(ngModel)]="params.x" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
@@ -44,7 +44,7 @@
         </div>
       </form>
 
-      <table class='ui blue large table celled stripped'>
+      <table *ngIf="targets | async" class='ui blue large table celled stripped'>
         <thead>
           <tr class='center aligned'>
             <th></th>
