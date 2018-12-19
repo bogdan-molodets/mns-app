@@ -26,9 +26,9 @@ export class MainComponent implements OnInit {
   }
 
   params = {
-    x: 1,
-    y: 2,
-    z: 3
+    x: null,
+    y: null,
+    z: null
   }
   target = {}
   ngOnInit() {
