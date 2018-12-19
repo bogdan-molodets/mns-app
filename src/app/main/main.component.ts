@@ -5,7 +5,8 @@ import { SessionService } from 'src/services/session.service';
 import { MonitoringService } from 'src/services/monitoring.service';
 import { TargetService } from 'src/services/target.service';
 import { ConfigService } from 'src/services/config.service';
-import { Observable } from 'rxjs';
+import { Observable, interval } from 'rxjs';
+import { repeatWhen, takeUntil, takeWhile } from 'rxjs/operators';
 
 declare const $: any;
 @Component({
@@ -17,7 +18,7 @@ export class MainComponent implements OnInit {
   currentSession: Observable<any>;
   notification: string = '';
   targets: Promise<any>;// = [];
-
+  isMonitoring: boolean = false;
   constructor(private sessionService: SessionService,
     private monitoringService: MonitoringService,
     private targetService: TargetService,
@@ -37,7 +38,7 @@ export class MainComponent implements OnInit {
       .sidebar('attach events', '.menu .item.sidebarToggle')
       ;
      
-    this.currentSession =this.sessionService.getActiveSession();// this.getActiveSession();  
+    this.currentSession = this.sessionService.getActiveSession();// this.getActiveSession();  
     this.targets = this.getTargets();
     this.notification = 'Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.'
     $('.ui.modal.creator').modal({
@@ -86,10 +87,10 @@ export class MainComponent implements OnInit {
   getTargets() {
     return new Promise((resolve, reject) => {
       //let tmp = [new Target('s1', 1, 2, 2, 'ww', 'sd', 0.2, 0.9, 0.8, '09-07-18')];
-     this.targetService.getTargetList("123").then(res=>{
-      resolve(res.target);
-     })
-      
+      this.targetService.getTargetList("123").then(res => {
+        resolve(res.target);
+      })
+
     })
   }
 
@@ -103,5 +104,28 @@ export class MainComponent implements OnInit {
 
   }
 
+  runMonitoring() {
+    this.monitoringService.runMonitoringProcess("123").toPromise().then(res => {
+      if (res.status == 'Ok') {
+        this.isMonitoring = true;
+        this.monitoringService.getMonitoringProcessState("123").pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+          if(res.state=="alarm"){
+            console.log("alarm");
+          }
+          console.log(res);
+        })
+      }
+    })
+  }
+
+  runExistingMonitoring() {
+    this.isMonitoring = true;
+    this.monitoringService.getMonitoringProcessState("123").pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+      if(res.state=="alarm"){
+        console.log("alarm");
+      }
+      console.log(res);
+    })
+  }
 
 }
