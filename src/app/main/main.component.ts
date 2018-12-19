@@ -17,6 +17,9 @@ export class MainComponent implements OnInit {
   currentSession: Observable<any>;
   notification: string = '';
   targets: Promise<any>;// = [];
+  archiveSessions: Observable<any>;
+  selectedSessionId = '';
+  openedSession: Observable<any>;
 
   constructor(private sessionService: SessionService,
     private monitoringService: MonitoringService,
@@ -36,15 +39,16 @@ export class MainComponent implements OnInit {
       .sidebar('setting', 'transition', 'overlay')
       .sidebar('attach events', '.menu .item.sidebarToggle')
       ;
-     
-    this.currentSession =this.sessionService.getActiveSession();// this.getActiveSession();  
+    $('.ui.dropdown')
+      .dropdown()
+      ;
+    this.currentSession = this.sessionService.getActiveSession();
+    this.openedSession = this.sessionService.getOpenedSession();
     this.notification = 'Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.'
     $('.ui.modal.creator').modal({
       closable: false,
       onDeny: function () {
         console.log('deny');
-        $('.ui.modal.creator').modal('hide');
-        $('.ui.modal.notification').modal('show');
       },
       onApprove: function () {
         $('.ui.modal.history').modal('hide');
@@ -53,11 +57,8 @@ export class MainComponent implements OnInit {
     $('.ui.modal.history').modal({
       closable: false,
       onDeny: function () {
-        $('.ui.modal.history').modal('hide');
-        $('.ui.modal.notification').modal('show');
       },
       onApprove: function () {
-        $('.ui.modal.history').modal('hide');
       }
     });
 
@@ -74,14 +75,36 @@ export class MainComponent implements OnInit {
         $('.ui.modal.history').modal('show');
       }
     })
-    this.currentSession.subscribe(res=>{
+    this.archiveSessions = this.sessionService.getSessions();
+    this.currentSession.subscribe(res => {
       console.log(res);
-      if(typeof res == 'undefined'){
-        $('.ui.modal.notification').modal('show');
-      }else{
+      if (typeof res == 'undefined') {
+        this.openedSession.subscribe(result=>{
+          if (typeof result == 'undefined') {
+            $('.ui.modal.notification').modal('show');
+          }else{
+            this.targets = this.getTargets(result.session_id);
+            this.selectedSessionId = result.session_id;
+          }
+        })
+      } else {
         this.targets = this.getTargets(res.session_id);
+        this.selectedSessionId = res.session_id;
       }
     })
+  }
+
+  openModalArchive(){
+    $('.ui.modal.history').modal('show');
+  }
+
+  selectSessionId(session_id){
+    this.selectedSessionId = session_id;
+  }
+
+  openSession(){
+    this.targets = this.getTargets(this.selectedSessionId)
+    $('.ui.modal.history').modal('hide');
   }
 
   getCurrentSesion() {
@@ -93,10 +116,10 @@ export class MainComponent implements OnInit {
   getTargets(session_id) {
     return new Promise((resolve, reject) => {
       //let tmp = [new Target('s1', 1, 2, 2, 'ww', 'sd', 0.2, 0.9, 0.8, '09-07-18')];
-     this.targetService.getTargetList(session_id).then(res=>{
-      resolve(res.target);
-     })
-      
+      this.targetService.getTargetList(session_id).then(res => {
+        resolve(res.target);
+      })
+
     })
   }
 

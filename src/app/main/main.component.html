@@ -1,18 +1,21 @@
 <div class="ui massive menu icon  blue inverted">
   <a class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></a>
-  <div class="ui massive header item">{{(currentSession | async)?.session_id }}</div>
-  <!--<a class="item">Submit</a>-->
-  <!--<div class="right menu">
-    <a class="item">Sign Up</a>
-    <a class="item">Help</a>
-  </div>-->
+  <div class="ui massive header item" *ngIf='currentSession | async as current; else noActiveSession'>{{current.session_id
+    }}</div>
+  <ng-template #noActiveSession>
+    <div class="ui massive header item" *ngIf='openedSession | async as current; else noOpenedSession'>{{current.session_id
+    }}</div>
+  </ng-template>
+  <ng-template #noOpenedSession>
+    <div class="ui massive header item">{{selectedSessionId}}</div>
+  </ng-template>
 </div>
 <div class='ui pushable'>
   <div class="ui left blue inline sidebar inverted vertical menu">
     <a class="item ui header sidebarToggle">
       <h1>Меню</h1>
     </a>
-    <a class="item ui header sidebarToggle">
+    <a class="item ui header sidebarToggle" (click)='openModalArchive()'>
       <h2>Відкрити</h2>
     </a>
     <a class="item ui header sidebarToggle">
@@ -48,28 +51,63 @@
         <thead>
           <tr class='center aligned'>
             <th></th>
-            <th><h2>#</h2></th>
-            <th><h2>X</h2></th>
-            <th><h2>Y</h2></th>
-            <th><h2>Z</h2></th>
-            <th><h2>&#9651;X</h2></th>
-            <th><h2>&#9651;Y</h2></th>
-            <th><h2>&#9651;Z</h2></th>
-            <th><h2>Час</h2></th>
+            <th>
+              <h2>#</h2>
+            </th>
+            <th>
+              <h2>X</h2>
+            </th>
+            <th>
+              <h2>Y</h2>
+            </th>
+            <th>
+              <h2>Z</h2>
+            </th>
+            <th>
+              <h2>&#9651;X</h2>
+            </th>
+            <th>
+              <h2>&#9651;Y</h2>
+            </th>
+            <th>
+              <h2>&#9651;Z</h2>
+            </th>
+            <th>
+              <h2>Час</h2>
+            </th>
           </tr>
 
         </thead>
         <tbody>
           <tr class='center aligned' *ngFor='let target of targets | async'>
-            <td class="collapsing"><div class='ui button massive blue icon'><i class="icon pencil alternate"></i></div><div class='ui button massive blue icon'><i class="icon trash alternate"></i></div></td>
-            <td><h3>{{target.target_id}}</h3></td>
-            <td><h3>{{target.X0}}</h3></td>
-            <td><h3>{{target.Y0}}</h3></td>
-            <td><h3>{{target.H0}}</h3></td>
-            <td><h3>{{target.dX}}</h3></td>
-            <td><h3>{{target.dY}}</h3></td>
-            <td><h3>{{target.dH}}</h3></td>
-            <td><h3>{{target.last_upd | date}}</h3></td>
+            <td class="collapsing">
+              <!--<div class='ui button massive blue icon'><i class="icon pencil alternate"></i></div>-->
+              <div class='ui button massive blue icon'><i class="icon trash alternate"></i></div>
+            </td>
+            <td>
+              <h3>{{target.target_id}}</h3>
+            </td>
+            <td>
+              <h3>{{target.X0}}</h3>
+            </td>
+            <td>
+              <h3>{{target.Y0}}</h3>
+            </td>
+            <td>
+              <h3>{{target.H0}}</h3>
+            </td>
+            <td>
+              <h3>{{target.dX}}</h3>
+            </td>
+            <td>
+              <h3>{{target.dY}}</h3>
+            </td>
+            <td>
+              <h3>{{target.dH}}</h3>
+            </td>
+            <td>
+              <h3>{{target.last_upd | date}}</h3>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -92,11 +130,24 @@
 <div class='ui modal history'>
   <div class="header">Архів сесій</div>
   <div class='content'>
+    <div class="ui fluid selection dropdown input massive">
+      <input type="hidden" name="user">
+      <i class="dropdown icon"></i>
+      <div class="default text">Оберіть Id сесії</div>
+      <div class="menu ">
+        <ng-container *ngFor='let archiveSession of archiveSessions | async'>
+          <div class="item" (click)='selectSessionId(archiveSession.session_id)'>
+            <h1>{{archiveSession.session_id}}</h1>
+          </div>
+        </ng-container>
+
+      </div>
+
+    </div>
 
   </div>
   <div class="actions">
-    <a class='ui massive ok blue button'>Підтвердити</a>
-    <!-- <a class='ui cancel button'>Повернутись</a> -->
+    <button [disabled]='selectSessionId == undefined' class='ui massive ok blue button' (click)='openSession()'>Підтвердити</button>
   </div>
 </div>
 
@@ -105,8 +156,8 @@
   <div class='content'>
     <form class='ui form'>
       <div class='fields'>
-        <div class="field eight wide"><input class='ui input' placeholder='Id сесії'></div>
-        <div class="field eight wide"><input class='ui input' placeholder='Довірчий інтервал'></div>
+        <div class="field eight wide ui input massive"><input placeholder='Id сесії'></div>
+        <div class="field eight wide ui input massive"><input placeholder='Довірчий інтервал'></div>
 
 
       </div>
@@ -118,4 +169,5 @@
   </div>
 </div>
 
-<button class='ui button circular blue massive icon play-button'><i class='icon play'></i></button>
+<button *ngIf='currentSession | async; let current = currentSession' class='ui button circular blue massive icon play-button'><i
+    [ngClass]='{square: current}' class='icon'></i></button>

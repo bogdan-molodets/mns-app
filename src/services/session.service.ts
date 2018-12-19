@@ -16,8 +16,12 @@ export class SessionService {
    * get active session
    */
   getActiveSession(): Observable<any> {
-    return of(activeSession).pipe(map(val=>val.sessions.find(el => { return el.state == 'active' })))
+    return of(archiveSessions).pipe(map(val=>val.sessions.find(el => { return el.state == 'active' })))
     //return this.httpClient.get<any>(`${environment.apiUrl}/session`)
+  }
+
+  getOpenedSession(): Observable<any> {
+    return of(archiveSessions).pipe(map(val=>val.sessions.find(el => { return el.state == 'opened' })))
   }
 
   getSessions():Observable<any>{
