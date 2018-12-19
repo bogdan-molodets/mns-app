@@ -15,13 +15,16 @@ declare const $: any;
   styleUrls: ['./main.component.css']
 })
 export class MainComponent implements OnInit {
-  initId: number = 101;
-  currentSession: Observable<any>;
+  initId:number=101;
+  // currentSession: Observable<any>;
   notification: string = '';
-  targets: Promise<any>;// = [];
-  archiveSessions: Observable<any>;
+  // targets: Promise<any>;
+  // archiveSessions: Observable<any>;
   selectedSessionId = '';
-  openedSession: Observable<any>;
+  // openedSession: Observable<any>;
+  currentSession;
+  archiveSessions;
+  targets;
 
   isMonitoring: boolean = false;
   targetToUpdate: Target = null;
@@ -48,8 +51,9 @@ export class MainComponent implements OnInit {
     $('.ui.dropdown')
       .dropdown()
       ;
-    this.currentSession = this.sessionService.getActiveSession();
-    this.openedSession = this.sessionService.getOpenedSession();
+    //this.currentSession = this.sessionService.getActiveSession();
+    //this.openedSession = this.sessionService.getOpenedSession();
+    
     this.notification = 'Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.'
     $('.ui.modal.creator').modal({
       closable: false,
@@ -81,8 +85,24 @@ export class MainComponent implements OnInit {
         $('.ui.modal.history').modal('show');
       }
     })
-    this.archiveSessions = this.sessionService.getSessions();
-    this.currentSession.subscribe(res => {
+    this.sessionService.getSessions().subscribe(res=>{
+      this.archiveSessions = res;
+      if(res.find(el => { return el.state == 'active' })){
+        this.currentSession = res.find(el => { return el.state == 'active' });
+        this.getTargets(this.currentSession.session_id).then(res=>{
+          this.targets = res;
+        })
+      }else if(res.find(el => { return el.state == 'opened' })){
+        this.currentSession = res.find(el => { return el.state == 'opened' });
+        this.getTargets(this.currentSession.session_id).then(res=>{
+          this.targets = res;
+        })
+      }else{
+        $('.ui.modal.notification').modal('show');
+      }
+    });
+    //this.archiveSessions = this.sessionService.getSessions();
+    /**this.currentSession.subscribe(res => {
       console.log(res);
       if (typeof res == 'undefined') {
         this.openedSession.subscribe(result => {
@@ -97,7 +117,7 @@ export class MainComponent implements OnInit {
         this.targets = this.getTargets(res.session_id);
         this.selectedSessionId = res.session_id;
       }
-    })
+    })**/
   }
 
   openModalArchive() {
@@ -108,16 +128,19 @@ export class MainComponent implements OnInit {
     this.selectedSessionId = session_id;
   }
 
-  openSession() {
-    this.targets = this.getTargets(this.selectedSessionId);
-    this.targets.then(res => {
+  
+  openSession(){
+    //this.targets = this.getTargets(this.selectedSessionId)
+    this.getTargets(this.selectedSessionId).then(res=>{
       if (res['length'] == 0) {
         this.initId = 100;
       } else {
         this.initId = +res[res['length'] - 1].target_id;
       }
-    })
-    $('.ui.modal.history').modal('hide');
+      this.targets = res;
+      $('.ui.modal.history').modal('hide');
+    });
+    
   }
 
   getCurrentSesion() {
@@ -183,7 +206,10 @@ export class MainComponent implements OnInit {
     this.targetService.createTarget("123", this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22")).then(res => {
       if (res.status == 'Ok') {
         console.log('created');
-        this.targets = this.getTargets(this.selectedSessionId);
+        this.getTargets(this.selectedSessionId).then(res=>{
+          this.targets = res;
+        })
+        //this.targets = this.getTargets(this.selectedSessionId);
       }
     })
   }
