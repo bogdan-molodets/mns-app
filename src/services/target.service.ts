@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment.prod';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Target } from 'src/models/target';
+import { createRes, targets, target } from 'src/models/mock';
 @Injectable({
   providedIn: 'root'
 })
@@ -15,16 +16,18 @@ export class TargetService {
    * @param sessionId 
    * @param targetId 
    */
-  createTarget(sessionId: string, targetId: string, target: Target): Observable<any> {
-    return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { target: target });
+  createTarget(sessionId: string, targetId: string, target: Target): Promise<any> {
+    return of(createRes).toPromise();
+    //return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { target: target });
   }
 
   /**
    * get list of targets by session id
    * @param sessionId 
    */
-  getTargetList(sessionId: string): Observable<any> {
-    return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/target`);
+  getTargetList(sessionId: string): Promise<any> {
+    return of(targets).toPromise();
+    //return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/target`);
   }
 
   /**
@@ -33,7 +36,8 @@ export class TargetService {
    * @param targetId 
    */
   getTargetState(sessionId: string, targetId: string): Observable<any> {
-    return this.httpClient.get(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`);
+    return of(target);
+   // return this.httpClient.get(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`);
   }
 
   /**

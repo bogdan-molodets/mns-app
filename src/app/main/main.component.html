@@ -1,6 +1,6 @@
 <div class="ui massive menu icon  blue inverted">
   <a class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></a>
-  <div class="ui massive header item">{{currentSession | async }}</div>
+  <div class="ui massive header item">{{(currentSession | async)?.session_id }}</div>
   <!--<a class="item">Submit</a>-->
   <!--<div class="right menu">
     <a class="item">Sign Up</a>

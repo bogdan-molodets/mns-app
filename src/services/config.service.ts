@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { config } from 'src/models/mock';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,8 @@ export class ConfigService {
 
 
   getCurrentConfig(): Observable<any> {
-    return this.httpClient.get<any>(`${environment.apiUrl}/config`);
+    return of(config);
+    //return this.httpClient.get<any>(`${environment.apiUrl}/config`);
   }
 
   /**

@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Session } from '../../models/session';
 import { Target } from '../../models/target';
+import { SessionService } from 'src/services/session.service';
+import { MonitoringService } from 'src/services/monitoring.service';
+import { TargetService } from 'src/services/target.service';
+import { ConfigService } from 'src/services/config.service';
 
 declare const $: any;
 @Component({
@@ -13,7 +17,10 @@ export class MainComponent implements OnInit {
   notification: string = '';
   targets: Promise<any>;// = [];
 
-  constructor() {
+  constructor(private sessionService: SessionService,
+    private monitoringService: MonitoringService,
+    private targetService: TargetService,
+    private configService: ConfigService) {
     //this.targets.push(new Target('s1',1,2,2,'ww','sd',0.2,0.9,0.8,'09-07-18'));
   }
 
@@ -28,7 +35,7 @@ export class MainComponent implements OnInit {
       .sidebar('setting', 'transition', 'overlay')
       .sidebar('attach events', '.menu .item.sidebarToggle')
       ;
-    this.currentSession = this.getCurrentSesion();
+    this.currentSession = this.getActiveSession();  
     this.targets = this.getTargets();
     this.notification = 'Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.'
     $('.ui.modal.creator').modal({
@@ -74,11 +81,24 @@ export class MainComponent implements OnInit {
     })
   }
 
-  getTargets(){
-    return new Promise((resolve, reject)=>{
-      let tmp = [new Target('s1',990,200,200,'ww','sd',0.255,0.955,0.855,'09-07-18')];
-      resolve(tmp);
+  getTargets() {
+    return new Promise((resolve, reject) => {
+      //let tmp = [new Target('s1', 1, 2, 2, 'ww', 'sd', 0.2, 0.9, 0.8, '09-07-18')];
+     this.targetService.getTargetList("123").then(res=>{
+      resolve(res.target);
+     })
+      
     })
+  }
+
+  getActiveSession() {
+    return new Promise((resolve, reject) => {
+      this.sessionService.getSessions().then(res => {
+        let activeSession = res.sessions.find(el => { return el.state == 'active' });      
+        resolve(activeSession);
+      });
+    })
+
   }
 
 
