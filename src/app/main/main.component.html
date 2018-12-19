@@ -86,7 +86,7 @@
           <tr class='center aligned' *ngFor='let target of targets | async'>
             <td class="collapsing">
               <!--<div class='ui button massive blue icon'><i class="icon pencil alternate"></i></div>-->
-              <div class='ui button massive blue icon'><i class="icon trash alternate"></i></div>
+              <div class='ui button massive blue icon' (click)='deleteTarget(target)'><i class="icon trash alternate"></i></div>
             </td>
             <td>
               <h3>{{target.target_id}}</h3>

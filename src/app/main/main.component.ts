@@ -123,7 +123,7 @@ export class MainComponent implements OnInit {
     return new Promise((resolve, reject) => {
       //let tmp = [new Target('s1', 1, 2, 2, 'ww', 'sd', 0.2, 0.9, 0.8, '09-07-18')];
       this.targetService.getTargetList(session_id).then(res => {
-        resolve(res.target);
+        resolve(res);
       })
 
     })
