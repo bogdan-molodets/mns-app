@@ -193,7 +193,7 @@ export class MainComponent implements OnInit {
 
   editMail() {
     $("#alarmEmail").val(this.currentConfig.email);
-    let updateConfig = new Config(this.currentConfig.bt_addr, $("#alarmEmail").val(), "ua");
+    let updateConfig = new Config(this.currentConfig.bt_addr, this.currentConfig.bt_name, $("#alarmEmail").val(), "ua");
     this.configService.updateConfig(updateConfig).toPromise().then(config => {
       this.configService.getCurrentConfig().toPromise().then(config => {
         // console.log(config.email);
@@ -212,10 +212,22 @@ export class MainComponent implements OnInit {
     });
   }
 
-  setBT(bt?: string) {
-    let addr = bt ? bt : this.currentConfig.bt_addr
-    this.configService.selectBT(addr).toPromise().then(bt => {
-      this.currentBT = addr;
+  setBT(bt?) {
+    let addr = bt ? bt : { adr: this.currentConfig.bt_addr, name: this.currentConfig.bt_name }
+    this.configService.selectBT(addr.adr).toPromise().then(bt => {
+      //this.currentBT = addr;
+      if (bt.status == "Ok") {
+        this.configService.updateConfig(new Config(addr.adr, addr.name, this.currentConfig.email, this.currentConfig.language)).toPromise().then(res => {
+          console.log('config updated');
+          if (res.status == "Ok") {
+            this.configService.getCurrentConfig().toPromise().then(config => {
+              this.currentConfig = config;
+              //this.configEmail = thi.email;
+              console.log('get mail');
+            });
+          }
+        });
+      }
     });
   }
 
@@ -344,7 +356,7 @@ export class MainComponent implements OnInit {
   }
 
   getCoordinates() {
-    this.configService.getCoordinates().subscribe(res => {
+    this.configService.getCoordinates(this.currentConfig.bt_addr).subscribe(res => {
       if (res.point.X) {
         this.params.x = res.point.X;
         this.params.y = res.point.Y;
