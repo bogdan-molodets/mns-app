@@ -184,6 +184,9 @@ export class MainComponent implements OnInit {
   }
 
   openMailCreation() {
+    if ($("#alarmEmail").val() == "") {
+      $("#alarmEmail").val(this.currentConfig.email);
+    }
     $('.ui.modal.email').modal('show');
   }
 
@@ -207,7 +210,7 @@ export class MainComponent implements OnInit {
   }
 
   editMail() {
-    $("#alarmEmail").val(this.currentConfig.email);
+
     let updateConfig = new Config(this.currentConfig.bt_addr, this.currentConfig.bt_name, $("#alarmEmail").val(), "ua");
     this.configService.updateConfig(updateConfig).toPromise().then(config => {
       this.configService.getCurrentConfig().toPromise().then(config => {
