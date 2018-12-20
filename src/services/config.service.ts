@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { config } from 'src/models/mock';
+import { Config } from 'src/models/config';
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +14,15 @@ export class ConfigService {
 
 
   getCurrentConfig(): Observable<any> {
-    return of(config);
-    //return this.httpClient.get<any>(`${environment.apiUrl}/config`);
+    return this.httpClient.get<any>(`${environment.apiUrl}/config`);
+  }
+
+  getBT(): Observable<any> {
+    return this.httpClient.get<any>(`${environment.apiUrl}/BT`);
+  }
+
+  selectBT(mac_addr: string): Observable<any> {
+    return this.httpClient.post<any>(`${environment.apiUrl}/BT`, {}, { params: { mac_addr: mac_addr } });
   }
 
   /**
@@ -22,11 +30,11 @@ export class ConfigService {
    * @param language 
    * @param email 
    */
-  updateConfig(language: string, email: string): Observable<any> {
-    return this.httpClient.put(`${environment.apiUrl}/config`, { config: { language: language, email: email } });
+  updateConfig(config: Config): Observable<any> {
+    return this.httpClient.put(`${environment.apiUrl}/config`, { config: config });
   }
 
-  getCoordinates():Observable<any> {
+  getCoordinates(): Observable<any> {
     return this.httpClient.get(`${environment.apiUrl}/TS/data`);
   }
 }

@@ -7,6 +7,7 @@ import { TargetService } from 'src/services/target.service';
 import { ConfigService } from 'src/services/config.service';
 import { Observable, interval, from } from 'rxjs';
 import { repeatWhen, takeUntil, takeWhile } from 'rxjs/operators';
+import { Config } from 'src/models/config';
 
 declare const $: any;
 @Component({
@@ -26,6 +27,7 @@ export class MainComponent implements OnInit {
   currentSession;
   archiveSessions;
   targets;
+  currentConfig: Config;
   configEmail;
 
   isMonitoring: boolean = false;
@@ -123,7 +125,8 @@ export class MainComponent implements OnInit {
     });
 
     this.configService.getCurrentConfig().toPromise().then(config => {
-      this.configEmail = config.email;
+      this.currentConfig = config;
+      //this.configEmail = thi.email;
       console.log('get mail');
     });
     //this.archiveSessions = this.sessionService.getSessions();
@@ -176,14 +179,20 @@ export class MainComponent implements OnInit {
   }
 
   editMail() {
-    this.configService.updateConfig("ua", $("#alarmEmail").val()).toPromise().then(config => {
+    let updateConfig = new Config(this.currentConfig.bt_addr, $("#alarmEmail").val(), "ua");
+    this.configService.updateConfig(updateConfig).toPromise().then(config => {
       this.configService.getCurrentConfig().toPromise().then(config => {
-        console.log(config.email);
-        this.configEmail = config.email;
+        // console.log(config.email);
+        this.currentConfig = config
+        // this.configEmail = config.email;
         console.log('mail updated');
       });
 
     });
+  }
+
+  getBT(){
+    
   }
 
   openSession() {
@@ -296,6 +305,11 @@ export class MainComponent implements OnInit {
     this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22")).then(res => {
       if (res.status == 'Ok') {
         console.log('created');
+        this.params.x = null;
+        this.params.y = null;
+        this.params.h = null;
+        this.params.ha = null;
+        this.params.va = null;
 
         this.getTargets(this.selectedSessionId).then(res => {
           this.targets = res;
