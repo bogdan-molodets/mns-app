@@ -179,6 +179,7 @@ export class MainComponent implements OnInit {
   }
 
   editMail() {
+    $("#alarmEmail").val(this.currentConfig.email);
     let updateConfig = new Config(this.currentConfig.bt_addr, $("#alarmEmail").val(), "ua");
     this.configService.updateConfig(updateConfig).toPromise().then(config => {
       this.configService.getCurrentConfig().toPromise().then(config => {
@@ -191,8 +192,8 @@ export class MainComponent implements OnInit {
     });
   }
 
-  getBT(){
-    
+  getBT() {
+
   }
 
   openSession() {
