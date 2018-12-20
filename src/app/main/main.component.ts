@@ -229,7 +229,9 @@ export class MainComponent implements OnInit {
   }
 
   getBT() {
+    $('.bt-devices-popup .ui.dimmer').addClass('active');
     this.configService.getBT().toPromise().then(bt => {
+      $('.bt-devices-popup .ui.dimmer').removeClass('active');
       this.currentBTDevices = bt.bt_devices;
       console.log(this.currentBTDevices);
     });
