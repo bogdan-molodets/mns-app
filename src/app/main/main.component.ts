@@ -409,7 +409,7 @@ export class MainComponent implements OnInit {
   }
 
 
-  createSession(tolerance) {
+  createSession() {
     this.sessionService.getSessions().toPromise().then(res => {
       if (res['length'] == 0) {
         this.initSessionId = 10;
