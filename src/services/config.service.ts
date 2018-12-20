@@ -31,7 +31,7 @@ export class ConfigService {
    * @param email 
    */
   updateConfig(config: Config): Observable<any> {
-    return this.httpClient.put(`${environment.apiUrl}/config`, { config: config });
+    return this.httpClient.put(`${environment.apiUrl}/config`, config);
   }
 
   getCoordinates(mac_adr:string): Observable<any> {
