@@ -26,7 +26,7 @@ export class MainComponent implements OnInit {
   // openedSession: Observable<any>;
   currentSession;
   archiveSessions;
-  currentBTBuffer;
+  currentBTBuffer = '';
   targets;
   currentConfig: Config;
   configEmail;
@@ -54,7 +54,7 @@ export class MainComponent implements OnInit {
       .sidebar('setting', 'transition', 'overlay')
       .sidebar('attach events', '.menu .item.sidebarToggle')
       ;
-    this.getBT();
+    //this.getBT();
     let that = this;
     $('.ui.checkbox').checkbox({
       onChecked: function(){
@@ -170,7 +170,11 @@ export class MainComponent implements OnInit {
       }
     })**/
   }
-  
+
+  checkDelta(target){
+    return Math.abs(target.dX) > Math.abs(this.currentSession.tolerance) || Math.abs(target.dY) > Math.abs(this.currentSession.tolerance) || Math.abs(target.dH) > Math.abs(this.currentSession.tolerance)
+  }
+
   selectBT(BTDevice){
     $('.ui.checkbox').checkbox('set unchecked');
     this.currentBTBuffer = BTDevice;

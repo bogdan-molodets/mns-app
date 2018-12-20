@@ -9,20 +9,27 @@
     <div class='ui item header item bt-devices'><i class='icon bluetooth b'></i></div>
     <div class="ui fluid popup bottom left transition hidden bt-devices-popup">
       <h1>Bluetooth прилади</h1>
+      <h3 *ngIf='currentConfig!=undefined'>Поточний прилад - {{currentConfig.bt_name}}</h3>
       <div class="ui huge blue label" *ngFor='let BTDevice of currentBTDevices' (click)='selectBT(BTDevice)'>
         <h2>{{BTDevice.name}}</h2>
       </div>
-      <div class="ui toggle large checkbox">
+      <div *ngIf='currentConfig!=undefined' class="ui toggle large checkbox">
         <input type="checkbox" name="public" checked>
         <label>
           <h3>Обрати поточний</h3>
         </label>
       </div>
-      <div *ngIf='currentBTDevices == undefined || currentBTDevices.length == 0' class="ui active inverted dimmer">
+      <!--<div *ngIf='currentBTDevices == undefined || currentBTDevices.length == 0' class="ui active inverted dimmer">
         <div class="ui large loader"></div>
+      </div>-->
+      <!--<label *ngIf='currentConfig!=undefined'>{{currentConfig.bt_name}}</label>-->
+      <div class='btn-container'>
+        <button class='ui massive button blue' (click)='getBT()'
+          tabindex="0">Пошук</button>
+        <button [disabled]='currentBTBuffer == undefined' class='ui massive button blue' (click)='currentBTBuffer!=""?setBT():setBT(currentBTBuffer)'
+          tabindex="0">Підтвердити</button>
       </div>
-      <label *ngIf='currentConfig!=undefined'>{{currentConfig.bt_name}}</label>
-      <button [disabled]='currentBTBuffer == undefined' class='ui massive button blue' (click)='currentBTBuffer!=""?setBT():setBT(currentBTBuffer)' tabindex="0">Підтвердити</button>
+
     </div>
   </div>
 
@@ -74,7 +81,7 @@
         </div>
       </form>
 
-      <table *ngIf="targets!=undefined" class='ui blue large table celled stripped'>
+      <table *ngIf="targets!=undefined" class='ui blue large table celled stripped target-table'>
         <thead>
           <tr class='center aligned'>
             <th></th>
@@ -106,7 +113,7 @@
 
         </thead>
         <tbody>
-          <tr class='center aligned' *ngFor='let target of targets'>
+          <tr class='center aligned' *ngFor='let target of targets' [ngClass]='{error:checkDelta(target)}'>
             <td class="delete-col collapsing" (click)='deleteTarget(target)'>
               <i class="icon large trash alternate"></i>
               <!--<div class='ui button massive blue icon'><i class="icon pencil alternate"></i></div>-->

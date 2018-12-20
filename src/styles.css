@@ -26,8 +26,15 @@ input{
     display: block;
     margin-bottom: 1.5em;
 }
-.bt-devices-popup .ui.button{
+.bt-devices-popup h3{
+    margin-top: .5em;
+}
+.bt-devices-popup .btn-container{
     position: absolute;
     bottom: 15px;
     right: 15px;
+}
+.ui.table.target-table td.error, .ui.table.target-table tr.error{
+    background-color: #db2828!important;
+    color: aliceblue!important;
 }
