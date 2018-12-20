@@ -172,11 +172,11 @@ export class MainComponent implements OnInit {
     })**/
   }
 
-  checkDelta(target){
+  checkDelta(target) {
     return Math.abs(target.dX) > Math.abs(this.currentSession.tolerance) || Math.abs(target.dY) > Math.abs(this.currentSession.tolerance) || Math.abs(target.dH) > Math.abs(this.currentSession.tolerance)
   }
 
-  selectBT(BTDevice){
+  selectBT(BTDevice) {
     $('.ui.checkbox').checkbox('set unchecked');
     this.currentBTBuffer = BTDevice;
   }
@@ -236,7 +236,14 @@ export class MainComponent implements OnInit {
   }
 
   setBT(bt?) {
-    let addr = bt ? bt : { adr: this.currentConfig.bt_addr, name: this.currentConfig.bt_name }
+   
+    let addr;
+    if (bt) {
+      addr = { adr: bt.mac_addr, name: bt.name };
+    } else {
+      addr = { adr: this.currentConfig.bt_addr, name: this.currentConfig.bt_name };
+    }
+    //  let addr = bt ? bt : { adr: this.currentConfig.bt_addr, name: this.currentConfig.bt_name }
     this.configService.selectBT(addr.adr).toPromise().then(bt => {
       //this.currentBT = addr;
       if (bt.status == "Ok") {
@@ -331,7 +338,7 @@ export class MainComponent implements OnInit {
   }
   runMonitoring() {
 
-    this.monitoringService.runMonitoringProcess(this.selectedSessionId,this.currentConfig.bt_addr).toPromise().then(res => {
+    this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
       if (res.status == 'Ok') {
         let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
 
