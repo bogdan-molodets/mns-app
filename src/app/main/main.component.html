@@ -4,6 +4,7 @@
     <div class="ui massive header item">ID:{{currentSession.session_id}}</div>
     <div class="ui massive header item"> Допуск: {{currentSession.tolerance}}</div>
     <div class='ui item header item' (click)='openModalEditSession()'><i class='icon pencil'></i></div>
+    <div *ngIf='state != "" 'class='ui item header'>Стан: {{state}}</div>
   </ng-container>
   <div class="right menu">
     <div class='ui item header item bt-devices'><i class='icon bluetooth b'></i></div>

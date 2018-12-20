@@ -16,8 +16,8 @@ export class MonitoringService {
    * @param sessionId 
    */
   getMonitoringProcessState(sessionId: string): Observable<any> {
-    return of(monitoringActive);
-    //return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
+    //return of(monitoringActive);
+    return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
   }
 
   /**
@@ -42,8 +42,8 @@ export class MonitoringService {
    * @param sessionId 
    */
   deleteMonitoringProcess(sessionId: string): Observable<any> {
-    return of(createRes);
-    //return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
+    //return of(createRes);
+    return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
   }
 
 

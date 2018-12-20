@@ -33,7 +33,9 @@ export class MainComponent implements OnInit {
   currentBT;
   currentBTDevices = [];
   isMonitoring: boolean = false;
+  isGettingState: boolean = false;
   targetToUpdate: Target = null;
+  state = "";
   constructor(private sessionService: SessionService,
     private monitoringService: MonitoringService,
     private targetService: TargetService,
@@ -238,7 +240,7 @@ export class MainComponent implements OnInit {
   }
 
   setBT(bt?) {
-   
+
     let addr;
     if (bt) {
       addr = { adr: bt.mac_addr, name: bt.name };
@@ -330,6 +332,8 @@ export class MainComponent implements OnInit {
       if (res.status == "Ok") {
         console.log("stopped");
         this.isMonitoring = false;
+        this.isGettingState = false;
+        this.state="";
         let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
 
         this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
@@ -342,11 +346,17 @@ export class MainComponent implements OnInit {
 
     this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
       if (res.status == 'Ok') {
+
         let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
 
         this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
           console.log('update to active');
         });
+        this.isGettingState = true;
+        this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
+          this.state = st.state;
+        });
+
         this.isMonitoring = true;
         this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
           this.targets = res;
@@ -358,9 +368,13 @@ export class MainComponent implements OnInit {
   runExistingMonitoring() {
     let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
 
+
     this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
       console.log('update to active');
-
+      this.isGettingState = true;
+      this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
+        this.state = st.state;
+      });
       this.isMonitoring = true;
       this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
         this.targets = res;
@@ -408,17 +422,27 @@ export class MainComponent implements OnInit {
     });
   }
 
+  compare(a, b) {
+    if (+a.session_id < +b.session_id)
+      return -1;
+    if (+a.session_id > +b.session_id)
+      return 1;
+    return 0;
+  }
+
 
   createSession() {
     this.sessionService.getSessions().toPromise().then(res => {
       if (res['length'] == 0) {
         this.initSessionId = 10;
       } else {
+        res.sort(this.compare);
         this.initSessionId = +res[res['length'] - 1].session_id;
 
       }
 
-      let session = new Session((++this.initSessionId).toString(), "string", 0, 0, 0, "12-12-12", "opened", +$("#dopusk").val());
+      let tmp = this.initSessionId + 1;
+      let session = new Session(tmp.toString(), "string", 0, 0, 0, "12-12-12", "opened", +$("#dopusk").val());
       this.sessionService.createSession(session).toPromise().then(res => {
         this.targets = [];
         this.sessionService.getSessions().toPromise().then(res => {
