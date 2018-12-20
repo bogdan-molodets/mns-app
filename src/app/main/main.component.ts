@@ -26,6 +26,7 @@ export class MainComponent implements OnInit {
   currentSession;
   archiveSessions;
   targets;
+  configEmail;
 
   isMonitoring: boolean = false;
   targetToUpdate: Target = null;
@@ -104,6 +105,11 @@ export class MainComponent implements OnInit {
         $('.ui.modal.notification').modal('show');
       }
     });
+
+    this.configService.getCurrentConfig().toPromise().then(config => {
+      this.configEmail = config.email;
+      console.log('get mail');
+    });
     //this.archiveSessions = this.sessionService.getSessions();
     /**this.currentSession.subscribe(res => {
       console.log(res);
@@ -130,29 +136,60 @@ export class MainComponent implements OnInit {
     $('.ui.modal.creator').modal('show');
   }
 
+  openMailCreation() {
+    $('.ui.modal.email').modal('show');
+  }
+
+  openModalEditSession() {
+    $('.ui.modal.edit.session').modal('show');
+  }
   selectSessionId(session_id) {
     this.selectedSessionId = session_id;
   }
 
+  editSession() {
+    let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, this.currentSession.state, +$("#editDopusk").val());
+
+    this.sessionService.updateSession(sessionUpdate).toPromise().then(update => {
+      if (update.stauts = "Ok") {
+        this.currentSession.tolerance = +$("#editDopusk").val();
+      }
+
+    })
+  }
+
+  editMail() {
+    this.configService.updateConfig("ua", $("#alarmEmail").val()).toPromise().then(config => {
+      this.configService.getCurrentConfig().toPromise().then(config => {
+        console.log(config.email);
+        this.configEmail = config.email;
+        console.log('mail updated');
+      });
+
+    });
+  }
 
   openSession() {
+    this.sessionService.getSessions().toPromise().then(result => {
+      this.currentSession = result.find(el => { return el.session_id == this.selectedSessionId });
+      let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
 
-    this.sessionService.updateSession(this.selectedSessionId, "opened").toPromise().then(res => {
-      console.log('update to opened');
-      this.sessionService.getSessions().toPromise().then(res => {
-        console.log('req on open');
-        this.currentSession = res.find(el => { return el.session_id == this.selectedSessionId });
-        this.selectedSessionId = this.currentSession.session_id;
+      this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
+        console.log('update to opened');
+        this.sessionService.getSessions().toPromise().then(res => {
+          console.log('req on open');
+          this.currentSession = res.find(el => { return el.session_id == this.selectedSessionId });
+          this.selectedSessionId = this.currentSession.session_id;
 
-        let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
-        if (opened) {
-          this.sessionService.updateSession(opened.session_id, "string").toPromise().then(res => { });
-        }
+          let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
+          if (opened) {
+            let sessionUpdate = new Session(opened.session_id, opened.description, +opened.lat, +opened.lon, +opened.hgt, opened.timestamp, "string", opened.tolerance);
+            this.sessionService.updateSession(sessionUpdate).toPromise().then(res => { });
+          }
 
-
+        });
       });
-    });
-
+    })
 
     //this.targets = this.getTargets(this.selectedSessionId)
     this.getTargets(this.selectedSessionId).then(res => {
@@ -198,7 +235,9 @@ export class MainComponent implements OnInit {
       if (res.status == "Ok") {
         console.log("stopped");
         this.isMonitoring = false;
-        this.sessionService.updateSession(this.selectedSessionId, "opened").toPromise().then(res => {
+        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
+
+        this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
           console.log('update to opened');
         });
       }
@@ -208,7 +247,9 @@ export class MainComponent implements OnInit {
 
     this.monitoringService.runMonitoringProcess(this.selectedSessionId).toPromise().then(res => {
       if (res.status == 'Ok') {
-        this.sessionService.updateSession(this.selectedSessionId, "active").toPromise().then(res => {
+        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
+
+        this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
           console.log('update to active');
         });
         this.isMonitoring = true;
@@ -220,7 +261,9 @@ export class MainComponent implements OnInit {
   }
 
   runExistingMonitoring() {
-    this.sessionService.updateSession(this.selectedSessionId, "active").toPromise().then(res => {
+    let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
+
+    this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
       console.log('update to active');
 
       this.isMonitoring = true;
@@ -273,13 +316,6 @@ export class MainComponent implements OnInit {
         this.initSessionId = +res[res['length'] - 1].session_id;
 
       }
-      // let openedSession = res.find(el => { return el.state == "opened" });
-      // if (openedSession) {
-      //   this.sessionService.updateSession(openedSession.session_id, "string").toPromise().then(res => {
-      //     console.log('update to string');
-      //   });
-      // }
-
 
       let session = new Session((++this.initSessionId).toString(), "string", 0, 0, 0, "12-12-12", "opened", +$("#dopusk").val());
       this.sessionService.createSession(session).toPromise().then(res => {
@@ -290,9 +326,9 @@ export class MainComponent implements OnInit {
           this.currentSession = res.find(el => { return el.session_id == session.session_id });
           this.selectedSessionId = this.currentSession.session_id;
           let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
-          console.log(opened);
+          let sessionUpdate = new Session(opened.session_id, opened.description, +opened.lat, +opened.lon, +opened.hgt, opened.timestamp, "string", opened.tolerance);
           if (opened) {
-            this.sessionService.updateSession(opened.session_id, "string").toPromise().then(res => {
+            this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
               console.log('update to string in create');
             });
           }

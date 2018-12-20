@@ -53,7 +53,7 @@ export class SessionService {
     return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}`);
   }
 
-  updateSession(sessionId: string, state: string): Observable<any> {
-    return this.httpClient.put<any>(`${environment.apiUrl}/session/${sessionId}`, {state:state});
+  updateSession(session:Session): Observable<any> {
+    return this.httpClient.put<any>(`${environment.apiUrl}/session/${session.session_id}`, session);
   }
 }
