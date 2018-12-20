@@ -29,7 +29,8 @@ export class MainComponent implements OnInit {
   targets;
   currentConfig: Config;
   configEmail;
-
+  currentBT;
+  currentBTDevices;
   isMonitoring: boolean = false;
   targetToUpdate: Target = null;
   constructor(private sessionService: SessionService,
@@ -193,7 +194,16 @@ export class MainComponent implements OnInit {
   }
 
   getBT() {
+    this.configService.getBT().toPromise().then(bt => {
+      this.currentBTDevices = bt.bt_devices;
+    });
+  }
 
+  setBT(bt?: string) {
+    let addr = bt ? bt : this.currentConfig.bt_addr
+    this.configService.selectBT(addr).toPromise().then(bt => {
+      this.currentBT = addr;
+    });
   }
 
   openSession() {
