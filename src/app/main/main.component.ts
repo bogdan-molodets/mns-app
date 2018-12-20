@@ -343,7 +343,7 @@ export class MainComponent implements OnInit {
   }
 
   getCoordinates() {
-    this.configService.getCoordinates().subscribe(res => {
+    this.configService.getCoordinates(this.currentConfig.bt_addr).subscribe(res => {
       if (res.point.X) {
         this.params.x = res.point.X;
         this.params.y = res.point.Y;

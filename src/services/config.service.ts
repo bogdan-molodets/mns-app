@@ -34,7 +34,7 @@ export class ConfigService {
     return this.httpClient.put(`${environment.apiUrl}/config`, { config: config });
   }
 
-  getCoordinates(): Observable<any> {
-    return this.httpClient.get(`${environment.apiUrl}/TS/data`);
+  getCoordinates(mac_adr:string): Observable<any> {
+    return this.httpClient.get(`${environment.apiUrl}/TS/${mac_adr}/data`);
   }
 }
