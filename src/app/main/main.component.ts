@@ -7,6 +7,7 @@ import { TargetService } from 'src/services/target.service';
 import { ConfigService } from 'src/services/config.service';
 import { Observable, interval, from } from 'rxjs';
 import { repeatWhen, takeUntil, takeWhile } from 'rxjs/operators';
+import { Config } from 'src/models/config';
 
 declare const $: any;
 @Component({
@@ -26,8 +27,10 @@ export class MainComponent implements OnInit {
   currentSession;
   archiveSessions;
   targets;
+  currentConfig: Config;
   configEmail;
-
+  currentBT;
+  currentBTDevices;
   isMonitoring: boolean = false;
   targetToUpdate: Target = null;
   constructor(private sessionService: SessionService,
@@ -92,24 +95,39 @@ export class MainComponent implements OnInit {
       if (res.find(el => { return el.state == 'active' })) {
         this.currentSession = res.find(el => { return el.state == 'active' });
         this.selectedSessionId = this.currentSession.session_id;
-        this.getTargets(this.currentSession.session_id).then(res => {
-          this.targets = res;
+        this.getTargets(this.currentSession.session_id).then(targets => {
+          if (targets['length'] == 0) {
+            this.initId = 100;
+          } else {
+            this.initId = +targets[targets['length'] - 1].target_id;
+          }
+          console.log(this.initId);
+          this.targets = targets;
+
         });
         this.runExistingMonitoring();
 
       } else if (res.find(el => { return el.state == 'opened' })) {
         this.currentSession = res.find(el => { return el.state == 'opened' });
         this.selectedSessionId = this.currentSession.session_id;
-        this.getTargets(this.currentSession.session_id).then(res => {
-          this.targets = res;
-        })
+        this.getTargets(this.currentSession.session_id).then(targets => {
+          if (targets['length'] == 0) {
+            this.initId = 100;
+          } else {
+            this.initId = +targets[targets['length'] - 1].target_id;
+          }
+          console.log(this.initId);
+          this.targets = targets;
+
+        });
       } else {
         $('.ui.modal.notification').modal('show');
       }
     });
 
     this.configService.getCurrentConfig().toPromise().then(config => {
-      this.configEmail = config.email;
+      this.currentConfig = config;
+      //this.configEmail = thi.email;
       console.log('get mail');
     });
     //this.archiveSessions = this.sessionService.getSessions();
@@ -162,13 +180,29 @@ export class MainComponent implements OnInit {
   }
 
   editMail() {
-    this.configService.updateConfig("ua", $("#alarmEmail").val()).toPromise().then(config => {
+    $("#alarmEmail").val(this.currentConfig.email);
+    let updateConfig = new Config(this.currentConfig.bt_addr, $("#alarmEmail").val(), "ua");
+    this.configService.updateConfig(updateConfig).toPromise().then(config => {
       this.configService.getCurrentConfig().toPromise().then(config => {
-        console.log(config.email);
-        this.configEmail = config.email;
+        // console.log(config.email);
+        this.currentConfig = config
+        // this.configEmail = config.email;
         console.log('mail updated');
       });
 
+    });
+  }
+
+  getBT() {
+    this.configService.getBT().toPromise().then(bt => {
+      this.currentBTDevices = bt.bt_devices;
+    });
+  }
+
+  setBT(bt?: string) {
+    let addr = bt ? bt : this.currentConfig.bt_addr
+    this.configService.selectBT(addr).toPromise().then(bt => {
+      this.currentBT = addr;
     });
   }
 
@@ -201,6 +235,7 @@ export class MainComponent implements OnInit {
       } else {
         this.initId = +res[res['length'] - 1].target_id;
       }
+      console.log(this.initId);
       this.targets = res;
       $('.ui.modal.history').modal('hide');
     });
@@ -281,6 +316,12 @@ export class MainComponent implements OnInit {
     this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22")).then(res => {
       if (res.status == 'Ok') {
         console.log('created');
+        this.params.x = null;
+        this.params.y = null;
+        this.params.h = null;
+        this.params.ha = null;
+        this.params.va = null;
+
         this.getTargets(this.selectedSessionId).then(res => {
           this.targets = res;
         })

@@ -25,8 +25,8 @@ export class MonitoringService {
    * @param sessionId 
    */
   runMonitoringProcess(sessionId: string): Observable<any> {
-    return of(createRes);
-    //return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/monprc`, {});
+    //return of(createRes);
+    return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/monprc`, {});
   }
 
   /**
