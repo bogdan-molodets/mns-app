@@ -57,27 +57,27 @@ export class MainComponent implements OnInit {
     //this.getBT();
     let that = this;
     $('.ui.checkbox').checkbox({
-      onChecked: function(){
+      onChecked: function () {
         that.currentBTBuffer = ''
       },
-      onUnchecked: function(){
+      onUnchecked: function () {
         that.currentBTBuffer = undefined
       }
-    }); 
+    });
     $('.ui.dropdown')
       .dropdown()
       ;
-      $('.right.menu .bt-devices')
+    $('.right.menu .bt-devices')
       .popup({
-        inline     : true,
-        hoverable  : true,
-        position   : 'bottom right',
+        inline: true,
+        hoverable: true,
+        position: 'bottom right',
         delay: {
           show: 300,
           hide: 800
         }
       })
-    ;
+      ;
     //this.currentSession = this.sessionService.getActiveSession();
     //this.openedSession = this.sessionService.getOpenedSession();
 
@@ -149,6 +149,7 @@ export class MainComponent implements OnInit {
 
     this.configService.getCurrentConfig().toPromise().then(config => {
       this.currentConfig = config;
+      this.setBT();
       //this.configEmail = thi.email;
       console.log('get mail');
     });
@@ -330,7 +331,7 @@ export class MainComponent implements OnInit {
   }
   runMonitoring() {
 
-    this.monitoringService.runMonitoringProcess(this.selectedSessionId).toPromise().then(res => {
+    this.monitoringService.runMonitoringProcess(this.selectedSessionId,this.currentConfig.bt_addr).toPromise().then(res => {
       if (res.status == 'Ok') {
         let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
 
