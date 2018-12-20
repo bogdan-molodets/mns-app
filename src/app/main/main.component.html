@@ -9,7 +9,7 @@
     <div class='ui item header item bt-devices'><i class='icon bluetooth b'></i></div>
     <div class="ui fluid popup bottom left transition hidden bt-devices-popup">
       <h1>Bluetooth прилади</h1>
-      <div class="ui huge blue label" *ngFor='let BTDevice of currentBTDevices'>
+      <div class="ui huge blue label" *ngFor='let BTDevice of currentBTDevices' (click)='selectBT(BTDevice)'>
         <h2>{{BTDevice.name}}</h2>
       </div>
       <div class="ui toggle large checkbox">
@@ -21,7 +21,8 @@
       <div *ngIf='currentBTDevices == undefined || currentBTDevices.length == 0' class="ui active inverted dimmer">
         <div class="ui large loader"></div>
       </div>
-      <button class='ui massive button blue' tabindex="0">Підтвердити</button>
+      <label *ngIf='currentConfig!=undefined'>{{currentConfig.bt_name}}</label>
+      <button [disabled]='currentBTBuffer == undefined' class='ui massive button blue' (click)='currentBTBuffer!=""?setBT():setBT(currentBTBuffer)' tabindex="0">Підтвердити</button>
     </div>
   </div>
 

@@ -26,6 +26,7 @@ export class MainComponent implements OnInit {
   // openedSession: Observable<any>;
   currentSession;
   archiveSessions;
+  currentBTBuffer;
   targets;
   currentConfig: Config;
   configEmail;
@@ -53,7 +54,16 @@ export class MainComponent implements OnInit {
       .sidebar('setting', 'transition', 'overlay')
       .sidebar('attach events', '.menu .item.sidebarToggle')
       ;
-    this.getBT(); 
+    this.getBT();
+    let that = this;
+    $('.ui.checkbox').checkbox({
+      onChecked: function(){
+        that.currentBTBuffer = ''
+      },
+      onUnchecked: function(){
+        that.currentBTBuffer = undefined
+      }
+    }); 
     $('.ui.dropdown')
       .dropdown()
       ;
@@ -159,6 +169,11 @@ export class MainComponent implements OnInit {
         this.selectedSessionId = res.session_id;
       }
     })**/
+  }
+  
+  selectBT(BTDevice){
+    $('.ui.checkbox').checkbox('set unchecked');
+    this.currentBTBuffer = BTDevice;
   }
 
   openModalArchive() {
