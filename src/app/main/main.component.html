@@ -1,20 +1,32 @@
 <div class="ui massive menu icon  blue inverted">
   <a class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></a>
-  <!-- *ngIf='currentSession != undefined' -->
   <ng-container *ngIf='currentSession != undefined'>
     <div class="ui massive header item">ID:{{currentSession.session_id}}</div>
     <div class="ui massive header item"> Допуск: {{currentSession.tolerance}}</div>
     <div class='ui item header item' (click)='openModalEditSession()'><i class='icon pencil'></i></div>
   </ng-container>
+  <div class="right menu">
+    <div class='ui item header item bt-devices'><i class='icon bluetooth b'></i></div>
+    <div class="ui fluid popup bottom left transition hidden bt-devices-popup">
+      <h1>Bluetooth прилади</h1>
+      <div class="ui huge blue label" *ngFor='let BTDevice of currentBTDevices'>
+        <h2>{{BTDevice.name}}</h2>
+      </div>
+      <div class="ui toggle large checkbox">
+        <input type="checkbox" name="public" checked>
+        <label>
+          <h3>Обрати поточний</h3>
+        </label>
+      </div>
+      <div *ngIf='currentBTDevices == undefined || currentBTDevices.length == 0' class="ui active inverted dimmer">
+        <div class="ui large loader"></div>
+      </div>
+      <button class='ui massive button blue' tabindex="0">Підтвердити</button>
+    </div>
+  </div>
 
-  <!-- <ng-template #noActiveSession>
-    <div class="ui massive header item" *ngIf='openedSession as current; else noOpenedSession'>{{current.session_id
-    }}</div>
-  </ng-template>
-  <ng-template #noOpenedSession>
-    <div class="ui massive header item">{{selectedSessionId}}</div>
-  </ng-template> -->
 </div>
+
 <div class='ui pushable'>
   <div class="ui left blue inline sidebar inverted vertical menu">
     <a class="item ui header sidebarToggle">

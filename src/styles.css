@@ -13,3 +13,21 @@ input{
     background: #2185d0;
     color: white;
 }
+.bt-devices-popup{
+    width: calc(100% - 100px)!important;
+    right: 50px!important;
+    min-height: 300px;
+}
+.bt-devices-popup .label{
+    margin: .1em .1285714em!important;
+}
+.bt-devices-popup .ui.toggle{
+    margin-top: .5em;
+    display: block;
+    margin-bottom: 1.5em;
+}
+.bt-devices-popup .ui.button{
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+}

@@ -30,7 +30,7 @@ export class MainComponent implements OnInit {
   currentConfig: Config;
   configEmail;
   currentBT;
-  currentBTDevices;
+  currentBTDevices = [];
   isMonitoring: boolean = false;
   targetToUpdate: Target = null;
   constructor(private sessionService: SessionService,
@@ -53,9 +53,21 @@ export class MainComponent implements OnInit {
       .sidebar('setting', 'transition', 'overlay')
       .sidebar('attach events', '.menu .item.sidebarToggle')
       ;
+    this.getBT(); 
     $('.ui.dropdown')
       .dropdown()
       ;
+      $('.right.menu .bt-devices')
+      .popup({
+        inline     : true,
+        hoverable  : true,
+        position   : 'bottom right',
+        delay: {
+          show: 300,
+          hide: 800
+        }
+      })
+    ;
     //this.currentSession = this.sessionService.getActiveSession();
     //this.openedSession = this.sessionService.getOpenedSession();
 
@@ -196,6 +208,7 @@ export class MainComponent implements OnInit {
   getBT() {
     this.configService.getBT().toPromise().then(bt => {
       this.currentBTDevices = bt.bt_devices;
+      console.log(this.currentBTDevices);
     });
   }
 
