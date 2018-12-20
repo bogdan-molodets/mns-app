@@ -1,7 +1,11 @@
 <div class="ui massive menu icon  blue inverted">
   <a class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></a>
-  <div class="ui massive header item" *ngIf='currentSession != undefined'>ID:{{currentSession.session_id}} Допуск:
-    {{currentSession.tolerance}} <button class='ui blue button' (click)='openModalEditSession()'>Редагувати</button></div>
+  <!-- *ngIf='currentSession != undefined' -->
+  <ng-container *ngIf='currentSession != undefined'>
+    <div class="ui massive header item">ID:{{currentSession.session_id}}</div>
+    <div class="ui massive header item"> Допуск: {{currentSession.tolerance}}</div>
+    <div class='ui item header item' (click)='openModalEditSession()'><i class='icon pencil'></i></div>
+  </ng-container>
 
   <!-- <ng-template #noActiveSession>
     <div class="ui massive header item" *ngIf='openedSession as current; else noOpenedSession'>{{current.session_id
@@ -90,9 +94,10 @@
         </thead>
         <tbody>
           <tr class='center aligned' *ngFor='let target of targets'>
-            <td class="collapsing">
+            <td class="delete-col collapsing" (click)='deleteTarget(target)'>
+              <i class="icon large trash alternate"></i>
               <!--<div class='ui button massive blue icon'><i class="icon pencil alternate"></i></div>-->
-              <div class='ui button massive blue icon' (click)='deleteTarget(target)'><i class="icon trash alternate"></i></div>
+              <!--<div class='ui button huge blue icon' (click)='deleteTarget(target)'><i class="icon trash alternate"></i></div>-->
             </td>
             <td>
               <h3>{{target.target_id}}</h3>

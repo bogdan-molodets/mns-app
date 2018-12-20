@@ -4,3 +4,12 @@
     bottom: 10px;
     right: 8px;
 }
+input{
+    font-size: 1.28571429rem!important;
+    font-weight: bold!important;
+    color: black!important;
+}
+.delete-col{
+    background: #2185d0;
+    color: white;
+}
