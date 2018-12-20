@@ -92,17 +92,31 @@ export class MainComponent implements OnInit {
       if (res.find(el => { return el.state == 'active' })) {
         this.currentSession = res.find(el => { return el.state == 'active' });
         this.selectedSessionId = this.currentSession.session_id;
-        this.getTargets(this.currentSession.session_id).then(res => {
-          this.targets = res;
+        this.getTargets(this.currentSession.session_id).then(targets => {
+          if (targets['length'] == 0) {
+            this.initId = 100;
+          } else {
+            this.initId = +targets[targets['length'] - 1].target_id;
+          }
+          console.log(this.initId);
+          this.targets = targets;
+
         });
         this.runExistingMonitoring();
 
       } else if (res.find(el => { return el.state == 'opened' })) {
         this.currentSession = res.find(el => { return el.state == 'opened' });
         this.selectedSessionId = this.currentSession.session_id;
-        this.getTargets(this.currentSession.session_id).then(res => {
-          this.targets = res;
-        })
+        this.getTargets(this.currentSession.session_id).then(targets => {
+          if (targets['length'] == 0) {
+            this.initId = 100;
+          } else {
+            this.initId = +targets[targets['length'] - 1].target_id;
+          }
+          console.log(this.initId);
+          this.targets = targets;
+
+        });
       } else {
         $('.ui.modal.notification').modal('show');
       }
@@ -201,6 +215,7 @@ export class MainComponent implements OnInit {
       } else {
         this.initId = +res[res['length'] - 1].target_id;
       }
+      console.log(this.initId);
       this.targets = res;
       $('.ui.modal.history').modal('hide');
     });
@@ -281,6 +296,7 @@ export class MainComponent implements OnInit {
     this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22")).then(res => {
       if (res.status == 'Ok') {
         console.log('created');
+
         this.getTargets(this.selectedSessionId).then(res => {
           this.targets = res;
         })
