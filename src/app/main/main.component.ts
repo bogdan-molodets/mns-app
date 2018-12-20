@@ -143,6 +143,7 @@ export class MainComponent implements OnInit {
   }
 
   openModalEditSession() {
+    $("#editDopusk").val(this.currentSession.tolerance);
     $('.ui.modal.edit.session').modal('show');
   }
   selectSessionId(session_id) {
