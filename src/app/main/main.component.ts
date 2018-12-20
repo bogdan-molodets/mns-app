@@ -94,7 +94,9 @@ export class MainComponent implements OnInit {
         this.selectedSessionId = this.currentSession.session_id;
         this.getTargets(this.currentSession.session_id).then(res => {
           this.targets = res;
-        })
+        });
+        this.runExistingMonitoring();
+
       } else if (res.find(el => { return el.state == 'opened' })) {
         this.currentSession = res.find(el => { return el.state == 'opened' });
         this.selectedSessionId = this.currentSession.session_id;
