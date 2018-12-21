@@ -10,19 +10,22 @@ import { Config } from 'src/models/config';
 })
 export class ConfigService {
 
-  constructor(private httpClient: HttpClient) { }
+  apiUrl = "";
+  constructor(private httpClient: HttpClient) {
+    this.apiUrl=window.location.origin+'/api';    
+   }
 
 
   getCurrentConfig(): Observable<any> {
-    return this.httpClient.get<any>(`${environment.apiUrl}/config`);
+    return this.httpClient.get<any>(`${this.apiUrl}/config`);
   }
 
   getBT(): Observable<any> {
-    return this.httpClient.get<any>(`${environment.apiUrl}/BT`);
+    return this.httpClient.get<any>(`${this.apiUrl}/BT`);
   }
 
   selectBT(mac_addr: string): Observable<any> {
-    return this.httpClient.post<any>(`${environment.apiUrl}/BT`, { mac_addr: mac_addr });
+    return this.httpClient.post<any>(`${this.apiUrl}/BT`, { mac_addr: mac_addr });
   }
 
   /**
@@ -31,10 +34,10 @@ export class ConfigService {
    * @param email 
    */
   updateConfig(config: Config): Observable<any> {
-    return this.httpClient.put(`${environment.apiUrl}/config`, config);
+    return this.httpClient.put(`${this.apiUrl}/config`, config);
   }
 
   getCoordinates(mac_adr: string): Observable<any> {
-    return this.httpClient.get(`${environment.apiUrl}/TS/${mac_adr}/data`);
+    return this.httpClient.get(`${this.apiUrl}/TS/${mac_adr}/data`);
   }
 }

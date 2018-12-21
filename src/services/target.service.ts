@@ -8,24 +8,26 @@ import { createRes, targets, target } from 'src/models/mock';
   providedIn: 'root'
 })
 export class TargetService {
-
-  constructor(private httpClient: HttpClient) { }
+  apiUrl = "";
+  constructor(private httpClient: HttpClient) {
+    this.apiUrl = window.location.origin+'/api';
+  }
 
   /**
    * create new target
    * @param sessionId 
    * @param targetId 
    */
-  createTarget(sessionId: string, targetId: string, target: Target): Promise<any> { 
-    return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/target`, target ).toPromise();
+  createTarget(sessionId: string, targetId: string, target: Target): Promise<any> {
+    return this.httpClient.post<any>(`${this.apiUrl}/session/${sessionId}/target`, target).toPromise();
   }
 
   /**
    * get list of targets by session id
    * @param sessionId 
    */
-  getTargetList(sessionId: string): Observable<any> {   
-    return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/target`);
+  getTargetList(sessionId: string): Observable<any> {
+    return this.httpClient.get<any>(`${this.apiUrl}/session/${sessionId}/target`);
   }
 
   /**
@@ -35,7 +37,7 @@ export class TargetService {
    */
   getTargetState(sessionId: string, targetId: string): Observable<any> {
     return of(target);
-   // return this.httpClient.get(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`);
+    // return this.httpClient.get(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`);
   }
 
   /**
@@ -56,8 +58,8 @@ export class TargetService {
    * @param target 
    */
   deleteTarget(sessionId: string, targetId: string, target: Target): Observable<any> {
-   
-    return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`);
+
+    return this.httpClient.delete<any>(`${this.apiUrl}/session/${sessionId}/target/${targetId}`);
     //return this.httpClient.request('delete', `${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { body: target });
   }
 

@@ -9,23 +9,25 @@ import { filter, map } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class SessionService {
-
-  constructor(private httpClient: HttpClient) { }
+  apiUrl = "";
+  constructor(private httpClient: HttpClient) {
+    this.apiUrl = window.location.origin+'/api';
+  }
 
   /**
    * get active session
    */
   getActiveSession(): Observable<any> {
     //return of(archiveSessions).pipe(map(val=>val.sessions.find(el => { return el.state == 'active' })))
-    return this.httpClient.get<any>(`${environment.apiUrl}/session`).pipe(map(sessions => sessions.find(el => { return el.state == 'active' })))
+    return this.httpClient.get<any>(`${this.apiUrl}/session`).pipe(map(sessions => sessions.find(el => { return el.state == 'active' })))
   }
 
   getOpenedSession(): Observable<any> {
-    return this.httpClient.get<any>(`${environment.apiUrl}/session`).pipe(map(sessions => sessions.find(el => { return el.state == 'opened' })))
+    return this.httpClient.get<any>(`${this.apiUrl}/session`).pipe(map(sessions => sessions.find(el => { return el.state == 'opened' })))
   }
 
   getSessions(): Observable<any> {
-    return this.httpClient.get<any>(`${environment.apiUrl}/session`);//.pipe(map(sessions=>sessions));
+    return this.httpClient.get<any>(`${this.apiUrl}/session`);//.pipe(map(sessions=>sessions));
     //return this.httpClient.get<any>(`${environment.apiUrl}/session`)
   }
 
@@ -35,14 +37,14 @@ export class SessionService {
    * @param sessionId 
    */
   createSession(session: Session): Observable<any> {
-    return this.httpClient.post<any>(`${environment.apiUrl}/session`, session);
+    return this.httpClient.post<any>(`${this.apiUrl}/session`, session);
   }
 
   /**
    * delete all sessions
    */
   deleteAllSessions(): Observable<any> {
-    return this.httpClient.delete<any>(`${environment.apiUrl}/session`);
+    return this.httpClient.delete<any>(`${this.apiUrl}/session`);
   }
 
   /**
@@ -50,10 +52,10 @@ export class SessionService {
    * @param sessionId 
    */
   deleteSelectedSession(sessionId: string): Observable<any> {
-    return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}`);
+    return this.httpClient.delete<any>(`${this.apiUrl}/session/${sessionId}`);
   }
 
-  updateSession(session:Session): Observable<any> {
-    return this.httpClient.put<any>(`${environment.apiUrl}/session/${session.session_id}`, session);
+  updateSession(session: Session): Observable<any> {
+    return this.httpClient.put<any>(`${this.apiUrl}/session/${session.session_id}`, session);
   }
 }

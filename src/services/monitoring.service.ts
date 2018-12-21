@@ -8,8 +8,10 @@ import { createRes, monitoringActive } from 'src/models/mock';
   providedIn: 'root'
 })
 export class MonitoringService {
-
-  constructor(private httpClient: HttpClient) { }
+  apiUrl = "";
+  constructor(private httpClient: HttpClient) {
+    this.apiUrl=window.location.origin+'/api';  
+   }
 
   /**
    * get monitoring process state
@@ -17,7 +19,7 @@ export class MonitoringService {
    */
   getMonitoringProcessState(sessionId: string): Observable<any> {
     //return of(monitoringActive);
-    return this.httpClient.get<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
+    return this.httpClient.get<any>(`${this.apiUrl}/session/${sessionId}/monprc`);
   }
 
   /**
@@ -26,7 +28,7 @@ export class MonitoringService {
    */
   runMonitoringProcess(sessionId: string, mac_addr: string): Observable<any> {
     //return of(createRes);
-    return this.httpClient.post<any>(`${environment.apiUrl}/session/${sessionId}/monprc`, { mac_addr: mac_addr });
+    return this.httpClient.post<any>(`${this.apiUrl}/session/${sessionId}/monprc`, { mac_addr: mac_addr });
   }
 
   /**
@@ -35,7 +37,7 @@ export class MonitoringService {
    * @param state 
    */
   updateMonitoringProcess(sessionId: string, state: string): Observable<any> {
-    return this.httpClient.put<any>(`${environment.apiUrl}/session/${sessionId}/monprc`, { state: state });
+    return this.httpClient.put<any>(`${this.apiUrl}/session/${sessionId}/monprc`, { state: state });
   }
   /**
    * delete monitoring process
@@ -43,7 +45,7 @@ export class MonitoringService {
    */
   deleteMonitoringProcess(sessionId: string): Observable<any> {
     //return of(createRes);
-    return this.httpClient.delete<any>(`${environment.apiUrl}/session/${sessionId}/monprc`);
+    return this.httpClient.delete<any>(`${this.apiUrl}/session/${sessionId}/monprc`);
   }
 
 
