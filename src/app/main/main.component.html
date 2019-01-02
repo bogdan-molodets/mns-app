@@ -7,19 +7,20 @@
     <div *ngIf='state != "" 'class='ui item header'>Стан: {{state}}</div>
   </ng-container>
   <div class="right menu">
-    <div class='ui item header item bt-devices'><i class='icon bluetooth b'></i></div>
+    <div class='ui item header item bt-devices'><i [ngClass]='{green: currentConfig!=undefined, red: currentConfig==undefined}'class='icon bluetooth b'></i></div>
     <div class="ui fluid popup bottom left transition hidden bt-devices-popup">
       <h1>Bluetooth прилади</h1>
+      <i class='blue huge x icon' data-content='Top Right' dat-position='top right' (click)='closeBTPopup()'></i>
       <h3 *ngIf='currentConfig!=undefined'>Поточний прилад - {{currentConfig.bt_name}}</h3>
-      <div class="ui huge blue label" *ngFor='let BTDevice of currentBTDevices' (click)='selectBT(BTDevice)'>
+      <div class="ui huge blue button" *ngFor='let BTDevice of currentBTDevices; let i = index' id='{{i}}' (click)='selectBT(BTDevice, i)'>
         <h2>{{BTDevice.name}}</h2>
       </div>
-      <div *ngIf='currentConfig!=undefined' class="ui toggle large checkbox">
+      <!--<div *ngIf='currentConfig!=undefined' class="ui toggle large checkbox">
         <input type="checkbox" name="public" checked>
         <label>
           <h3>Обрати поточний</h3>
         </label>
-      </div>
+      </div>-->
       <div class="ui inverted dimmer ">
         <div class="ui large loader"></div>
       </div>
@@ -27,8 +28,8 @@
       <div class='btn-container'>
         <button class='ui massive button blue' (click)='getBT()'
           tabindex="0">Пошук</button>
-        <button [disabled]='currentBTBuffer == undefined' class='ui massive button blue' (click)='currentBTBuffer!=""?setBT():setBT(currentBTBuffer)'
-          tabindex="0">Підтвердити</button>
+        <button class='ui massive button blue' (click)='setBT(currentBTBuffer)'
+          tabindex="0" [attr.disabled]='(currentBTBuffer == undefined || isEmpty(currentBTBuffer))? true : null'>Підтвердити</button>
       </div>
 
     </div>
@@ -201,7 +202,7 @@
   </div>
   <div class="actions">
     <a class='ui massive ok blue button' (click)='createSession()'>Підтвердити</a>
-    <!-- <a class='ui cancel button'>Повернутись</a> -->
+    <a class='ui massive cancel button'>Відміна</a>
   </div>
 </div>
 <div class='ui modal email'>
@@ -236,6 +237,16 @@
   <div class="actions">
     <a class='ui massive ok blue button' (click)='editSession()'>Підтвердити</a>
     <!-- <a class='ui cancel button'>Повернутись</a> -->
+  </div>
+</div>
+<div class='ui modal warning'>
+  <div class="header">Змінити поточну сесію</div>
+  <div class='content'>
+    <h3 class='ui header'>Ви хочете змінити поточну сесію?</h3>
+  </div>
+  <div class='actions'>
+    <a class='ui massive cancel button'>Відміна</a>
+    <a class='ui massive blue ok button' (click)='openOtherSession()'>Продовжити</a>
   </div>
 </div>
 <div *ngIf="!isMonitoring && targets!=undefined && targets.length!=0">

@@ -26,7 +26,7 @@ export class MainComponent implements OnInit {
   // openedSession: Observable<any>;
   currentSession;
   archiveSessions;
-  currentBTBuffer = '';
+  currentBTBuffer = {};
   targets;
   currentConfig: Config;
   configEmail;
@@ -58,26 +58,23 @@ export class MainComponent implements OnInit {
       ;
     //this.getBT();
     let that = this;
-    $('.ui.checkbox').checkbox({
+    /**$('.ui.checkbox').checkbox({
       onChecked: function () {
         that.currentBTBuffer = ''
       },
       onUnchecked: function () {
         that.currentBTBuffer = undefined
       }
-    });
+    });**/
     $('.ui.dropdown')
       .dropdown()
       ;
     $('.right.menu .bt-devices')
       .popup({
         inline: true,
-        hoverable: true,
+        hoverable: false,
         position: 'bottom right',
-        delay: {
-          show: 300,
-          hide: 800
-        }
+        on: 'click'
       })
       ;
     //this.currentSession = this.sessionService.getActiveSession();
@@ -113,6 +110,11 @@ export class MainComponent implements OnInit {
         $('.ui.modal.notification').modal('hide');
         $('.ui.modal.history').modal('show');
       }
+    })
+    $('.ui.modal.warning').modal({
+      closable: false,
+      onDeny: function(){},
+      onApprove: function(){}
     })
     this.sessionService.getSessions().subscribe(res => {
       this.archiveSessions = res;
@@ -177,24 +179,63 @@ export class MainComponent implements OnInit {
   checkDelta(target) {
     return Math.abs(target.dX) > Math.abs(this.currentSession.tolerance) || Math.abs(target.dY) > Math.abs(this.currentSession.tolerance) || Math.abs(target.dH) > Math.abs(this.currentSession.tolerance)
   }
-
-  selectBT(BTDevice) {
-    $('.ui.checkbox').checkbox('set unchecked');
-    this.currentBTBuffer = BTDevice;
+  isEmpty(obj){
+    return Object.keys(obj).length === 0;
+  }
+  selectBT(BTDevice, index) {
+    //$('.ui.checkbox').checkbox('set unchecked');
+    this.currentBTBuffer = {};
+    let addr;
+    addr = { adr: BTDevice.mac_addr, name: BTDevice.name };
+    $(`.bt-devices-popup .ui.button`).removeClass('loading').removeClass('green').removeClass('red').addClass('blue');
+    $(`#${index}`).removeClass('blue').addClass('loading').addClass('yellow');
+    this.configService.selectBT(addr.adr).toPromise().then(bt => {
+      if (bt.status == "Ok") {
+        $(`#${index}`).removeClass('yellow').removeClass('loading').addClass('green');
+        this.currentBTBuffer = bt;
+        this.currentBTBuffer['name'] = BTDevice.name;
+        //console.log(`Buffer: ${this.currentBTBuffer}`)
+      }else{
+        $(`#${index}`).removeClass('yellow').removeClass('loading').addClass('red');
+      }
+    }, err=>{
+      console.log('error');
+      $(`#${index}`).removeClass('yellow').removeClass('loading').addClass('red');
+    });      
+    //this.configService.selectBT(addr.adr).toPromise().then(bt => {
+    //  if (bt.status == "Ok") {
   }
 
   openModalArchive() {
-    $('.ui.modal.history').modal('show');
+    setTimeout(()=>{
+      if(this.currentSession == undefined){
+        $('.ui.modal.history').modal('show');
+      }else{
+        $('.ui.modal.warning').modal('show');
+      }
+    }, 2000)
+    
+
   }
+
+  closeBTPopup(){
+    $('.right.menu .bt-devices').popup('hide');
+  }
+
   openSessionCreation() {
-    $('.ui.modal.creator').modal('show');
+    setTimeout(()=>{
+      this.stopMonitoring();
+      $('.ui.modal.creator').modal('show');
+    }, 2000);
   }
 
   openMailCreation() {
-    if ($("#alarmEmail").val() == "") {
-      $("#alarmEmail").val(this.currentConfig.email);
-    }
-    $('.ui.modal.email').modal('show');
+    setTimeout(()=>{
+      if ($("#alarmEmail").val() == "") {
+        $("#alarmEmail").val(this.currentConfig.email);
+      }
+      $('.ui.modal.email').modal('show');
+    }, 2000);
   }
 
   openModalEditSession() {
@@ -236,33 +277,54 @@ export class MainComponent implements OnInit {
       $('.bt-devices-popup .ui.dimmer').removeClass('active');
       this.currentBTDevices = bt.bt_devices;
       console.log(this.currentBTDevices);
+    },err=>{
+      $('.bt-devices-popup .ui.dimmer').removeClass('active');
     });
   }
 
   setBT(bt?) {
 
-    let addr;
-    if (bt) {
-      addr = { adr: bt.mac_addr, name: bt.name };
-    } else {
-      addr = { adr: this.currentConfig.bt_addr, name: this.currentConfig.bt_name };
-    }
-    //  let addr = bt ? bt : { adr: this.currentConfig.bt_addr, name: this.currentConfig.bt_name }
-    this.configService.selectBT(addr.adr).toPromise().then(bt => {
-      //this.currentBT = addr;
-      if (bt.status == "Ok") {
-        this.configService.updateConfig(new Config(addr.adr, addr.name, this.currentConfig.email, this.currentConfig.language)).toPromise().then(res => {
-          console.log('config updated');
-          if (res.status == "Ok") {
-            this.configService.getCurrentConfig().toPromise().then(config => {
-              this.currentConfig = config;
-              //this.configEmail = thi.email;
-              console.log('get mail');
-            });
-          }
-        });
+    // let addr;
+    // if (bt) {
+    //   addr = { adr: bt.mac_addr, name: bt.name };
+    // } else {
+    //   addr = { adr: this.currentConfig.bt_addr, name: this.currentConfig.bt_name };
+    // }
+    // //  let addr = bt ? bt : { adr: this.currentConfig.bt_addr, name: this.currentConfig.bt_name }
+    // this.configService.selectBT(addr.adr).toPromise().then(bt => {
+    //   //this.currentBT = addr;
+    //   if (bt.status == "Ok") {
+    //     this.configService.updateConfig(new Config(addr.adr, addr.name, this.currentConfig.email, this.currentConfig.language)).toPromise().then(res => {
+    //       console.log('config updated');
+    //       if (res.status == "Ok") {
+    //         this.configService.getCurrentConfig().toPromise().then(config => {
+    //           this.currentConfig = config;
+    //           //this.configEmail = thi.email;
+    //           console.log('get mail');
+    //         });
+    //       }
+    //     });
+    //   }
+    // });
+    console.log(bt);
+   let  addr = { adr: bt.dev_id, name: bt.name };
+    this.configService.updateConfig(new Config(addr.adr, addr.name, this.currentConfig.email, this.currentConfig.language)).toPromise().then(res => {
+      this.currentBTBuffer = {}
+      if (res.status == 'Ok'){
+        this.configService.getCurrentConfig().toPromise().then(config => {
+          this.currentConfig = config;
+          console.log('get mail');
+        })
       }
+
+    }, err=>{
+      this.currentBTBuffer = {}
     });
+  }
+
+  openOtherSession(){
+    this.stopMonitoring()
+    $('.ui.modal.history').modal('show');
   }
 
   openSession() {

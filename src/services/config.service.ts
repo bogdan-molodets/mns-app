@@ -12,7 +12,7 @@ export class ConfigService {
 
   apiUrl = "";
   constructor(private httpClient: HttpClient) {
-    this.apiUrl=window.location.origin+'/api';    
+    this.apiUrl='http://192.168.0.254:5000/api';    
    }
 
 
