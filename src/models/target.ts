@@ -11,7 +11,8 @@ export class Target {
         readonly dX: number,
         readonly dY: number,
         readonly dH: number,
-        readonly last_upd: string
+        readonly last_upd: string,
+        readonly type:string
     ) {
 
 
@@ -29,6 +30,7 @@ export class TargetSerializer {
             input.dX,
             input.dY,
             input.dH,
-            input.last_upd)
+            input.last_upd,
+            input.type)
     }
 }
