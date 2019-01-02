@@ -11,7 +11,7 @@ import { filter, map } from 'rxjs/operators';
 export class SessionService {
   apiUrl = "";
   constructor(private httpClient: HttpClient) {
-    this.apiUrl='http://192.168.0.254:5000/api'; 
+    this.apiUrl= window.location.origin + '/api'; 
   }
 
   /**
