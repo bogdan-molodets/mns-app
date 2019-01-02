@@ -194,6 +194,7 @@ export class MainComponent implements OnInit {
         $(`#${index}`).removeClass('yellow').removeClass('loading').addClass('green');
         this.currentBTBuffer = bt;
         this.currentBTBuffer['name'] = BTDevice.name;
+        this.currentBTBuffer['mac_addr'] = BTDevice.mac_addr;
         //console.log(`Buffer: ${this.currentBTBuffer}`)
       }else{
         $(`#${index}`).removeClass('yellow').removeClass('loading').addClass('red');
@@ -307,7 +308,7 @@ export class MainComponent implements OnInit {
     //   }
     // });
     console.log(bt);
-   let  addr = { adr: bt.dev_id, name: bt.name };
+   let  addr = { adr: bt.mac_addr, name: bt.name };
     this.configService.updateConfig(new Config(addr.adr, addr.name, this.currentConfig.email, this.currentConfig.language)).toPromise().then(res => {
       this.currentBTBuffer = {}
       if (res.status == 'Ok'){
