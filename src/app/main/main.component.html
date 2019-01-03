@@ -4,10 +4,11 @@
     <div class="ui massive header item">ID:{{currentSession.session_id}}</div>
     <div class="ui massive header item"> Допуск: {{currentSession.tolerance}}</div>
     <div class='ui item header item' (click)='openModalEditSession()'><i class='icon pencil'></i></div>
-    <div *ngIf='state != "" 'class='ui item header'>Стан: {{state}}</div>
+    <div *ngIf='state != "" ' class='ui item header'>Стан: {{state}}</div>
   </ng-container>
   <div class="right menu">
-    <div class='ui item header item bt-devices'><i [ngClass]='{green: currentConfig!=undefined, red: currentConfig==undefined}'class='icon bluetooth b'></i></div>
+    <div class='ui item header item bt-devices'><i [ngClass]='{green: (connectBT && currentConfig!=undefined), red: (!connectBT || currentConfig==undefined)}'
+        class='icon bluetooth b'></i></div>
     <div class="ui fluid popup bottom left transition hidden bt-devices-popup">
       <h1>Bluetooth прилади</h1>
       <i class='blue huge x icon' data-content='Top Right' dat-position='top right' (click)='closeBTPopup()'></i>
@@ -26,10 +27,8 @@
       </div>
       <!--<label *ngIf='currentConfig!=undefined'>{{currentConfig.bt_name}}</label>-->
       <div class='btn-container'>
-        <button class='ui massive button blue' (click)='getBT()'
-          tabindex="0">Пошук</button>
-        <button class='ui massive button blue' (click)='setBT(currentBTBuffer)'
-          tabindex="0" [attr.disabled]='(currentBTBuffer == undefined || isEmpty(currentBTBuffer))? true : null'>Підтвердити</button>
+        <button class='ui massive button blue' (click)='getBT()' tabindex="0">Пошук</button>
+        <button class='ui massive button blue' (click)='setBT(currentBTBuffer)' tabindex="0" [attr.disabled]='(currentBTBuffer == undefined || isEmpty(currentBTBuffer))? true : null'>Підтвердити</button>
       </div>
 
     </div>
@@ -61,19 +60,21 @@
     <div class='ui container'>
       <form *ngIf="targets!=undefined" class='ui form'>
         <div class='fields'>
-          <div class="field four  ui  input disabled">
+          <div class="field three  ui  input disabled">
             <input [(ngModel)]="params.x" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
               placeholder="X">
           </div>
-          <div class="field four  ui  input disabled">
+          <div class="field three  ui  input disabled">
             <input [(ngModel)]="params.y" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
               placeholder="Y">
           </div>
-          <div class="field four  ui  input disabled">
+          <div class="field three  ui  input disabled">
             <input [(ngModel)]="params.h" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
               placeholder="H">
           </div>
-
+          <div class="field three">
+            <button class='ui blue button massive' (click)='changeTargetType(params.type)'>{{params.type}}</button>
+          </div>
           <div class="field four">
             <button class='ui blue button massive' (click)='getCoordinates()'>Поміряти</button>
           </div>
@@ -143,7 +144,7 @@
               <h3>{{target.dH.toFixed(4)}}</h3>
             </td>
             <td>
-              <h3>{{target.last_upd | date:'short'}}</h3>
+              <h3>{{target.last_upd | date:'medium'}}</h3>
             </td>
           </tr>
         </tbody>

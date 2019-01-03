@@ -8,6 +8,7 @@ import { ConfigService } from 'src/services/config.service';
 import { Observable, interval, from } from 'rxjs';
 import { repeatWhen, takeUntil, takeWhile } from 'rxjs/operators';
 import { Config } from 'src/models/config';
+import { TargetType } from 'src/models/types';
 
 declare const $: any;
 @Component({
@@ -18,12 +19,9 @@ declare const $: any;
 export class MainComponent implements OnInit {
   initId: number = 101;
   initSessionId: number = 10;
-  // currentSession: Observable<any>;
   notification: string = '';
-  // targets: Promise<any>;
-  // archiveSessions: Observable<any>;
   selectedSessionId = '';
-  // openedSession: Observable<any>;
+  connectBT = false;
   currentSession;
   archiveSessions;
   currentBTBuffer = {};
@@ -48,7 +46,8 @@ export class MainComponent implements OnInit {
     y: null,
     h: null,
     ha: null,
-    va: null
+    va: null,
+    type: 'prism'
   }
   target = {}
   ngOnInit() {
@@ -153,9 +152,15 @@ export class MainComponent implements OnInit {
 
     this.configService.getCurrentConfig().toPromise().then(config => {
       this.currentConfig = config;
-      this.setBT();
+      console.log(this.currentConfig);
+      this.configService.selectBT(this.currentConfig.bt_addr).toPromise().then(bt => {
+        if (bt.status == "Ok") {
+          this.connectBT = true;
+        }
+        console.log(this.connectBT)
+      },err=>{this.connectBT = false;});
       //this.configEmail = thi.email;
-      console.log('get mail');
+      //console.log('get mail');
     });
     //this.archiveSessions = this.sessionService.getSessions();
     /**this.currentSession.subscribe(res => {
@@ -174,6 +179,10 @@ export class MainComponent implements OnInit {
         this.selectedSessionId = res.session_id;
       }
     })**/
+  }
+  changeTargetType(type){
+    let index = TargetType.findIndex((el)=>{return el == type});
+    this.params.type = TargetType[(index+1 < TargetType.length)?index+1:0]
   }
 
   checkDelta(target) {
@@ -312,9 +321,9 @@ export class MainComponent implements OnInit {
     this.configService.updateConfig(new Config(addr.adr, addr.name, this.currentConfig.email, this.currentConfig.language)).toPromise().then(res => {
       this.currentBTBuffer = {}
       if (res.status == 'Ok'){
+        this.connectBT = true;
         this.configService.getCurrentConfig().toPromise().then(config => {
           this.currentConfig = config;
-          console.log('get mail');
         })
       }
 
@@ -447,7 +456,7 @@ export class MainComponent implements OnInit {
 
   addTarget() {
 
-    this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22","prism")).then(res => {
+    this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22", this.params.type)).then(res => {
       if (res.status == 'Ok') {
         console.log('created');
         this.params.x = null;
@@ -465,7 +474,7 @@ export class MainComponent implements OnInit {
   }
 
   getCoordinates() {
-    this.configService.getCoordinates(this.currentConfig.bt_addr).subscribe(res => {
+    this.configService.getCoordinates(this.currentConfig.bt_addr, this.params.type).subscribe(res => {
       if (res.point.X) {
         this.params.x = res.point.X;
         this.params.y = res.point.Y;
