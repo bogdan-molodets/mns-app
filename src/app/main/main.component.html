@@ -183,7 +183,7 @@
       <div class="menu ">
         <ng-container *ngFor='let archiveSession of archiveSessions'>
           <div class="item" (click)='selectSessionId(archiveSession.session_id)'>
-            <h1>{{archiveSession.session_id}}</h1>
+            <h1>{{archiveSession.session_id}} , {{archiveSession.timestamp}}<br>{{archiveSession.description}}</h1>
           </div>
         </ng-container>
 
@@ -193,6 +193,7 @@
 
   </div>
   <div class="actions">
+    <button *ngIf='currentSession != undefined' class='ui massive cancel button' >Відміна</button>
     <button [disabled]='selectSessionId == undefined' class='ui massive ok blue button' (click)='openSession()'>Підтвердити</button>
     <a class='ui massive cancel button'>Відмінити</a>
   </div>
