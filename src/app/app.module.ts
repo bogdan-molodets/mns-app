@@ -8,11 +8,13 @@ import { MonitoringService } from 'src/services/monitoring.service';
 import { TargetService } from 'src/services/target.service';
 import { SessionService } from 'src/services/session.service';
 import { HttpClientModule } from '@angular/common/http';
+import { FilterPipe } from './filter.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MainComponent
+    MainComponent,
+    FilterPipe
   ],
   imports: [
     BrowserModule,

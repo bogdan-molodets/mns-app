@@ -1,14 +1,15 @@
 <div class="ui massive menu icon  blue inverted">
-  <a class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></a>
+  <button [attr.disabled]='isMonitoring?true:null' class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></button>
   <ng-container *ngIf='currentSession != undefined'>
     <div class="ui massive header item">ID:{{currentSession.session_id}}</div>
     <div class="ui massive header item"> Допуск: {{currentSession.tolerance}}</div>
-    <div class='ui item header item' (click)='openModalEditSession()'><i class='icon pencil'></i></div>
+    <button [attr.disabled]='isMonitoring?true:null' class='ui item header item' (click)='openModalEditSession()'><i
+        class='icon pencil'></i></button>
     <div *ngIf='state != "" ' class='ui item header'>Стан: {{state}}</div>
   </ng-container>
   <div class="right menu">
-    <div class='ui item header item bt-devices'><i [ngClass]='{green: (connectBT && currentConfig!=undefined), red: (!connectBT || currentConfig==undefined)}'
-        class='icon bluetooth b'></i></div>
+    <button [attr.disabled]='isMonitoring?true:null' class='ui item header item bt-devices'><i [ngClass]='{green: (connectBT && currentConfig!=undefined), red: (!connectBT || currentConfig==undefined)}'
+        class='icon bluetooth b'></i></button>
     <div class="ui fluid popup bottom left transition hidden bt-devices-popup">
       <h1>Bluetooth прилади</h1>
       <i class='blue huge x icon' data-content='Top Right' dat-position='top right' (click)='closeBTPopup()'></i>
@@ -46,6 +47,12 @@
     </a>
     <a class="item ui header sidebarToggle" (click)='openSessionCreation()'>
       <h2>Створити</h2>
+    </a>
+    <a class="item ui header sidebarToggle" (click)='openSessionDeletion()'>
+      <h2>Видалити</h2>
+    </a>
+    <a class="item ui header sidebarToggle" (click)='openSessionClosing()'>
+      <h2>Завершити роботу</h2>
     </a>
     <a class="item ui header sidebarToggle">
       <h2>Експорт</h2>
@@ -118,7 +125,8 @@
         <tbody>
           <tr class='center aligned' *ngFor='let target of targets' [ngClass]='{error:checkDelta(target)}'>
             <td class="delete-col collapsing" (click)='deleteTarget(target)'>
-              <i class="icon large trash alternate"></i>
+              <button [attr.disabled]='isMonitoring?true:null'>
+                <i class="icon large trash alternate"></i></button>
               <!--<div class='ui button massive blue icon'><i class="icon pencil alternate"></i></div>-->
               <!--<div class='ui button huge blue icon' (click)='deleteTarget(target)'><i class="icon trash alternate"></i></div>-->
             </td>
@@ -186,6 +194,7 @@
   </div>
   <div class="actions">
     <button [disabled]='selectSessionId == undefined' class='ui massive ok blue button' (click)='openSession()'>Підтвердити</button>
+    <a class='ui massive cancel button'>Відмінити</a>
   </div>
 </div>
 
@@ -193,31 +202,65 @@
   <div class="header">Створити нову сесію</div>
   <div class='content'>
     <form class='ui form'>
-      <div class='fields'>
+      <!-- <div class='fields'> -->
 
-        <div class="field eight wide ui input massive"><input value="0.01" id="dopusk" placeholder='Допуск'></div>
-
-
+      <div class="field">
+        <label>Допуск</label>
+        <input value="0.01" id="dopusk" pattern="[0-9]{1,4}" type="number" required>
       </div>
+      <div class="field">
+        <label>Опис</label>
+        <textarea id="description" rows="1" maxlength="50" required></textarea>
+      </div>
+
+      <!-- </div> -->
     </form>
   </div>
   <div class="actions">
     <a class='ui massive ok blue button' (click)='createSession()'>Підтвердити</a>
-    <a class='ui massive cancel button'>Відміна</a>
+    <a class='ui massive cancel button'>Відмінити</a>
   </div>
 </div>
 <div class='ui modal email'>
   <div class="header">Редагування пошти</div>
   <div class='content'>
     <form class='ui form'>
-      <div class='fields'>
-        <div class="field ten wide ui input massive"><input id="alarmEmail" type="email" placeholder='Електронна пошта'
-            required></div>
+
+      <div class="field ">
+        <label>Електронна пошта</label>
+        <input id="alarmEmail" type="email">
+      </div>
+      <div class="field ">
+        <label>Поштовий сервер</label>
+        <input id="mailServer">
+      </div>
+      <div class="field ">
+        <label>Порт</label>
+        <input id="mailPort">
+      </div>
+      <div class="field ">
+        <label>Логін</label>
+        <input id="mailLogin">
+      </div>
+      <div class="field ">
+        <label>Пароль</label>
+        <input id="mailPassword" type="password">
+      </div>
+      <div class="inline fields">
+        <div class="field ">
+          <label>SSL</label>
+          <input id="mailSsl" type="checkbox">
+        </div>
+        <div class="field ">
+          <label>TLS</label>
+          <input id="mailTls" type="checkbox">
+        </div>
       </div>
     </form>
   </div>
   <div class="actions">
     <a class='ui massive ok blue button' (click)='editMail()'>Підтвердити</a>
+    <a class='ui massive cancel button'>Відмінити</a>
     <!-- <a class='ui cancel button'>Повернутись</a> -->
   </div>
 </div>
@@ -225,18 +268,22 @@
   <div class="header">Редагування допуску</div>
   <div class='content'>
     <form class='ui form'>
-      <div class='fields'>
 
-        <div class="field eight wide ui input massive">
-          <input id="editDopusk" pattern="[0-9]{1,4}" type="number" placeholder='Допуск'>
-
-        </div>
+      <div class="field ">
+        <label>Допуск</label>
+        <input id="editDopusk" pattern="[0-9]{1,4}" type="number">
 
       </div>
+      <div class="field">
+        <label>Опис</label>
+        <textarea id="editDescription" rows="1" maxlength="50" required></textarea>
+      </div>
+
     </form>
   </div>
   <div class="actions">
     <a class='ui massive ok blue button' (click)='editSession()'>Підтвердити</a>
+    <a class='ui massive cancel button'>Відмінити</a>
     <!-- <a class='ui cancel button'>Повернутись</a> -->
   </div>
 </div>
@@ -246,10 +293,57 @@
     <h3 class='ui header'>Ви хочете змінити поточну сесію?</h3>
   </div>
   <div class='actions'>
-    <a class='ui massive cancel button'>Відміна</a>
     <a class='ui massive blue ok button' (click)='openOtherSession()'>Продовжити</a>
+    <a class='ui massive cancel button'>Відмінити</a>
   </div>
 </div>
+
+<div class='ui modal close'>
+  <div class="header">Завершення роботи</div>
+  <div class='content'>
+    <h3 class='ui header'>Ви хочете завершити поточну сесію? Прилад буде вимкнено!</h3>
+  </div>
+  <div class='actions'>
+    <a class='ui massive blue ok button' (click)='closeSession()'>Продовжити</a>
+    <a class='ui massive cancel button'>Відмінити</a>
+  </div>
+</div>
+
+<div class='ui modal confirm'>
+  <div class="header">Ви впевнені?</div>
+  <div class='content'>
+    <h3 class='ui header'>Сесія {{selectedSessionIdDelete}} буде видалена назавжди!</h3>
+  </div>
+  <div class='actions'>
+    <a class='ui massive blue ok button' (click)='deleteSession()'>Продовжити</a>
+    <a class='ui massive cancel button'>Відмінити</a>
+  </div>
+</div>
+
+<div class='ui modal delete'>
+  <div class="header">Видалення сесії</div>
+  <div class='content'>
+    <div class="ui fluid deletion dropdown input massive">
+      
+      <i class="dropdown icon"></i>
+      <div class="default text">Оберіть Id сесії</div>
+      <div class="menu ">
+        <ng-container *ngFor='let archiveSession of archiveSessions | filter:selectedSessionId'>
+          <div class="item" (click)='selectSessionIdDelete(archiveSession.session_id)'>
+            <h1>{{archiveSession.session_id}}</h1>
+          </div>
+        </ng-container>
+
+      </div>
+
+    </div>
+  </div>
+  <div class='actions'>
+    <a class='ui massive blue ok button' (click)='openDeleteConfirm()'>Видалити</a>
+    <a class='ui massive cancel button'>Відмінити</a>
+  </div>
+</div>
+
 <div *ngIf="!isMonitoring && targets!=undefined && targets.length!=0">
   <button class='ui button circular blue massive icon play-button' (click)='runMonitoring()'><i class='icon play'></i></button>
 </div>

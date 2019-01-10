@@ -21,6 +21,7 @@ export class MainComponent implements OnInit {
   initSessionId: number = 10;
   notification: string = '';
   selectedSessionId = '';
+  selectedSessionIdDelete = '';
   connectBT = false;
   currentSession;
   archiveSessions;
@@ -51,35 +52,20 @@ export class MainComponent implements OnInit {
   }
   target = {}
   ngOnInit() {
+    // init semantic elements
     $('.ui.sidebar')
       .sidebar('setting', 'transition', 'overlay')
-      .sidebar('attach events', '.menu .item.sidebarToggle')
-      ;
-    //this.getBT();
-    let that = this;
-    /**$('.ui.checkbox').checkbox({
-      onChecked: function () {
-        that.currentBTBuffer = ''
-      },
-      onUnchecked: function () {
-        that.currentBTBuffer = undefined
-      }
-    });**/
+      .sidebar('attach events', '.menu .item.sidebarToggle');
+
     $('.ui.dropdown')
-      .dropdown()
-      ;
+      .dropdown();
     $('.right.menu .bt-devices')
       .popup({
         inline: true,
         hoverable: false,
         position: 'bottom right',
         on: 'click'
-      })
-      ;
-    //this.currentSession = this.sessionService.getActiveSession();
-    //this.openedSession = this.sessionService.getOpenedSession();
-
-    this.notification = 'Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.'
+      });
     $('.ui.modal.creator').modal({
       closable: false,
       onDeny: function () {
@@ -109,14 +95,32 @@ export class MainComponent implements OnInit {
         $('.ui.modal.notification').modal('hide');
         $('.ui.modal.history').modal('show');
       }
-    })
+    });
     $('.ui.modal.warning').modal({
       closable: false,
-      onDeny: function(){},
-      onApprove: function(){}
-    })
+      onDeny: function () { },
+      onApprove: function () { }
+    });
+    $('.ui.modal.close').modal({
+      closable: false,
+      onDeny: function () { },
+      onApprove: function () { }
+    });
+    $('.ui.modal.delete').modal({
+      closable: false,
+      onDeny: function () { },
+      onApprove: function () { }
+    });
+    $('.ui.modal.confirm').modal({
+      closable: false,
+      onDeny: function () { },
+      onApprove: function () { }
+    });
+    //////////////
+    this.notification = 'Активні сесії відсутні. Створіть нову або оберіть сесію з архіву.'
     this.sessionService.getSessions().subscribe(res => {
       this.archiveSessions = res;
+      // open active session and run monitoring
       if (res.find(el => { return el.state == 'active' })) {
         this.currentSession = res.find(el => { return el.state == 'active' });
         this.selectedSessionId = this.currentSession.session_id;
@@ -132,7 +136,9 @@ export class MainComponent implements OnInit {
         });
         this.runExistingMonitoring();
 
-      } else if (res.find(el => { return el.state == 'opened' })) {
+      } else 
+      // open opened session
+      if (res.find(el => { return el.state == 'opened' })) {
         this.currentSession = res.find(el => { return el.state == 'opened' });
         this.selectedSessionId = this.currentSession.session_id;
         this.getTargets(this.currentSession.session_id).then(targets => {
@@ -150,6 +156,7 @@ export class MainComponent implements OnInit {
       }
     });
 
+    //get config and try to connect to default BT
     this.configService.getCurrentConfig().toPromise().then(config => {
       this.currentConfig = config;
       console.log(this.currentConfig);
@@ -158,39 +165,29 @@ export class MainComponent implements OnInit {
           this.connectBT = true;
         }
         console.log(this.connectBT)
-      },err=>{this.connectBT = false;});
+      }, err => { this.connectBT = false; });
       //this.configEmail = thi.email;
       //console.log('get mail');
     });
-    //this.archiveSessions = this.sessionService.getSessions();
-    /**this.currentSession.subscribe(res => {
-      console.log(res);
-      if (typeof res == 'undefined') {
-        this.openedSession.subscribe(result => {
-          if (typeof result == 'undefined') {
-            $('.ui.modal.notification').modal('show');
-          } else {
-            this.targets = this.getTargets(result.session_id);
-            this.selectedSessionId = result.session_id;
-          }
-        })
-      } else {
-        this.targets = this.getTargets(res.session_id);
-        this.selectedSessionId = res.session_id;
-      }
-    })**/
+
   }
-  changeTargetType(type){
-    let index = TargetType.findIndex((el)=>{return el == type});
-    this.params.type = TargetType[(index+1 < TargetType.length)?index+1:0]
+  changeTargetType(type) {
+    let index = TargetType.findIndex((el) => { return el == type });
+    this.params.type = TargetType[(index + 1 < TargetType.length) ? index + 1 : 0]
   }
 
   checkDelta(target) {
     return Math.abs(target.dX) > Math.abs(this.currentSession.tolerance) || Math.abs(target.dY) > Math.abs(this.currentSession.tolerance) || Math.abs(target.dH) > Math.abs(this.currentSession.tolerance)
   }
-  isEmpty(obj){
+  isEmpty(obj) {
     return Object.keys(obj).length === 0;
   }
+
+  /**
+   * try to connect clicked BT device from BT devices list. set selected bt to buffer
+   * @param BTDevice 
+   * @param index 
+   */
   selectBT(BTDevice, index) {
     //$('.ui.checkbox').checkbox('set unchecked');
     this.currentBTBuffer = {};
@@ -205,71 +202,102 @@ export class MainComponent implements OnInit {
         this.currentBTBuffer['name'] = BTDevice.name;
         this.currentBTBuffer['mac_addr'] = BTDevice.mac_addr;
         //console.log(`Buffer: ${this.currentBTBuffer}`)
-      }else{
+      } else {
         $(`#${index}`).removeClass('yellow').removeClass('loading').addClass('red');
       }
-    }, err=>{
+    }, err => {
       console.log('error');
       $(`#${index}`).removeClass('yellow').removeClass('loading').addClass('red');
-    });      
-    //this.configService.selectBT(addr.adr).toPromise().then(bt => {
-    //  if (bt.status == "Ok") {
+    });
+
   }
 
   openModalArchive() {
-    setTimeout(()=>{
-      if(this.currentSession == undefined){
+    setTimeout(() => {
+      if (this.currentSession == undefined) {
         $('.ui.modal.history').modal('show');
-      }else{
+      } else {
         $('.ui.modal.warning').modal('show');
       }
     }, 2000)
-    
+
 
   }
 
-  closeBTPopup(){
+  closeBTPopup() {
     $('.right.menu .bt-devices').popup('hide');
   }
 
   openSessionCreation() {
-    setTimeout(()=>{
-      this.stopMonitoring();
+    setTimeout(() => {
       $('.ui.modal.creator').modal('show');
     }, 2000);
   }
 
+  /**
+   * update mail form
+   */
   openMailCreation() {
-    setTimeout(()=>{
-      if ($("#alarmEmail").val() == "") {
+    setTimeout(() => {
+      if (this.currentConfig && this.currentConfig.email) {
         $("#alarmEmail").val(this.currentConfig.email);
+        $("#mailServer").val(this.currentConfig.MAIL_SERVER);
+        $("#mailPort").val(this.currentConfig.MAIL_PORT);
+        $("#mailLogin").val(this.currentConfig.MAIL_USERNAME);
+        $("#mailPassword").val(this.currentConfig.MAIL_PASSWORD);
+        $("#mailSsl").prop("checked",this.currentConfig.MAIL_USE_SSL);
+        $("#mailTls").prop("checked",this.currentConfig.MAIL_USE_TLS);
       }
       $('.ui.modal.email').modal('show');
     }, 2000);
   }
 
+  /**
+   * update session edit form in modal
+   */
   openModalEditSession() {
     $("#editDopusk").val(this.currentSession.tolerance);
+    $("#editDescription").val(this.currentSession.description);
     $('.ui.modal.edit.session').modal('show');
   }
+
+  /**
+   * set selected session id from archive dropdown
+   * @param session_id string
+   */
   selectSessionId(session_id) {
     this.selectedSessionId = session_id;
   }
 
+  /**
+   * update session req and set updated session values to html
+   */
   editSession() {
-    let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, this.currentSession.state, +$("#editDopusk").val());
+    let sessionUpdate = new Session(this.currentSession.session_id, $("#editDescription").val(), +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, this.currentSession.state, +$("#editDopusk").val());
 
     this.sessionService.updateSession(sessionUpdate).toPromise().then(update => {
       if (update.stauts = "Ok") {
         this.currentSession.tolerance = +$("#editDopusk").val();
+        this.currentSession.description = $("#editDescription").val();
       }
 
     })
   }
 
+  /**
+   * update email req
+   */
   editMail() {
-
-    let updateConfig = new Config(this.currentConfig.bt_addr, this.currentConfig.bt_name, $("#alarmEmail").val(), "ua");
+    let updateConfig = new Config(this.currentConfig.bt_addr,
+      this.currentConfig.bt_name,
+      $("#alarmEmail").val(),
+      "ua",
+      $("#mailPassword").val(),
+      +$("#mailPort").val(),
+      $("#mailServer").val(),
+      $("#mailLogin").val(),
+      $("#mailSsl").is(':checked'),
+      $("#mailTls").is(':checked'));
     this.configService.updateConfig(updateConfig).toPromise().then(config => {
       this.configService.getCurrentConfig().toPromise().then(config => {
         // console.log(config.email);
@@ -281,62 +309,58 @@ export class MainComponent implements OnInit {
     });
   }
 
+  /**
+   * get list of available BT devices
+   */
   getBT() {
     $('.bt-devices-popup .ui.dimmer').addClass('active');
     this.configService.getBT().toPromise().then(bt => {
       $('.bt-devices-popup .ui.dimmer').removeClass('active');
       this.currentBTDevices = bt.bt_devices;
       console.log(this.currentBTDevices);
-    },err=>{
+    }, err => {
       $('.bt-devices-popup .ui.dimmer').removeClass('active');
     });
   }
 
+  /**
+   * update config with selected BT
+   * @param bt 
+   */
   setBT(bt?) {
-
-    // let addr;
-    // if (bt) {
-    //   addr = { adr: bt.mac_addr, name: bt.name };
-    // } else {
-    //   addr = { adr: this.currentConfig.bt_addr, name: this.currentConfig.bt_name };
-    // }
-    // //  let addr = bt ? bt : { adr: this.currentConfig.bt_addr, name: this.currentConfig.bt_name }
-    // this.configService.selectBT(addr.adr).toPromise().then(bt => {
-    //   //this.currentBT = addr;
-    //   if (bt.status == "Ok") {
-    //     this.configService.updateConfig(new Config(addr.adr, addr.name, this.currentConfig.email, this.currentConfig.language)).toPromise().then(res => {
-    //       console.log('config updated');
-    //       if (res.status == "Ok") {
-    //         this.configService.getCurrentConfig().toPromise().then(config => {
-    //           this.currentConfig = config;
-    //           //this.configEmail = thi.email;
-    //           console.log('get mail');
-    //         });
-    //       }
-    //     });
-    //   }
-    // });
     console.log(bt);
-   let  addr = { adr: bt.mac_addr, name: bt.name };
-    this.configService.updateConfig(new Config(addr.adr, addr.name, this.currentConfig.email, this.currentConfig.language)).toPromise().then(res => {
-      this.currentBTBuffer = {}
-      if (res.status == 'Ok'){
-        this.connectBT = true;
-        this.configService.getCurrentConfig().toPromise().then(config => {
-          this.currentConfig = config;
-        })
-      }
+    let addr = { adr: bt.mac_addr, name: bt.name };
+    this.configService.updateConfig(new Config(addr.adr,
+      addr.name,
+      this.currentConfig.email,
+      this.currentConfig.language,
+      this.currentConfig.MAIL_PASSWORD,
+      this.currentConfig.MAIL_PORT,
+      this.currentConfig.MAIL_SERVER,
+      this.currentConfig.MAIL_USERNAME,
+      this.currentConfig.MAIL_USE_SSL,
+      this.currentConfig.MAIL_USE_TLS)).toPromise().then(res => {
+        this.currentBTBuffer = {}
+        if (res.status == 'Ok') {
+          this.connectBT = true;
+          this.configService.getCurrentConfig().toPromise().then(config => {
+            this.currentConfig = config;
+          })
+        }
 
-    }, err=>{
-      this.currentBTBuffer = {}
-    });
+      }, err => {
+        this.currentBTBuffer = {}
+      });
   }
 
-  openOtherSession(){
-    this.stopMonitoring()
+  openOtherSession() {    
     $('.ui.modal.history').modal('show');
   }
 
+  /**
+   * get session by selected id and update it's state to opened. Find another opened session and update it status to string
+   * get targets list
+   */
   openSession() {
     this.sessionService.getSessions().toPromise().then(result => {
       this.currentSession = result.find(el => { return el.session_id == this.selectedSessionId });
@@ -373,15 +397,9 @@ export class MainComponent implements OnInit {
 
   }
 
-  getCurrentSesion() {
-    return new Promise((resolve, reject) => {
-      resolve('Test');
-    })
-  }
 
   getTargets(session_id) {
     return new Promise((resolve, reject) => {
-      //let tmp = [new Target('s1', 1, 2, 2, 'ww', 'sd', 0.2, 0.9, 0.8, '09-07-18')];
       this.targetService.getTargetList(session_id).toPromise().then(res => {
         resolve(res);
       })
@@ -389,23 +407,17 @@ export class MainComponent implements OnInit {
     })
   }
 
-  getActiveSession() {
-    // return new Promise((resolve, reject) => {
-    //   this.sessionService.getSessions().then(res => {
-    //     let activeSession = res.sessions.find(el => { return el.state == 'active' });      
-    //     resolve(activeSession);
-    //   });
-    // })
 
-  }
-
+  /**
+   * stop monitoring process and getting monitoring process state. Updates session from active to opened.
+   */
   stopMonitoring() {
     this.monitoringService.deleteMonitoringProcess(this.selectedSessionId).toPromise().then(res => {
       if (res.status == "Ok") {
         console.log("stopped");
         this.isMonitoring = false;
         this.isGettingState = false;
-        this.state="";
+        this.state = "";
         let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
 
         this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
@@ -414,8 +426,11 @@ export class MainComponent implements OnInit {
       }
     })
   }
-  runMonitoring() {
 
+  /**
+   * start monitoring process, getting its state,updating targets array. Updates session state from opened to active
+   */
+  runMonitoring() {
     this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
       if (res.status == 'Ok') {
 
@@ -437,10 +452,11 @@ export class MainComponent implements OnInit {
     })
   }
 
+  /**
+   * if user opens app from another client getting monitoring state,updating targets array. Updates session to active. 
+   */
   runExistingMonitoring() {
     let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
-
-
     this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
       console.log('update to active');
       this.isGettingState = true;
@@ -454,8 +470,10 @@ export class MainComponent implements OnInit {
     });
   }
 
+  /**
+   * add target to targets array req. 
+   */
   addTarget() {
-
     this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22", this.params.type)).then(res => {
       if (res.status == 'Ok') {
         console.log('created');
@@ -473,6 +491,9 @@ export class MainComponent implements OnInit {
     })
   }
 
+  /**
+   * measure coordinates req
+   */
   getCoordinates() {
     this.configService.getCoordinates(this.currentConfig.bt_addr, this.params.type).subscribe(res => {
       if (res.point.X) {
@@ -503,8 +524,12 @@ export class MainComponent implements OnInit {
   }
 
 
+  /**
+   * creates new session with opened state. Updates previously session from opened to string
+   */
   createSession() {
     this.sessionService.getSessions().toPromise().then(res => {
+      // if array has values, sort array by id ascending and generate new session id
       if (res['length'] == 0) {
         this.initSessionId = 10;
       } else {
@@ -514,7 +539,7 @@ export class MainComponent implements OnInit {
       }
 
       let tmp = this.initSessionId + 1;
-      let session = new Session(tmp.toString(), "string", 0, 0, 0, "12-12-12", "opened", +$("#dopusk").val());
+      let session = new Session(tmp.toString(), $("#description").val(), 0, 0, 0, new Date(Date.now()).toLocaleString(), "opened", +$("#dopusk").val());
       this.sessionService.createSession(session).toPromise().then(res => {
         this.targets = [];
         this.sessionService.getSessions().toPromise().then(res => {
@@ -533,6 +558,52 @@ export class MainComponent implements OnInit {
       });
     });
 
+  }
+
+  /**
+   * show modal requesting session closing
+   */
+  openSessionClosing() {
+    $('.ui.modal.close').modal('show');
+  }
+  /**
+   * show modal requesting session deletion with session ids dropdown except current one
+   */
+  openSessionDeletion() {
+    $('.ui.modal.delete').modal('show');
+  }
+
+  /**
+   * show modal confirms selected session deletion
+   */
+  openDeleteConfirm() {
+    $('.ui.modal.confirm').modal('show');
+  }
+
+  deleteSession() {
+    console.log(this.selectedSessionIdDelete);
+  }
+
+  /**
+   * set selected session id to delete from delete modal dropdown
+   * @param id 
+   */
+  selectSessionIdDelete(id: string) {
+    this.selectedSessionIdDelete = id;
+  }
+
+  /**
+   * close session and update its status to string.
+   */
+  closeSession() {
+    let sessionUpdate = new Session(this.currentSession.session_id, $("#editDescription").val(), +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "string", +$("#editDopusk").val());
+
+    this.sessionService.updateSession(sessionUpdate).toPromise().then(update => {
+      if (update.stauts = "Ok") {
+        // request to close computer
+      }
+
+    })
   }
 
 
