@@ -1,5 +1,5 @@
 <div class="ui massive menu icon  blue inverted">
-  <a class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></a>
+  <a class="item sidebarToggle" [attr.disabled]='isMonitoring'><i class='ui icon bars' id='sidebar-button'></i></a>
   <ng-container *ngIf='currentSession != undefined'>
     <div class="ui massive header item">ID:{{currentSession.session_id}}</div>
     <div class="ui massive header item"> Допуск: {{currentSession.tolerance}}</div>
@@ -175,7 +175,7 @@
       <div class="menu ">
         <ng-container *ngFor='let archiveSession of archiveSessions'>
           <div class="item" (click)='selectSessionId(archiveSession.session_id)'>
-            <h1>{{archiveSession.session_id}}</h1>
+            <h1>{{archiveSession.session_id}} , {{archiveSession.timestamp}}<br>{{archiveSession.description}}</h1>
           </div>
         </ng-container>
 
@@ -185,6 +185,7 @@
 
   </div>
   <div class="actions">
+    <button *ngIf='currentSession != undefined' class='ui massive cancel button' >Відміна</button>
     <button [disabled]='selectSessionId == undefined' class='ui massive ok blue button' (click)='openSession()'>Підтвердити</button>
   </div>
 </div>
@@ -202,8 +203,8 @@
     </form>
   </div>
   <div class="actions">
-    <a class='ui massive ok blue button' (click)='createSession()'>Підтвердити</a>
     <a class='ui massive cancel button'>Відміна</a>
+    <a class='ui massive ok blue button' (click)='createSession()'>Підтвердити</a>
   </div>
 </div>
 <div class='ui modal email'>
