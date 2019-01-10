@@ -193,9 +193,8 @@
 
   </div>
   <div class="actions">
-    <button *ngIf='currentSession != undefined' class='ui massive cancel button' >Відміна</button>
+    <button *ngIf='currentSession != undefined' class='ui massive cancel button' >Відмінити</button>
     <button [disabled]='selectSessionId == undefined' class='ui massive ok blue button' (click)='openSession()'>Підтвердити</button>
-    <a class='ui massive cancel button'>Відмінити</a>
   </div>
 </div>
 

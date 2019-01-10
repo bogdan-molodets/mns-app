@@ -136,24 +136,24 @@ export class MainComponent implements OnInit {
         });
         this.runExistingMonitoring();
 
-      } else 
-      // open opened session
-      if (res.find(el => { return el.state == 'opened' })) {
-        this.currentSession = res.find(el => { return el.state == 'opened' });
-        this.selectedSessionId = this.currentSession.session_id;
-        this.getTargets(this.currentSession.session_id).then(targets => {
-          if (targets['length'] == 0) {
-            this.initId = 100;
-          } else {
-            this.initId = +targets[targets['length'] - 1].target_id;
-          }
-          console.log(this.initId);
-          this.targets = targets;
+      } else
+        // open opened session
+        if (res.find(el => { return el.state == 'opened' })) {
+          this.currentSession = res.find(el => { return el.state == 'opened' });
+          this.selectedSessionId = this.currentSession.session_id;
+          this.getTargets(this.currentSession.session_id).then(targets => {
+            if (targets['length'] == 0) {
+              this.initId = 100;
+            } else {
+              this.initId = +targets[targets['length'] - 1].target_id;
+            }
+            console.log(this.initId);
+            this.targets = targets;
 
-        });
-      } else {
-        $('.ui.modal.notification').modal('show');
-      }
+          });
+        } else {
+          $('.ui.modal.notification').modal('show');
+        }
     });
 
     //get config and try to connect to default BT
@@ -245,8 +245,8 @@ export class MainComponent implements OnInit {
         $("#mailPort").val(this.currentConfig.MAIL_PORT);
         $("#mailLogin").val(this.currentConfig.MAIL_USERNAME);
         $("#mailPassword").val(this.currentConfig.MAIL_PASSWORD);
-        $("#mailSsl").prop("checked",this.currentConfig.MAIL_USE_SSL);
-        $("#mailTls").prop("checked",this.currentConfig.MAIL_USE_TLS);
+        $("#mailSsl").prop("checked", this.currentConfig.MAIL_USE_SSL);
+        $("#mailTls").prop("checked", this.currentConfig.MAIL_USE_TLS);
       }
       $('.ui.modal.email').modal('show');
     }, 2000);
@@ -353,7 +353,7 @@ export class MainComponent implements OnInit {
       });
   }
 
-  openOtherSession() {    
+  openOtherSession() {
     $('.ui.modal.history').modal('show');
   }
 
@@ -580,8 +580,15 @@ export class MainComponent implements OnInit {
     $('.ui.modal.confirm').modal('show');
   }
 
-  deleteSession() {
-    console.log(this.selectedSessionIdDelete);
+  deleteSession() {    
+    this.sessionService.deleteSelectedSession(this.selectedSessionIdDelete).toPromise().then(res => {
+      if (res.status = "Ok") {
+        this.sessionService.getSessions().toPromise().then(res => {
+          this.archiveSessions = res;
+        });
+        console.log('session deleted');
+      }
+    });
   }
 
   /**
