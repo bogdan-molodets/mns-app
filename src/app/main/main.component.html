@@ -1,9 +1,9 @@
 <div class="ui massive menu icon  blue inverted">
-  <button [attr.disabled]='isMonitoring?true:null' class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></button>
+  <a [ngClass]='{disabled:isMonitoring}' class="ui massive icon button item sidebarToggle"><i class='icon bars' id='sidebar-button'></i></a>
   <ng-container *ngIf='currentSession != undefined'>
-    <div class="ui massive header item">ID:{{currentSession.session_id}}</div>
-    <div class="ui massive header item"> Допуск: {{currentSession.tolerance}}</div>
-    <button [attr.disabled]='isMonitoring?true:null' class='ui item header item' (click)='openModalEditSession()'><i
+    <div class="ui header item">ID:{{currentSession.session_id}}</div>
+    <div class="ui header item"> Допуск: {{currentSession.tolerance}}</div>
+    <button [ngClass]='{disabled:isMonitoring}' class='ui massive button icon item ' (click)='openModalEditSession()'><i
         class='icon pencil'></i></button>
     <div *ngIf='state != "" ' class='ui item header'>Стан: {{state}}</div>
   </ng-container>
@@ -64,7 +64,7 @@
     </a>
   </div>
   <div class='pusher'>
-    <div class='ui container'>
+    <div class='ui segment'>
       <form *ngIf="targets!=undefined" class='ui form'>
         <div class='fields'>
           <div class="field three  ui  input disabled">
@@ -80,7 +80,8 @@
               placeholder="H">
           </div>
           <div class="field three">
-            <button class='ui blue button massive' (click)='changeTargetType(params.type)'>{{params.type}}</button>
+            <button class='ui blue button massive' (click)='changeTargetType(params.type)'>{{params.type.slice(0,1) |
+              uppercase}}</button>
           </div>
           <div class="field four">
             <button class='ui blue button massive' (click)='getCoordinates()'>Поміряти</button>
@@ -97,6 +98,9 @@
             <th></th>
             <th>
               <h2>#</h2>
+            </th>
+            <th>
+              <h2>Тип</h2>
             </th>
             <th>
               <h2>X</h2>
@@ -124,14 +128,15 @@
         </thead>
         <tbody>
           <tr class='center aligned' *ngFor='let target of targets' [ngClass]='{error:checkDelta(target)}'>
-            <td class="delete-col collapsing" (click)='deleteTarget(target)'>
-              <button [attr.disabled]='isMonitoring?true:null'>
-                <i class="icon large trash alternate"></i></button>
-              <!--<div class='ui button massive blue icon'><i class="icon pencil alternate"></i></div>-->
-              <!--<div class='ui button huge blue icon' (click)='deleteTarget(target)'><i class="icon trash alternate"></i></div>-->
+            <td class="delete-col collapsing">
+              <a [ngClass]='{disabled: isMonitoring}' (click)='deleteTarget(target)' class='ui icon button blue'><i
+                  class="icon large trash alternate"></i></a>
             </td>
             <td>
               <h3>{{target.target_id}}</h3>
+            </td>
+            <td>
+              <h3>{{target.type}}</h3>
             </td>
             <td>
               <h3>{{target.X0.toFixed(4)}}</h3>
@@ -193,7 +198,7 @@
 
   </div>
   <div class="actions">
-    <button *ngIf='currentSession != undefined' class='ui massive cancel button' >Відмінити</button>
+    <button *ngIf='currentSession != undefined' class='ui massive cancel button'>Відмінити</button>
     <button [disabled]='selectSessionId == undefined' class='ui massive ok blue button' (click)='openSession()'>Підтвердити</button>
   </div>
 </div>
@@ -227,7 +232,7 @@
     <form class='ui form'>
 
       <div class="field ">
-        <label>Електронна пошта</label>
+        <label>Електронна пошта отримувача</label>
         <input id="alarmEmail" type="email">
       </div>
       <div class="field ">
@@ -235,7 +240,7 @@
         <input id="mailServer">
       </div>
       <div class="field ">
-        <label>Порт</label>
+        <label>SMTP порт</label>
         <input id="mailPort">
       </div>
       <div class="field ">
@@ -324,7 +329,7 @@
   <div class="header">Видалення сесії</div>
   <div class='content'>
     <div class="ui fluid deletion dropdown input massive">
-      
+
       <i class="dropdown icon"></i>
       <div class="default text">Оберіть Id сесії</div>
       <div class="menu ">
