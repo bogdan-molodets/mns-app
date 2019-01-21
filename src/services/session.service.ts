@@ -58,4 +58,8 @@ export class SessionService {
   updateSession(session: Session): Observable<any> {
     return this.httpClient.put<any>(`${this.apiUrl}/session/${session.session_id}`, session);
   }
+
+  getHistoryFileUrl(sessionId: string) {    
+    return `${this.apiUrl}/session/${sessionId}/history`;
+  }
 }
