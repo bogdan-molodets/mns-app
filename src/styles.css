@@ -67,6 +67,11 @@ textarea, input {
 .ui.segment {
     border: none!important;
     box-shadow: none!important;
+    padding: .5rem 1rem!important;
+}
+
+.ui.table{
+    margin: 0!important;
 }
 
 input[type="checkbox"] {

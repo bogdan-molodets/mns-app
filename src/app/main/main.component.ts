@@ -520,6 +520,7 @@ export class MainComponent implements OnInit {
    */
   runMonitoring() {
     $('.startWaiting').addClass('active');
+    $('.calcTarget.errors').removeClass('visible');
     this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
       if (res.status == 'Ok') {
 
@@ -553,7 +554,7 @@ export class MainComponent implements OnInit {
    * if user opens app from another client getting monitoring state,updating targets array. Updates session to active. 
    */
   runExistingMonitoring() {
-
+    $('.calcTarget.errors').removeClass('visible');
     console.log('run existing monitoring');
     this.isGettingState = true;
 
@@ -612,6 +613,11 @@ export class MainComponent implements OnInit {
     $('.calcTarget.errors').removeClass('visible');
     $('.addTargetButton').addClass('disabled');
     $('.calcTargetButton').addClass('loading').addClass('disabled');
+    this.params.x = null;
+    this.params.y = null;
+    this.params.h = null;
+    this.params.ha = null;
+    this.params.va = null;
     this.configService.getCoordinates(this.currentConfig.bt_addr, this.params.type).subscribe(res => {
       $('.addTargetButton').removeClass('disabled');
       $('.calcTargetButton').removeClass('loading').removeClass('disabled');

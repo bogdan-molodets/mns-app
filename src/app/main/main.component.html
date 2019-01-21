@@ -60,7 +60,7 @@
   </div>
   <div class='pusher'>
     <div class='ui segment'>
-      <form *ngIf="targets!=undefined" class='ui form'>
+      <form *ngIf="targets!=undefined && !isMonitoring" class='ui form'>
         <div class='fields'>
           <div class="field three  ui  input disabled">
             <input [(ngModel)]="params.x" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
@@ -93,31 +93,31 @@
           <tr class='center aligned'>
             <th></th>
             <th>
-              <h2>#</h2>
+              <h5>#</h5>
             </th>
             <th>
-              <h2>Тип</h2>
+              <h5>Тип</h5>
             </th>
             <th>
-              <h2>X</h2>
+              <h5>X</h5>
             </th>
             <th>
-              <h2>Y</h2>
+              <h5>Y</h5>
             </th>
             <th>
-              <h2>Z</h2>
+              <h5>Z</h5>
             </th>
             <th>
-              <h2>&#9651;X</h2>
+              <h5>&#9651;X</h5>
             </th>
             <th>
-              <h2>&#9651;Y</h2>
+              <h5>&#9651;Y</h5>
             </th>
             <th>
-              <h2>&#9651;Z</h2>
+              <h5>&#9651;Z</h5>
             </th>
             <th>
-              <h2>Час</h2>
+              <h5>Час</h5>
             </th>
           </tr>
 
