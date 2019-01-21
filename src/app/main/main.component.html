@@ -49,7 +49,7 @@
     <a class="item ui header sidebarToggle" (click)='openSessionClosing()'>
       <h2>Завершити роботу</h2>
     </a>
-    <a class="item ui header sidebarToggle">
+    <a class="item ui header sidebarToggle" (click)='openExport()'>
       <h2>Експорт</h2>
     </a>
     <a class="item ui header sidebarToggle" (click)='openMailCreation()'>
@@ -354,7 +354,7 @@
       <div class="menu ">
         <ng-container *ngFor='let archiveSession of archiveSessions | filter:selectedSessionId'>
           <div class="item" (click)='selectSessionIdDelete(archiveSession.session_id)'>
-            <h1>{{archiveSession.session_id}}</h1>
+            <h1>{{archiveSession.session_id}} , {{archiveSession.timestamp}}<br>{{archiveSession.description}}</h1>
           </div>
         </ng-container>
 
@@ -364,6 +364,30 @@
   </div>
   <div class='actions'>
     <a class='ui massive blue ok button' (click)='openDeleteConfirm()'>Видалити</a>
+    <a class='ui massive cancel button'>Відмінити</a>
+  </div>
+</div>
+
+<div class='ui modal export'>
+  <div class="header">Експорт сесії</div>
+  <div class='content'>
+    <div class="ui fluid export dropdown input massive">
+      
+      <i class="dropdown icon"></i>
+      <div class="default text">Оберіть Id сесії</div>
+      <div class="menu ">
+        <ng-container *ngFor='let archiveSession of archiveSessions'>
+          <div class="item" (click)='selectSessionIdExport(archiveSession.session_id)'>
+            <h1>{{archiveSession.session_id}} , {{archiveSession.timestamp}}<br>{{archiveSession.description}}</h1>
+          </div>
+        </ng-container>
+
+      </div>
+
+    </div>
+  </div>
+  <div class='actions'>
+    <a class='ui massive blue ok button' id="export" href="#" (click)="exportConfirm($event)" download>Експортувати</a>
     <a class='ui massive cancel button'>Відмінити</a>
   </div>
 </div>
