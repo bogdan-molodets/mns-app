@@ -524,7 +524,7 @@ export class MainComponent implements OnInit {
         });
         this.isGettingState = true;
         this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
-          if(st.state == 'running'){$('.startWaiting').removeClass('active');}
+          if (st.state == 'running') { $('.startWaiting').removeClass('active'); }
           this.state = st.state;
         });
 
@@ -576,8 +576,8 @@ export class MainComponent implements OnInit {
           this.targets = res;
         })
 
-      }else{$('.calcTarget.errors').addClass('visible');}
-    },err=>{$('.calcTargetButton').removeClass('disabled');$('.addTargetButton').removeClass('loading').removeClass('disabled');$('.calcTarget.errors').addClass('visible');})
+      } else { $('.calcTarget.errors').addClass('visible'); }
+    }, err => { $('.calcTargetButton').removeClass('disabled'); $('.addTargetButton').removeClass('loading').removeClass('disabled'); $('.calcTarget.errors').addClass('visible'); })
   }
 
   /**
@@ -596,8 +596,8 @@ export class MainComponent implements OnInit {
         this.params.h = res.point.H;
         this.params.ha = res.point.HA;
         this.params.va = res.point.VA;
-      }else{$('.calcTarget.errors').addClass('visible');}
-    },err=>{$('.addTargetButton').removeClass('disabled');$('.calcTargetButton').removeClass('loading').removeClass('disabled');$('.calcTarget.errors').addClass('visible');});
+      } else { $('.calcTarget.errors').addClass('visible'); }
+    }, err => { $('.addTargetButton').removeClass('disabled'); $('.calcTargetButton').removeClass('loading').removeClass('disabled'); $('.calcTarget.errors').addClass('visible'); });
   }
 
 
@@ -709,7 +709,7 @@ export class MainComponent implements OnInit {
 
   showKeyboard(event, currentAlphabet, multipleLanguage, type, control = this.defaultControl) {
     console.log(this.deviceService);
-    if (this.deviceService.os == 'Android') {
+    if (this.deviceService.os != 'Android') {
       this.keyboardSettings.isNumber = (type == 'number' || type == 'real') ? true : false;
       this.keyboardSettings.isRealNumber = (type == 'real') ? true : false;
       this.keyboardSettings.currentControl = control;
@@ -787,4 +787,9 @@ export class MainComponent implements OnInit {
     $('#write').val('');
   }
 
+  getFormControl(control) {
+    return control as FormControl
+  }
+
+  onSubmit() { }
 }
