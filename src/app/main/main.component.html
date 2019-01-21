@@ -1,9 +1,9 @@
 <div class="ui massive menu icon  blue inverted">
-  <button [attr.disabled]='isMonitoring?true:null' class="item sidebarToggle"><i class='ui icon bars' id='sidebar-button'></i></button>
+  <a [ngClass]='{disabled:isMonitoring}' class="ui massive icon button item sidebarToggle"><i class='icon bars' id='sidebar-button'></i></a>
   <ng-container *ngIf='currentSession != undefined'>
-    <div class="ui massive header item">ID:{{currentSession.session_id}}</div>
-    <div class="ui massive header item"> Допуск: {{currentSession.tolerance}}</div>
-    <button [attr.disabled]='isMonitoring?true:null' class='ui item header item' (click)='openModalEditSession()'><i
+    <div class="ui header item">ID:{{currentSession.session_id}}</div>
+    <div class="ui header item"> Допуск: {{currentSession.tolerance}}</div>
+    <button [ngClass]='{disabled:isMonitoring}' class='ui massive button icon item ' (click)='openModalEditSession()'><i
         class='icon pencil'></i></button>
     <div *ngIf='state != "" ' class='ui item header'>Стан: {{state}}</div>
   </ng-container>
@@ -17,16 +17,9 @@
       <div class="ui huge blue button" *ngFor='let BTDevice of currentBTDevices; let i = index' id='{{i}}' (click)='selectBT(BTDevice, i)'>
         <h2>{{BTDevice.name}}</h2>
       </div>
-      <!--<div *ngIf='currentConfig!=undefined' class="ui toggle large checkbox">
-        <input type="checkbox" name="public" checked>
-        <label>
-          <h3>Обрати поточний</h3>
-        </label>
-      </div>-->
       <div class="ui inverted dimmer ">
         <div class="ui large loader"></div>
       </div>
-      <!--<label *ngIf='currentConfig!=undefined'>{{currentConfig.bt_name}}</label>-->
       <div class='btn-container'>
         <button class='ui massive button blue' (click)='getBT()' tabindex="0">Пошук</button>
         <button class='ui massive button blue' (click)='setBT(currentBTBuffer)' tabindex="0" [attr.disabled]='(currentBTBuffer == undefined || isEmpty(currentBTBuffer))? true : null'>Підтвердити</button>
@@ -36,7 +29,9 @@
   </div>
 
 </div>
-
+<div class="ui dimmer startWaiting">
+    <div class="ui large text loader">Зачекайте</div>
+</div>
 <div class='ui pushable'>
   <div class="ui left blue inline sidebar inverted vertical menu">
     <a class="item ui header sidebarToggle">
@@ -64,7 +59,7 @@
     </a>
   </div>
   <div class='pusher'>
-    <div class='ui container'>
+    <div class='ui segment'>
       <form *ngIf="targets!=undefined" class='ui form'>
         <div class='fields'>
           <div class="field three  ui  input disabled">
@@ -80,23 +75,28 @@
               placeholder="H">
           </div>
           <div class="field three">
-            <button class='ui blue button massive' (click)='changeTargetType(params.type)'>{{params.type}}</button>
+            <button class='ui blue button massive' (click)='changeTargetType(params.type)'>{{params.type.slice(0,1) |
+              uppercase}}</button>
           </div>
           <div class="field four">
-            <button class='ui blue button massive' (click)='getCoordinates()'>Поміряти</button>
+            <button class='ui blue button massive calcTargetButton' (click)='getCoordinates()'>Поміряти</button>
           </div>
           <div class="field four">
-            <button class='ui blue button massive' (click)='addTarget()'>Додати</button>
+            <button class='ui blue button massive addTargetButton' (click)='addTarget()'>Додати</button>
           </div>
         </div>
+        <div class='calcTarget errors'><i class='icon exclamation circle'></i>Помилка з вимірами</div>
       </form>
 
-      <table *ngIf="targets!=undefined" class='ui blue large table celled stripped target-table'>
+      <table *ngIf="targets!=undefined" class='ui blue small table celled stripped target-table'>
         <thead>
           <tr class='center aligned'>
             <th></th>
             <th>
               <h2>#</h2>
+            </th>
+            <th>
+              <h2>Тип</h2>
             </th>
             <th>
               <h2>X</h2>
@@ -124,14 +124,15 @@
         </thead>
         <tbody>
           <tr class='center aligned' *ngFor='let target of targets' [ngClass]='{error:checkDelta(target)}'>
-            <td class="delete-col collapsing" (click)='deleteTarget(target)'>
-              <button [attr.disabled]='isMonitoring?true:null'>
-                <i class="icon large trash alternate"></i></button>
-              <!--<div class='ui button massive blue icon'><i class="icon pencil alternate"></i></div>-->
-              <!--<div class='ui button huge blue icon' (click)='deleteTarget(target)'><i class="icon trash alternate"></i></div>-->
+            <td class="delete-col collapsing">
+              <a [ngClass]='{disabled: isMonitoring}' (click)='deleteTarget(target)' class='ui icon button blue'><i
+                  class="icon large trash alternate"></i></a>
             </td>
             <td>
               <h3>{{target.target_id}}</h3>
+            </td>
+            <td>
+              <h3>{{target.type}}</h3>
             </td>
             <td>
               <h3>{{target.X0.toFixed(4)}}</h3>
@@ -152,7 +153,7 @@
               <h3>{{target.dH.toFixed(4)}}</h3>
             </td>
             <td>
-              <h3>{{target.last_upd | date:'medium'}}</h3>
+              <h3>{{target.last_upd | date:'yyyy.mm.dd hh:mm:ss'}}</h3>
             </td>
           </tr>
         </tbody>
@@ -193,7 +194,7 @@
 
   </div>
   <div class="actions">
-    <button *ngIf='currentSession != undefined' class='ui massive cancel button' >Відмінити</button>
+    <button *ngIf='currentSession != undefined' class='ui massive cancel button'>Відмінити</button>
     <button [disabled]='selectSessionId == undefined' class='ui massive ok blue button' (click)='openSession()'>Підтвердити</button>
   </div>
 </div>
@@ -201,50 +202,73 @@
 <div class='ui modal creator'>
   <div class="header">Створити нову сесію</div>
   <div class='content'>
-    <form class='ui form'>
+    <form class='ui form' [formGroup]="sessionForm" novalidate (submit)='onSubmit()'>
       <!-- <div class='fields'> -->
 
       <div class="field">
         <label>Допуск</label>
-        <input value="0.01" id="dopusk" pattern="[0-9]{1,4}" type="number" required>
+        <input value="0.01" id="dopusk" formControlName='dopusk' (click)='showKeyboard($event, "EN", false, "real", getFormControl(sessionForm.controls.dopusk))' 
+          type="number" required>
       </div>
       <div class="field">
         <label>Опис</label>
-        <textarea id="description" rows="1" maxlength="50" required></textarea>
+        <textarea id="description" formControlName='description' (click)='showKeyboard($event, "UA", false, null, getFormControl(sessionForm.controls.description))' rows="1"
+          maxlength="50" required></textarea>
       </div>
 
       <!-- </div> -->
     </form>
   </div>
   <div class="actions">
-    <a class='ui massive ok blue button' (click)='createSession()'>Підтвердити</a>
+    <a [ngClass]='{disabled: sessionForm.invalid}' type='submit' class='ui massive ok blue button' class='ui massive ok blue button' (click)='createSession()'>Підтвердити</a>
     <a class='ui massive cancel button'>Відмінити</a>
   </div>
 </div>
 <div class='ui modal email'>
   <div class="header">Редагування пошти</div>
   <div class='content'>
-    <form class='ui form'>
+    <form class='ui form' [formGroup]="userForm" novalidate (submit)='onSubmit()'>
 
       <div class="field ">
-        <label>Електронна пошта</label>
-        <input id="alarmEmail" type="email">
+        <label>Електронна пошта отримувача</label>
+        <input id="alarmEmail" formControlName='alarmEmail' type="email" (click)='showKeyboard($event, "EN", false, null, getFormControl(userForm.controls.alarmEmail))'>
+        <div *ngIf="userForm.controls.alarmEmail.invalid && (userForm.controls.alarmEmail.dirty || userForm.controls.alarmEmail.touched)" class="errors">
+            <li *ngIf='userForm.controls.alarmEmail.errors.required'>Обов'язкове поле;</li>
+            <li *ngIf='userForm.controls.alarmEmail.errors.pattern'>Помилка формату адресу;</li>
+        </div>
       </div>
-      <div class="field ">
-        <label>Поштовий сервер</label>
-        <input id="mailServer">
+      <div class='fields'>
+        <div class="field eight wide">
+          <label>Поштовий сервер</label>
+          <input id="mailServer" formControlName='mailServer' type='text' (click)='showKeyboard($event, "EN", false, null, getFormControl(userForm.controls.mailServer))'>
+          <div *ngIf="userForm.controls.mailServer.invalid && (userForm.controls.mailServer.dirty || userForm.controls.mailServer.touched)" class="errors">
+              <li *ngIf='userForm.controls.mailServer.errors.required'>Обов'язкове поле;</li>
+          </div>
+        </div>
+        <div class="field eight wide">
+          <label>SMTP порт</label>
+          <input id="mailPort" formControlName='mailPort' type='number' (click)='showKeyboard($event, "EN", false, "number", getFormControl(userForm.controls.mailPort))'>
+          <div *ngIf="userForm.controls.mailPort.invalid && (userForm.controls.mailPort.dirty || userForm.controls.mailPort.touched)" class="errors">
+              <li *ngIf='userForm.controls.mailPort.errors.required'>Обов'язкове поле;</li>
+              <li *ngIf='userForm.controls.mailPort.errors.pattern'>Порт має складатися з трьох цифр.</li>
+          </div>
+        </div>
       </div>
-      <div class="field ">
-        <label>Порт</label>
-        <input id="mailPort">
-      </div>
-      <div class="field ">
-        <label>Логін</label>
-        <input id="mailLogin">
-      </div>
-      <div class="field ">
-        <label>Пароль</label>
-        <input id="mailPassword" type="password">
+      <div class='fields'>
+        <div class="field eight wide">
+          <label>Логін</label>
+          <input id="mailLogin" formControlName='mailLogin' type='text' (click)='showKeyboard($event, "EN", false, null, getFormControl(userForm.controls.mailLogin))'>
+          <div *ngIf="userForm.controls.mailLogin.invalid && (userForm.controls.mailLogin.dirty || userForm.controls.mailLogin.touched)" class="errors">
+              <li *ngIf='userForm.controls.mailLogin.errors.required'>Обов'язкове поле;</li>
+          </div>
+        </div>
+        <div class="field eight wide">
+          <label>Пароль</label>
+          <input id="mailPassword" formControlName='mailPassword' type='text' type="password" (click)='showKeyboard($event, "EN", false, null, getFormControl(userForm.controls.mailPassword))'>
+          <div *ngIf="userForm.controls.mailPassword.invalid && (userForm.controls.mailPassword.dirty || userForm.controls.mailPassword.touched)" class="errors">
+              <li *ngIf='userForm.controls.mailPassword.errors.required'>Обов'язкове поле;</li>
+          </div>
+        </div>
       </div>
       <div class="inline fields">
         <div class="field ">
@@ -259,7 +283,7 @@
     </form>
   </div>
   <div class="actions">
-    <a class='ui massive ok blue button' (click)='editMail()'>Підтвердити</a>
+    <a [ngClass]='{disabled: userForm.invalid}' type='submit' class='ui massive ok blue button' (click)='editMail()'>Підтвердити</a>
     <a class='ui massive cancel button'>Відмінити</a>
     <!-- <a class='ui cancel button'>Повернутись</a> -->
   </div>
@@ -267,22 +291,22 @@
 <div class='ui modal edit session'>
   <div class="header">Редагування допуску</div>
   <div class='content'>
-    <form class='ui form'>
+    <form class='ui form' [formGroup]="sessionEditorForm" novalidate (submit)='onSubmit()'>
 
       <div class="field ">
         <label>Допуск</label>
-        <input id="editDopusk" pattern="[0-9]{1,4}" type="number">
+        <input id="editDopusk" formControlName='dopusk' (click)='showKeyboard($event, "EN", false, "real", getFormControl(sessionEditorForm.controls.dopusk))'  type="number">
 
       </div>
       <div class="field">
         <label>Опис</label>
-        <textarea id="editDescription" rows="1" maxlength="50" required></textarea>
+        <textarea id="editDescription" formControlName='description' (click)='showKeyboard($event, "UA", false, null, getFormControl(sessionEditorForm.controls.description))' rows="1" maxlength="50" required></textarea>
       </div>
 
     </form>
   </div>
   <div class="actions">
-    <a class='ui massive ok blue button' (click)='editSession()'>Підтвердити</a>
+    <a [ngClass]='{disabled: sessionEditorForm.invalid}' type='submit' class='ui massive ok blue button' (click)='editSession()'>Підтвердити</a>
     <a class='ui massive cancel button'>Відмінити</a>
     <!-- <a class='ui cancel button'>Повернутись</a> -->
   </div>
@@ -324,7 +348,7 @@
   <div class="header">Видалення сесії</div>
   <div class='content'>
     <div class="ui fluid deletion dropdown input massive">
-      
+
       <i class="dropdown icon"></i>
       <div class="default text">Оберіть Id сесії</div>
       <div class="menu ">
@@ -373,4 +397,30 @@
 </div>
 <div *ngIf="isMonitoring">
   <button class='ui button circular blue massive icon play-button' (click)='stopMonitoring()'><i class='icon stop'></i></button>
+</div>
+
+<div class='ui modal keyboard'>
+  <div class='content'>
+    <div id="container">
+      <textarea id="write" rows="6" cols="60" (click)='selectArea($event)'></textarea>
+      <ul id="keyboard">
+        <li class='letter' *ngFor='let symbol of symbols | onlyNumber: keyboardSettings.isNumber: keyboardSettings.isRealNumber'
+          (click)='addChar($event)'>{{symbol
+          | shiftSymbol: keyboardSettings.isShift: shiftSymbol: keyboardSettings.isNumber }}</li>
+        <ng-container *ngIf='!keyboardSettings.isNumber'>
+          <li class='letter' *ngFor='let letter of alphabets[keyboardSettings.currentAlphabet]' (click)='addChar($event)'>{{letter
+            | shiftLetter: keyboardSettings.isShift}}</li>
+        </ng-container>
+        <a *ngIf='keyboardSettings.multipleLanguage && !keyboardSettings.isNumber' class='ui blue huge basic compact button' (click)='changeAlphabet()'>{{keyboardSettings.currentAlphabet}}</a>
+        <a *ngIf='!keyboardSettings.isNumber' class='ui blue huge circular basic compact icon button' (click)='toggleShift()'><i
+            [ngClass]='{down: keyboardSettings.isShift, up: !keyboardSettings.isShift}' class='icon arrow'></i></a>
+        <a class='ui blue huge circular basic compact icon button' (click)='deleteChar($event)'><i class='icon arrow left'></i></a>
+        <a [ngClass]='{disabled: keyboardSettings.currentControl.invalid}' class='ui teal huge circular button compact'
+          (click)='approveChanges()'>OK</a>
+        <a class='ui red huge circular button compact' (click)='cancelChanges()'>Назад</a>
+        <li *ngIf='!keyboardSettings.isNumber' class="space" (click)='addWhiteSpace()'>&nbsp;</li>
+      </ul>
+    </div>
+  </div>
+
 </div>

@@ -9,6 +9,8 @@ import { Observable, interval, from, Subscription } from 'rxjs';
 import { repeatWhen, takeUntil, takeWhile } from 'rxjs/operators';
 import { Config } from 'src/models/config';
 import { TargetType } from 'src/models/types';
+import { FormControl, Validators, FormGroup, FormBuilder, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { DeviceDetectorService } from 'ngx-device-detector';
 
 declare const $: any;
 @Component({
@@ -23,6 +25,34 @@ export class MainComponent implements OnInit {
   selectedSessionId = '';
   selectedSessionIdDelete = '';
   selectedSessionIdExport = '';
+  symbols = ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '.'];
+  alphabetUa = ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х', 'ї', 'ф', 'і', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'є', 'я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю'];
+  alphabetEn = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm'];
+  alphabets = {
+    'UA': this.alphabetUa,
+    'EN': this.alphabetEn
+  }
+  emailPattern = '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$';
+  numberPattern = '[0-9]{3}$'
+  realNumberPattern = '[0]{1}+\.[0-9]{4,5}$'
+  defaultControl = new FormControl('', Validators.required);
+  emailControl = new FormControl('', [Validators.required, Validators.pattern(this.emailPattern)]);
+  smtpControl = new FormControl('', [Validators.required, Validators.pattern(this.numberPattern)]);
+  descriptionControl = new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]);
+  deltaControl = new FormControl(0.01, [Validators.required, Validators.min(0.001), Validators.max(0.9)]);
+  userForm: FormGroup;
+  sessionForm: FormGroup;
+  sessionEditorForm: FormGroup;
+  keyboardSettings = {
+    id: null,
+    multipleLanguage: true,
+    caretPosition: 0,
+    isShift: false,
+    currentAlphabet: '',
+    isNumber: false,
+    isRealNumber: false,
+    currentControl: this.defaultControl
+  };
   connectBT = false;
   currentSession;
   archiveSessions;
@@ -41,7 +71,9 @@ export class MainComponent implements OnInit {
   constructor(private sessionService: SessionService,
     private monitoringService: MonitoringService,
     private targetService: TargetService,
-    private configService: ConfigService) {
+    private configService: ConfigService,
+    private deviceService: DeviceDetectorService) {
+    this.initForm();
     //this.targets.push(new Target('s1',1,2,2,'ww','sd',0.2,0.9,0.8,'09-07-18'));
   }
 
@@ -56,6 +88,14 @@ export class MainComponent implements OnInit {
   target = {}
   ngOnInit() {
     // init semantic elements
+    $('.message .close')
+      .on('click', function () {
+        $(this)
+          .closest('.message')
+          .transition('fade')
+          ;
+      })
+      ;
     $('.ui.sidebar')
       .sidebar('setting', 'transition', 'overlay')
       .sidebar('attach events', '.menu .item.sidebarToggle');
@@ -70,12 +110,24 @@ export class MainComponent implements OnInit {
         on: 'click'
       });
     $('.ui.modal.creator').modal({
+      allowMultiple: true,
       closable: false,
       onDeny: function () {
         console.log('deny');
       },
       onApprove: function () {
         $('.ui.modal.history').modal('hide');
+      }
+    });
+    $('.ui.modal.email').modal({
+      allowMultiple: true
+    });
+    $('.ui.modal.keyboard').modal({
+      allowMultiple: true,
+      closable: false,
+      onDeny: function () {
+      },
+      onApprove: function () {
       }
     });
     $('.ui.modal.history').modal({
@@ -161,6 +213,25 @@ export class MainComponent implements OnInit {
 
 
   }
+
+  initForm() {
+    this.userForm = new FormGroup({
+      alarmEmail: new FormControl('', [Validators.required, Validators.pattern(this.emailPattern)]),
+      mailServer: new FormControl('', Validators.required),
+      mailPort: new FormControl('', [Validators.required, Validators.pattern(this.numberPattern)]),
+      mailLogin: new FormControl('', Validators.required),
+      mailPassword: new FormControl('', Validators.required)
+    });
+    this.sessionForm = new FormGroup({
+      dopusk: new FormControl(0.01, [Validators.required, Validators.min(0.001), Validators.max(0.9)]),
+      description: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(100)])
+    });
+    this.sessionEditorForm = new FormGroup({
+      dopusk: new FormControl(0.01, [Validators.required, Validators.min(0.001), Validators.max(0.9)]),
+      description: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(100)])
+    });
+  }
+
   changeTargetType(type) {
     let index = TargetType.findIndex((el) => { return el == type });
     this.params.type = TargetType[(index + 1 < TargetType.length) ? index + 1 : 0]
@@ -230,11 +301,18 @@ export class MainComponent implements OnInit {
   openMailCreation() {
     setTimeout(() => {
       if (this.currentConfig && this.currentConfig.email) {
-        $("#alarmEmail").val(this.currentConfig.email);
+        /*$("#alarmEmail").val(this.currentConfig.email);
         $("#mailServer").val(this.currentConfig.MAIL_SERVER);
         $("#mailPort").val(this.currentConfig.MAIL_PORT);
         $("#mailLogin").val(this.currentConfig.MAIL_USERNAME);
         $("#mailPassword").val(this.currentConfig.MAIL_PASSWORD);
+        $("#mailSsl").prop("checked", this.currentConfig.MAIL_USE_SSL);
+        $("#mailTls").prop("checked", this.currentConfig.MAIL_USE_TLS);*/
+        this.userForm.controls.alarmEmail.setValue(this.currentConfig.email);
+        this.userForm.controls.mailServer.setValue(this.currentConfig.MAIL_SERVER);
+        this.userForm.controls.mailPort.setValue(this.currentConfig.MAIL_PORT);
+        this.userForm.controls.mailLogin.setValue(this.currentConfig.MAIL_USERNAME);
+        this.userForm.controls.mailPassword.setValue(this.currentConfig.MAIL_PASSWORD);
         $("#mailSsl").prop("checked", this.currentConfig.MAIL_USE_SSL);
         $("#mailTls").prop("checked", this.currentConfig.MAIL_USE_TLS);
       }
@@ -246,8 +324,11 @@ export class MainComponent implements OnInit {
    * update session edit form in modal
    */
   openModalEditSession() {
-    $("#editDopusk").val(this.currentSession.tolerance);
-    $("#editDescription").val(this.currentSession.description);
+    //$("#editDopusk").val(this.currentSession.tolerance);
+    //$("#editDescription").val(this.currentSession.description);
+    this.sessionEditorForm.controls.dopusk.setValue(this.currentSession.tolerance);
+    this.sessionEditorForm.controls.description.setValue(this.currentSession.description);
+    console.log(this.sessionEditorForm);
     $('.ui.modal.edit.session').modal('show');
   }
 
@@ -413,6 +494,7 @@ export class MainComponent implements OnInit {
   stopMonitoring() {
     this.monitoringService.deleteMonitoringProcess(this.selectedSessionId).toPromise().then(res => {
       if (res.status == "Ok") {
+        $('.startWaiting').removeClass('active');
         console.log("stopped");
         this.isMonitoring = false;
         this.isGettingState = false;
@@ -436,6 +518,7 @@ export class MainComponent implements OnInit {
    * start monitoring process, getting its state,updating targets array. Updates session state from opened to active
    */
   runMonitoring() {
+    $('.startWaiting').addClass('active');
     this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
       if (res.status == 'Ok') {
 
@@ -451,6 +534,7 @@ export class MainComponent implements OnInit {
         }
         this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
           this.state = st.state;
+          if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
           if (this.state == "stop") {
             this.stopMonitoring();
           }
@@ -497,7 +581,12 @@ export class MainComponent implements OnInit {
    * add target to targets array req. 
    */
   addTarget() {
+    $('.calcTarget.errors').removeClass('visible');
+    $('.calcTargetButton').addClass('disabled');
+    $('.addTargetButton').addClass('loading').addClass('disabled');
     this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, "2018-12-19 16:56:22", this.params.type)).then(res => {
+      $('.calcTargetButton').removeClass('disabled');
+      $('.addTargetButton').removeClass('loading').removeClass('disabled');
       if (res.status == 'Ok') {
         console.log('created');
         this.params.x = null;
@@ -510,23 +599,28 @@ export class MainComponent implements OnInit {
           this.targets = res;
         })
 
-      }
-    })
+      } else { $('.calcTarget.errors').addClass('visible'); }
+    }, err => { $('.calcTargetButton').removeClass('disabled'); $('.addTargetButton').removeClass('loading').removeClass('disabled'); $('.calcTarget.errors').addClass('visible'); })
   }
 
   /**
    * measure coordinates req
    */
   getCoordinates() {
+    $('.calcTarget.errors').removeClass('visible');
+    $('.addTargetButton').addClass('disabled');
+    $('.calcTargetButton').addClass('loading').addClass('disabled');
     this.configService.getCoordinates(this.currentConfig.bt_addr, this.params.type).subscribe(res => {
+      $('.addTargetButton').removeClass('disabled');
+      $('.calcTargetButton').removeClass('loading').removeClass('disabled');
       if (res.point.X) {
         this.params.x = res.point.X;
         this.params.y = res.point.Y;
         this.params.h = res.point.H;
         this.params.ha = res.point.HA;
         this.params.va = res.point.VA;
-      }
-    });
+      } else { $('.calcTarget.errors').addClass('visible'); }
+    }, err => { $('.addTargetButton').removeClass('disabled'); $('.calcTargetButton').removeClass('loading').removeClass('disabled'); $('.calcTarget.errors').addClass('visible'); });
   }
 
 
@@ -662,6 +756,89 @@ export class MainComponent implements OnInit {
     })
   }
 
+  showKeyboard(event, currentAlphabet, multipleLanguage, type, control = this.defaultControl) {
+    console.log(this.deviceService);
+    if (this.deviceService.os != 'Android') {
+      this.keyboardSettings.isNumber = (type == 'number' || type == 'real') ? true : false;
+      this.keyboardSettings.isRealNumber = (type == 'real') ? true : false;
+      this.keyboardSettings.currentControl = control;
+      this.defaultControl.setValue($(`#${event.target.id}`).val());
+      $('.ui.modal.keyboard').modal('show');
+      $('#write').val($(`#${event.target.id}`).val());
+      console.log(this.keyboardSettings.currentControl);
+      this.keyboardSettings.id = event.target.id;
+      this.keyboardSettings.currentAlphabet = currentAlphabet;
+      this.keyboardSettings.multipleLanguage = multipleLanguage;
+    }
+
+  }
+  toggleShift() {
+    this.keyboardSettings.isShift = !this.keyboardSettings.isShift;
+  }
+
+  changeAlphabet() {
+    this.keyboardSettings.currentAlphabet = (this.keyboardSettings.currentAlphabet == 'UA') ? 'EN' : 'UA';
+  }
+
+  addChar(event) {
+    let content = $('#write').val();
+    let res = content.split('')
+    res.splice(this.keyboardSettings.caretPosition, 0, event.target.innerText);
+    this.keyboardSettings.currentControl.setValue(res.join(''));
+    $('#write').val(res.join(''));
+    this.keyboardSettings.caretPosition++; console.log('Caret position: ' + this.keyboardSettings.caretPosition);
+    console.log(this.keyboardSettings.currentControl);
+  }
+  addWhiteSpace() {
+    let content = $('#write').val();
+    this.keyboardSettings.currentControl.setValue(content + ' ');
+    $('#write').val(content + ' ');
+    this.keyboardSettings.caretPosition++; console.log('Caret position: ' + this.keyboardSettings.caretPosition);
+    console.log(this.keyboardSettings.currentControl);
+  }
+  deleteChar(event) {
+    let content = $('#write').val();
+    let res = content.split('')
+    res.splice(this.keyboardSettings.caretPosition - 1, 1);
+    this.keyboardSettings.currentControl.setValue(res.join(''));
+    $('#write').val(res.join(''));
+    this.keyboardSettings.caretPosition = (this.keyboardSettings.caretPosition > 0) ? this.keyboardSettings.caretPosition - 1 : 0;
+    console.log(this.keyboardSettings.currentControl);
+  }
+  selectArea($event) {
+    this.keyboardSettings.caretPosition = this.getCaretPosition(document.getElementById('write'));
+    console.log('Caret position: ' + this.keyboardSettings.caretPosition);
+  }
+
+  getCaretPosition(input) {
+    return input.selectionStart;
+  }
+
+  approveChanges() {
+    console.log(this.keyboardSettings.id);
+    //$(`#${this.keyboardSettings.id}`).val($('#write').val());
+    this.keyboardSettings.currentControl.setValue($('#write').val());
+    $('.ui.modal.keyboard').modal('hide');
+    this.keyboardSettings.caretPosition = 0;
+    this.keyboardSettings.isShift = false;
+    this.keyboardSettings.isRealNumber = false;
+    this.keyboardSettings.isNumber = false;
+    console.log(this.userForm);
+    $('#write').val('')
+  }
+
+  cancelChanges() {
+    $('.ui.modal.keyboard').modal('hide');
+    this.keyboardSettings.caretPosition = 0;
+    this.keyboardSettings.isShift = false;
+    this.keyboardSettings.isRealNumber = false;
+    this.keyboardSettings.isNumber = false;
+    $('#write').val('');
+  }
+
+  getFormControl(control) {
+    return control as FormControl
+  }
 
   activeSessionSearch() {
     // if another active session found update current to string and switch to found. start monitoring
@@ -718,4 +895,5 @@ export class MainComponent implements OnInit {
   }
 
 
+  onSubmit() { }
 }
