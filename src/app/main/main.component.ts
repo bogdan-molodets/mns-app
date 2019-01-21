@@ -50,7 +50,8 @@ export class MainComponent implements OnInit {
     currentAlphabet: '',
     isNumber: false,
     isRealNumber: false,
-    currentControl: this.defaultControl
+    currentControl: this.defaultControl,
+    resetValue: ''
   };
   connectBT = false;
   currentSession;
@@ -714,8 +715,10 @@ export class MainComponent implements OnInit {
       this.keyboardSettings.isRealNumber = (type == 'real') ? true : false;
       this.keyboardSettings.currentControl = control;
       this.defaultControl.setValue($(`#${event.target.id}`).val());
+      this.keyboardSettings.resetValue = $(`#${event.target.id}`).val();
       $('.ui.modal.keyboard').modal('show');
       $('#write').val($(`#${event.target.id}`).val());
+      this.keyboardSettings.caretPosition = $(`#${event.target.id}`).val().length;
       console.log(this.keyboardSettings.currentControl);
       this.keyboardSettings.id = event.target.id;
       this.keyboardSettings.currentAlphabet = currentAlphabet;
@@ -780,6 +783,7 @@ export class MainComponent implements OnInit {
 
   cancelChanges() {
     $('.ui.modal.keyboard').modal('hide');
+    this.keyboardSettings.currentControl.setValue(this.keyboardSettings.resetValue);
     this.keyboardSettings.caretPosition = 0;
     this.keyboardSettings.isShift = false;
     this.keyboardSettings.isRealNumber = false;

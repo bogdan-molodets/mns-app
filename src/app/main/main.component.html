@@ -153,7 +153,7 @@
               <h3>{{target.dH.toFixed(4)}}</h3>
             </td>
             <td>
-              <h3>{{target.last_upd | date:'yyyy.mm.dd hh:mm:ss'}}</h3>
+              <h3>{{target.last_upd | date:'yyyy.MM.dd hh:mm:ss'}}</h3>
             </td>
           </tr>
         </tbody>
@@ -220,7 +220,7 @@
     </form>
   </div>
   <div class="actions">
-    <a [ngClass]='{disabled: sessionForm.invalid}' type='submit' class='ui massive ok blue button' class='ui massive ok blue button' (click)='createSession()'>Підтвердити</a>
+    <a [ngClass]='{disabled: sessionForm.invalid}' type='submit' class='ui massive ok blue button' (click)='createSession()'>Підтвердити</a>
     <a class='ui massive cancel button'>Відмінити</a>
   </div>
 </div>

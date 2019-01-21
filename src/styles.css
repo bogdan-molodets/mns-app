@@ -10,11 +10,13 @@
 body ::-webkit-scrollbar {
     width: 50px!important;
 }
-
+[type=submit]{
+    -webkit-appearance: none!important;
+}
 textarea, input {
     font-size: 1.28571429rem !important;
     font-weight: bold !important;
-    color: black !important;
+    color: #444!important;
 }
 
 .delete-col {
@@ -153,6 +155,7 @@ table th{
     line-height: 50px;
     text-align: center;
     background: #fff;
+    color: #444!important;
     border: 1px solid #f9f9f9;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
