@@ -7,21 +7,29 @@
     z-index: 1000;
 }
 
-body ::-webkit-scrollbar {
+/**body ::-webkit-scrollbar {
     width: 50px!important;
+}**/
+
+[type=submit] {
+    -webkit-appearance: none !important;
 }
-[type=submit]{
-    -webkit-appearance: none!important;
-}
-textarea, input {
+
+textarea,
+input {
     font-size: 1.28571429rem !important;
     font-weight: bold !important;
-    color: #444!important;
+    color: #444 !important;
 }
 
 .delete-col {
     background: #2185d0;
     color: white;
+    padding: 0;
+}
+
+.delete-col .ui.button {
+    padding: 0;
 }
 
 .bt-devices-popup {
@@ -55,23 +63,30 @@ textarea, input {
     top: 10px;
     right: 5px;
 }
-.ui.menu{
-    margin: 0!important;
+
+.ui.menu {
+    margin: 0 !important;
 }
+
 .ui.table.target-table td.error,
 .ui.table.target-table tr.error {
     background-color: #db2828 !important;
     color: aliceblue !important;
 }
-
+.ui.table.target-table tr.updated:not(.error){
+    color: goldenrod !important;
+}
+.ui.table.target-table tr.updated.error{
+    color: gold !important;
+}
 .ui.segment {
-    border: none!important;
-    box-shadow: none!important;
-    padding: .5rem 1rem!important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: .5rem 1rem !important;
 }
 
-.ui.table{
-    margin: 0!important;
+.ui.table {
+    margin: 0 !important;
 }
 
 input[type="checkbox"] {
@@ -107,18 +122,23 @@ input[type="checkbox"]:checked {
 input[type=checkbox]:checked:after {
     display: block;
 }
-table th{
-    padding: .6em!important;
+
+table th {
+    padding: .6em !important;
 }
-#container .ui.button{
+
+#container .ui.button {
     margin: .5em 1px;
 }
-.ui.modal.keyboard{
-    margin-top: 0!important;
+
+.ui.modal.keyboard {
+    margin-top: 0 !important;
 }
-.ui.modal.keyboard .content{
+
+.ui.modal.keyboard .content {
     height: 550px;
 }
+
 /**virtual keyboard**/
 
 #container {
@@ -128,7 +148,7 @@ table th{
 }
 
 #write {
-    border: 1px solid #85b7d9!important;
+    border: 1px solid #85b7d9 !important;
     /*margin: 0 107px;*/
     padding: 5px;
     width: 800px;
@@ -160,7 +180,7 @@ table th{
     line-height: 50px;
     text-align: center;
     background: #fff;
-    color: #444!important;
+    color: #444 !important;
     border: 1px solid #f9f9f9;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
@@ -184,19 +204,74 @@ table th{
     border-color: #e5e5e5;
     cursor: pointer;
 }
-.calcTarget{
+
+.calcTarget {
     display: none;
 }
-.calcTarget.visible{
+
+.calcTarget.visible {
     display: block;
 }
-.errors{
+
+.errors {
     color: #912d2b;
     font-weight: bold
 }
-.errors li{
+
+.errors li {
     display: inline-block;
 }
-.ui.form .inline.fields{
-    margin:0!important;
+
+.ui.form .inline.fields {
+    margin: 0 !important;
+}
+
+/**Scrollable table**/
+
+.table tbody {
+    display: block;
+    max-height: 375px;
+    overflow-y: auto;
+    overflow-x: visible;
+}
+
+.table tbody.fullWidth {
+    max-height: 520px;
+}
+
+.table thead,
+tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.ui.table td {
+    width: auto;
+    padding: 0 !important;
+}
+
+@media screen and (max-width: 1100px) {
+    .ui.table tr>td:first-child,
+    .ui.table tr>th:first-child,
+    .ui.table tr>td:nth-child(2),
+    .ui.table tr>th:nth-child(2),
+    .ui.table tr>td:nth-child(3),
+    .ui.table tr>th:nth-child(3) {
+        width: 70px !important;
+    }
+    .ui.table tr>td:nth-child(4),
+    .ui.table tr>th:nth-child(4),
+    .ui.table tr>td:nth-child(5),
+    .ui.table tr>th:nth-child(5),
+    .ui.table tr>td:nth-child(6),
+    .ui.table tr>th:nth-child(6),
+    .ui.table tr>td:nth-child(7),
+    .ui.table tr>th:nth-child(7),
+    .ui.table tr>td:nth-child(8),
+    .ui.table tr>th:nth-child(8),
+    .ui.table tr>td:nth-child(9),
+    .ui.table tr>th:nth-child(9) {
+        width: 90px !important;
+    }
 }

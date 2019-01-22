@@ -88,7 +88,7 @@
         <div class='calcTarget errors'><i class='icon exclamation circle'></i>Помилка з вимірами</div>
       </form>
 
-      <table *ngIf="targets!=undefined" class='ui blue small table celled stripped target-table'>
+      <table *ngIf="targets!=undefined" class='ui blue small table stripped fixed target-table'>
         <thead>
           <tr class='center aligned'>
             <th></th>
@@ -122,9 +122,9 @@
           </tr>
 
         </thead>
-        <tbody>
-          <tr class='center aligned' *ngFor='let target of targets' [ngClass]='{error:checkDelta(target)}'>
-            <td class="delete-col collapsing">
+        <tbody [ngClass]='{fullWidth: isMonitoring}'>
+          <tr class='center aligned' *ngFor='let target of targets; let i = index; trackBy: trackByFn' [id]='i' [ngClass]='{error:checkDelta(target)}'>
+            <td class="delete-col ">
               <a [ngClass]='{disabled: isMonitoring}' (click)='deleteTarget(target)' class='ui icon button blue'><i
                   class="icon large trash alternate"></i></a>
             </td>

@@ -25,6 +25,7 @@ export class MainComponent implements OnInit {
   selectedSessionId = '';
   selectedSessionIdDelete = '';
   selectedSessionIdExport = '';
+  lastMonitoringData = [];
   symbols = ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '.'];
   alphabetUa = ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х', 'ї', 'ф', 'і', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'є', 'я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю'];
   alphabetEn = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm'];
@@ -495,6 +496,7 @@ export class MainComponent implements OnInit {
   stopMonitoring() {
     this.monitoringService.deleteMonitoringProcess(this.selectedSessionId).toPromise().then(res => {
       if (res.status == "Ok") {
+        $(`.target-table tr`).removeClass('updated');
         $('.startWaiting').removeClass('active');
         console.log("stopped");
         this.isMonitoring = false;
@@ -534,6 +536,7 @@ export class MainComponent implements OnInit {
           this.targetMonprcSubscription.unsubscribe();
           this.monprcStateSubscription.unsubscribe();
         }
+        this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets)
         this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
           this.state = st.state;
           if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
@@ -545,6 +548,12 @@ export class MainComponent implements OnInit {
         this.isMonitoring = true;
         this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
           this.targets = res;
+          let index = this.lastMonitoringData.findIndex((val,index,arr)=>{return val.last_upd != this.targets[index].last_upd});
+          if(index!=-1){
+            $(`.target-table tr`).removeClass('updated');
+            $(`.target-table #${index}`).addClass('updated');
+          }
+          this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets);
         });
       }
     })
@@ -562,7 +571,7 @@ export class MainComponent implements OnInit {
       this.targetMonprcSubscription.unsubscribe();
       this.monprcStateSubscription.unsubscribe();
     }
-
+    this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets)
     this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
       this.state = st.state;
       console.log(st.state);
@@ -574,6 +583,12 @@ export class MainComponent implements OnInit {
     this.isMonitoring = true;
     this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
       this.targets = res;
+      let index = this.lastMonitoringData.findIndex((val,index,arr)=>{return val.last_upd != this.targets[index].last_upd});
+      if(index!=-1){
+        $(`.target-table tr`).removeClass('updated');
+        $(`.target-table #${index}`).addClass('updated');
+      }
+      this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets);
     });
 
   }
@@ -907,4 +922,8 @@ export class MainComponent implements OnInit {
 
 
   onSubmit() { }
+
+  trackByFn(index,item){
+    return index;
+  }
 }
