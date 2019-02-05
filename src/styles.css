@@ -21,7 +21,9 @@ input {
     font-weight: bold !important;
     color: #444 !important;
 }
-
+.ui.popup:before{
+    display: none;
+}
 .delete-col {
     background: #2185d0;
     color: white;
@@ -32,33 +34,33 @@ input {
     padding: 0;
 }
 
-.bt-devices-popup {
+.bt-wifi-popup ,.bt-devices-popup {
     width: calc(100% - 100px) !important;
     right: 50px !important;
     height: calc(100% - 100px);
 }
 
-.bt-devices-popup .label {
+.bt-wifi-popup .label, .bt-devices-popup .label {
     margin: .1em .1285714em !important;
 }
 
-.bt-devices-popup .ui.toggle {
+.bt-wifi-popup .ui.toggle, .bt-devices-popup .ui.toggle {
     margin-top: .5em;
     display: block;
     margin-bottom: 1.5em;
 }
 
-.bt-devices-popup h3 {
+.bt-wifi-popup h3, .bt-devices-popup h3 {
     margin-top: .5em;
 }
 
-.bt-devices-popup .btn-container {
+.bt-wifi-popup .btn-container, .bt-devices-popup .btn-container {
     position: absolute;
     bottom: 15px;
     right: 15px;
 }
 
-.bt-devices-popup .x.icon {
+.bt-wifi-popup .x.icon, .bt-devices-popup .x.icon {
     position: absolute;
     top: 10px;
     right: 5px;

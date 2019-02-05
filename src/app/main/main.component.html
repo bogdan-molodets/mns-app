@@ -8,6 +8,23 @@
     <div *ngIf='state != "" ' class='ui item header'>Стан: {{state}}</div>
   </ng-container>
   <div class="right menu">
+    <button [attr.disabled]='isMonitoring?true:null' class='ui item header item bt-wifi'><i class='icon wifi'></i></button>
+    <div class="ui fluid popup bottom left transition hidden bt-wifi-popup">
+      <h1>Мережеве з'єднання</h1>
+      <i class='blue huge x icon' data-content='Top Right' dat-position='top right' (click)='closeWifiPopup()'></i>
+      <!--<h3 *ngIf='currentConfig!=undefined'>Поточний прилад - {{currentConfig.bt_name}}</h3>
+      <div class="ui huge blue button" *ngFor='let BTDevice of currentBTDevices; let i = index' id='{{i}}' (click)='selectBT(BTDevice, i)'>
+        <h2>{{BTDevice.name}}</h2>
+      </div>-->
+      <div class="ui inverted dimmer ">
+        <div class="ui large loader"></div>
+      </div>
+      <div class='btn-container'>
+        <button class='ui massive button blue'  tabindex="0">Пошук</button>
+        <button class='ui massive button blue'  tabindex="0">Підтвердити</button>
+      </div>
+
+    </div>
     <button [attr.disabled]='isMonitoring?true:null' class='ui item header item bt-devices'><i [ngClass]='{green: (connectBT && currentConfig!=undefined), red: (!connectBT || currentConfig==undefined)}'
         class='icon bluetooth b'></i></button>
     <div class="ui fluid popup bottom left transition hidden bt-devices-popup">

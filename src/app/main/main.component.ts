@@ -111,6 +111,13 @@ export class MainComponent implements OnInit {
         position: 'bottom right',
         on: 'click'
       });
+    $('.right.menu .bt-wifi')
+      .popup({
+        inline: true,
+        hoverable: false,
+        position: 'bottom right',
+        on: 'click'
+      });
     $('.ui.modal.creator').modal({
       allowMultiple: true,
       closable: false,
@@ -289,6 +296,10 @@ export class MainComponent implements OnInit {
 
   closeBTPopup() {
     $('.right.menu .bt-devices').popup('hide');
+  }
+
+  closeWifiPopup() {
+    $('.right.menu .bt-wifi').popup('hide');
   }
 
   openSessionCreation() {
@@ -548,8 +559,8 @@ export class MainComponent implements OnInit {
         this.isMonitoring = true;
         this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
           this.targets = res;
-          let index = this.lastMonitoringData.findIndex((val,index,arr)=>{return val.last_upd != this.targets[index].last_upd});
-          if(index!=-1){
+          let index = this.lastMonitoringData.findIndex((val, index, arr) => { return val.last_upd != this.targets[index].last_upd });
+          if (index != -1) {
             $(`.target-table tr`).removeClass('updated');
             $(`.target-table #${index}`).addClass('updated');
           }
@@ -583,8 +594,8 @@ export class MainComponent implements OnInit {
     this.isMonitoring = true;
     this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
       this.targets = res;
-      let index = this.lastMonitoringData.findIndex((val,index,arr)=>{return val.last_upd != this.targets[index].last_upd});
-      if(index!=-1){
+      let index = this.lastMonitoringData.findIndex((val, index, arr) => { return val.last_upd != this.targets[index].last_upd });
+      if (index != -1) {
         $(`.target-table tr`).removeClass('updated');
         $(`.target-table #${index}`).addClass('updated');
       }
@@ -923,7 +934,7 @@ export class MainComponent implements OnInit {
 
   onSubmit() { }
 
-  trackByFn(index,item){
+  trackByFn(index, item) {
     return index;
   }
 }
