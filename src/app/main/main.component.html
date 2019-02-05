@@ -12,16 +12,16 @@
     <div class="ui fluid popup bottom left transition hidden bt-wifi-popup">
       <h1>Мережеве з'єднання</h1>
       <i class='blue huge x icon' data-content='Top Right' dat-position='top right' (click)='closeWifiPopup()'></i>
-      <!--<h3 *ngIf='currentConfig!=undefined'>Поточний прилад - {{currentConfig.bt_name}}</h3>
-      <div class="ui huge blue button" *ngFor='let BTDevice of currentBTDevices; let i = index' id='{{i}}' (click)='selectBT(BTDevice, i)'>
-        <h2>{{BTDevice.name}}</h2>
-      </div>-->
+      <!--<h3 *ngIf='currentConfig!=undefined'>Поточний прилад - {{currentConfig.bt_name}}</h3>-->
+      <div class="ui huge blue button" *ngFor='let conn of connections; let i = index' id='{{i}}'>
+        <h2>{{conn.ssid}}</h2>
+      </div>
       <div class="ui inverted dimmer ">
         <div class="ui large loader"></div>
       </div>
       <div class='btn-container'>
-        <button class='ui massive button blue'  tabindex="0">Пошук</button>
-        <button class='ui massive button blue'  tabindex="0">Підтвердити</button>
+        <button class='ui massive button blue' (click)='searchConnections()' tabindex="0">Пошук</button>
+        <button class='ui massive button blue' tabindex="0">Підтвердити</button>
       </div>
 
     </div>
@@ -47,7 +47,7 @@
 
 </div>
 <div class="ui dimmer startWaiting">
-    <div class="ui large text loader">Зачекайте</div>
+  <div class="ui large text loader">Зачекайте</div>
 </div>
 <div class='ui pushable'>
   <div class="ui left blue inline sidebar inverted vertical menu">
@@ -140,7 +140,8 @@
 
         </thead>
         <tbody [ngClass]='{fullWidth: isMonitoring}'>
-          <tr class='center aligned' *ngFor='let target of targets; let i = index; trackBy: trackByFn' [id]='i' [ngClass]='{error:checkDelta(target)}'>
+          <tr class='center aligned' *ngFor='let target of targets; let i = index; trackBy: trackByFn' [id]='i'
+            [ngClass]='{error:checkDelta(target)}'>
             <td class="delete-col ">
               <a [ngClass]='{disabled: isMonitoring}' (click)='deleteTarget(target)' class='ui icon button blue'><i
                   class="icon large trash alternate"></i></a>
@@ -224,13 +225,13 @@
 
       <div class="field">
         <label>Допуск</label>
-        <input value="0.01" id="dopusk" formControlName='dopusk' (click)='showKeyboard($event, "EN", false, "real", getFormControl(sessionForm.controls.dopusk))' 
+        <input value="0.01" id="dopusk" formControlName='dopusk' (click)='showKeyboard($event, "EN", false, "real", getFormControl(sessionForm.controls.dopusk))'
           type="number" required>
       </div>
       <div class="field">
         <label>Опис</label>
-        <textarea id="description" formControlName='description' (click)='showKeyboard($event, "UA", false, null, getFormControl(sessionForm.controls.description))' rows="1"
-          maxlength="50" required></textarea>
+        <textarea id="description" formControlName='description' (click)='showKeyboard($event, "UA", false, null, getFormControl(sessionForm.controls.description))'
+          rows="1" maxlength="50" required></textarea>
       </div>
 
       <!-- </div> -->
@@ -249,25 +250,28 @@
       <div class="field ">
         <label>Електронна пошта отримувача</label>
         <input id="alarmEmail" formControlName='alarmEmail' type="email" (click)='showKeyboard($event, "EN", false, null, getFormControl(userForm.controls.alarmEmail))'>
-        <div *ngIf="userForm.controls.alarmEmail.invalid && (userForm.controls.alarmEmail.dirty || userForm.controls.alarmEmail.touched)" class="errors">
-            <li *ngIf='userForm.controls.alarmEmail.errors.required'>Обов'язкове поле;</li>
-            <li *ngIf='userForm.controls.alarmEmail.errors.pattern'>Помилка формату адресу;</li>
+        <div *ngIf="userForm.controls.alarmEmail.invalid && (userForm.controls.alarmEmail.dirty || userForm.controls.alarmEmail.touched)"
+          class="errors">
+          <li *ngIf='userForm.controls.alarmEmail.errors.required'>Обов'язкове поле;</li>
+          <li *ngIf='userForm.controls.alarmEmail.errors.pattern'>Помилка формату адресу;</li>
         </div>
       </div>
       <div class='fields'>
         <div class="field eight wide">
           <label>Поштовий сервер</label>
           <input id="mailServer" formControlName='mailServer' type='text' (click)='showKeyboard($event, "EN", false, null, getFormControl(userForm.controls.mailServer))'>
-          <div *ngIf="userForm.controls.mailServer.invalid && (userForm.controls.mailServer.dirty || userForm.controls.mailServer.touched)" class="errors">
-              <li *ngIf='userForm.controls.mailServer.errors.required'>Обов'язкове поле;</li>
+          <div *ngIf="userForm.controls.mailServer.invalid && (userForm.controls.mailServer.dirty || userForm.controls.mailServer.touched)"
+            class="errors">
+            <li *ngIf='userForm.controls.mailServer.errors.required'>Обов'язкове поле;</li>
           </div>
         </div>
         <div class="field eight wide">
           <label>SMTP порт</label>
           <input id="mailPort" formControlName='mailPort' type='number' (click)='showKeyboard($event, "EN", false, "number", getFormControl(userForm.controls.mailPort))'>
-          <div *ngIf="userForm.controls.mailPort.invalid && (userForm.controls.mailPort.dirty || userForm.controls.mailPort.touched)" class="errors">
-              <li *ngIf='userForm.controls.mailPort.errors.required'>Обов'язкове поле;</li>
-              <li *ngIf='userForm.controls.mailPort.errors.pattern'>Порт має складатися з трьох цифр.</li>
+          <div *ngIf="userForm.controls.mailPort.invalid && (userForm.controls.mailPort.dirty || userForm.controls.mailPort.touched)"
+            class="errors">
+            <li *ngIf='userForm.controls.mailPort.errors.required'>Обов'язкове поле;</li>
+            <li *ngIf='userForm.controls.mailPort.errors.pattern'>Порт має складатися з трьох цифр.</li>
           </div>
         </div>
       </div>
@@ -275,15 +279,17 @@
         <div class="field eight wide">
           <label>Логін</label>
           <input id="mailLogin" formControlName='mailLogin' type='text' (click)='showKeyboard($event, "EN", false, null, getFormControl(userForm.controls.mailLogin))'>
-          <div *ngIf="userForm.controls.mailLogin.invalid && (userForm.controls.mailLogin.dirty || userForm.controls.mailLogin.touched)" class="errors">
-              <li *ngIf='userForm.controls.mailLogin.errors.required'>Обов'язкове поле;</li>
+          <div *ngIf="userForm.controls.mailLogin.invalid && (userForm.controls.mailLogin.dirty || userForm.controls.mailLogin.touched)"
+            class="errors">
+            <li *ngIf='userForm.controls.mailLogin.errors.required'>Обов'язкове поле;</li>
           </div>
         </div>
         <div class="field eight wide">
           <label>Пароль</label>
           <input id="mailPassword" formControlName='mailPassword' type='text' type="password" (click)='showKeyboard($event, "EN", false, null, getFormControl(userForm.controls.mailPassword))'>
-          <div *ngIf="userForm.controls.mailPassword.invalid && (userForm.controls.mailPassword.dirty || userForm.controls.mailPassword.touched)" class="errors">
-              <li *ngIf='userForm.controls.mailPassword.errors.required'>Обов'язкове поле;</li>
+          <div *ngIf="userForm.controls.mailPassword.invalid && (userForm.controls.mailPassword.dirty || userForm.controls.mailPassword.touched)"
+            class="errors">
+            <li *ngIf='userForm.controls.mailPassword.errors.required'>Обов'язкове поле;</li>
           </div>
         </div>
       </div>
@@ -312,12 +318,14 @@
 
       <div class="field ">
         <label>Допуск</label>
-        <input id="editDopusk" formControlName='dopusk' (click)='showKeyboard($event, "EN", false, "real", getFormControl(sessionEditorForm.controls.dopusk))'  type="number">
+        <input id="editDopusk" formControlName='dopusk' (click)='showKeyboard($event, "EN", false, "real", getFormControl(sessionEditorForm.controls.dopusk))'
+          type="number">
 
       </div>
       <div class="field">
         <label>Опис</label>
-        <textarea id="editDescription" formControlName='description' (click)='showKeyboard($event, "UA", false, null, getFormControl(sessionEditorForm.controls.description))' rows="1" maxlength="50" required></textarea>
+        <textarea id="editDescription" formControlName='description' (click)='showKeyboard($event, "UA", false, null, getFormControl(sessionEditorForm.controls.description))'
+          rows="1" maxlength="50" required></textarea>
       </div>
 
     </form>
@@ -389,7 +397,7 @@
   <div class="header">Експорт сесії</div>
   <div class='content'>
     <div class="ui fluid export dropdown input massive">
-      
+
       <i class="dropdown icon"></i>
       <div class="default text">Оберіть Id сесії</div>
       <div class="menu ">
@@ -428,7 +436,8 @@
           <li class='letter' *ngFor='let letter of alphabets[keyboardSettings.currentAlphabet]' (click)='addChar($event)'>{{letter
             | shiftLetter: keyboardSettings.isShift}}</li>
         </ng-container>
-        <a *ngIf='keyboardSettings.multipleLanguage && !keyboardSettings.isNumber' class='ui blue huge basic compact button' (click)='changeAlphabet()'>{{keyboardSettings.currentAlphabet}}</a>
+        <a *ngIf='keyboardSettings.multipleLanguage && !keyboardSettings.isNumber' class='ui blue huge basic compact button'
+          (click)='changeAlphabet()'>{{keyboardSettings.currentAlphabet}}</a>
         <a *ngIf='!keyboardSettings.isNumber' class='ui blue huge circular basic compact icon button' (click)='toggleShift()'><i
             [ngClass]='{down: keyboardSettings.isShift, up: !keyboardSettings.isShift}' class='icon arrow'></i></a>
         <a class='ui blue huge circular basic compact icon button' (click)='deleteChar($event)'><i class='icon arrow left'></i></a>

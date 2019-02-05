@@ -40,4 +40,20 @@ export class ConfigService {
   getCoordinates(mac_adr: string, target: string): Observable<any> {
     return this.httpClient.get(`${this.apiUrl}/TS/${mac_adr}/${target}/data`);
   }
+
+  getConnections(): Observable<any> {
+    return this.httpClient.get(`${this.apiUrl}/network/wifi`);
+  }
+
+  connect(password: any, ssid: any): Observable<any> {
+    return this.httpClient.post<any>(`${this.apiUrl}//network/wifi`, { key: password, ssid: ssid });
+  }
+  disconnect() {
+    return this.httpClient.delete<any>(`${this.apiUrl}//network/wifi`)
+  }
+
+  getIp(): Observable<any> {
+    return this.httpClient.get(`${this.apiUrl}/network/ifconfig`);
+  }
+
 }

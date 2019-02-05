@@ -6,7 +6,7 @@ import { MonitoringService } from 'src/services/monitoring.service';
 import { TargetService } from 'src/services/target.service';
 import { ConfigService } from 'src/services/config.service';
 import { Observable, interval, from, Subscription } from 'rxjs';
-import { repeatWhen, takeUntil, takeWhile } from 'rxjs/operators';
+import { repeatWhen, takeUntil, takeWhile, timeout } from 'rxjs/operators';
 import { Config } from 'src/models/config';
 import { TargetType } from 'src/models/types';
 import { FormControl, Validators, FormGroup, FormBuilder, FormArray, ReactiveFormsModule } from '@angular/forms';
@@ -70,6 +70,9 @@ export class MainComponent implements OnInit {
   state = "";
   monprcStateSubscription: Subscription;
   targetMonprcSubscription: Subscription;
+
+  connections: any[] = [];
+  ips: any[] = [];
   constructor(private sessionService: SessionService,
     private monitoringService: MonitoringService,
     private targetService: TargetService,
@@ -907,6 +910,48 @@ export class MainComponent implements OnInit {
         console.log('current session become opened');
         this.currentSession = opened;
         this.updateTargetsTable();
+      }
+
+    });
+  }
+
+  /**
+   * get list of available networks. If already connected connect with fake data and get list again
+   */
+  searchConnections() {
+    this.configService.getConnections().toPromise().then(connections => {
+      if (connections.status === 'Ok') {
+        if (connections.wifi_list.length > 0) {
+          this.connections = connections.wifi_list;
+        } else {
+          this.configService.connect('123456789', 'lalka').pipe(timeout(3000)).subscribe(conn => {
+            console.log(conn);
+          }, error => {
+            this.configService.getConnections().toPromise().then(connections => {
+              if (connections.wifi_list.length > 0) {
+                this.connections = connections.wifi_list;
+              }
+            });
+          });
+        }
+      }
+    });
+  }
+
+  /**
+   * connect to wifi and get list of ip adresses
+   * @param password 
+   * @param ssid 
+   */
+  connect(password: any, ssid: any) {
+    this.configService.connect(password, ssid).toPromise().then(conn => {
+      if (conn.status === 'Ok') {
+        console.log(conn);
+        this.configService.getIp().toPromise().then(ips => {
+          if (ips.status === 'Ok') {
+            this.ips = ips.if_list;
+          }
+        });
       }
 
     });
