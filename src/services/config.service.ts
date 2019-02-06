@@ -46,10 +46,10 @@ export class ConfigService {
   }
 
   connect(password: any, ssid: any): Observable<any> {
-    return this.httpClient.post<any>(`${this.apiUrl}//network/wifi`, { key: password, ssid: ssid });
+    return this.httpClient.post<any>(`${this.apiUrl}/network/wifi`, { key: password, ssid: ssid });
   }
   disconnect() {
-    return this.httpClient.delete<any>(`${this.apiUrl}//network/wifi`)
+    return this.httpClient.delete<any>(`${this.apiUrl}/network/wifi`)
   }
 
   getIp(): Observable<any> {
