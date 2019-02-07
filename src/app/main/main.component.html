@@ -13,15 +13,28 @@
       <h1>Мережеве з'єднання</h1>
       <i class='blue huge x icon' data-content='Top Right' dat-position='top right' (click)='closeWifiPopup()'></i>
       <!--<h3 *ngIf='currentConfig!=undefined'>Поточний прилад - {{currentConfig.bt_name}}</h3>-->
-      <div class="ui huge blue button" *ngFor='let conn of connections; let i = index' id='{{i}}'>
+      <div class="ui huge blue button" *ngFor='let conn of getUnique(connections); let i = index' [ngClass] = '{yellow: conn == currentConn}' id='{{i}}' (click)='selectWifi(conn)'>
         <h2>{{conn.ssid}}</h2>
       </div>
+      <!--<br><br>-->
+      <form *ngIf = 'showPasswordInput == true' class='ui form' [formGroup]="wifiPasswordForm" novalidate (submit)='onSubmit()'>
+        <div class="ui input action field ">
+          <!--<label>Ключ безпеки</label>-->
+          <input id="password" placeholder="Ключ безпеки" formControlName='password' type="password" (click)='showKeyboard($event, "EN", false, null, getFormControl(wifiPasswordForm.controls.password))'>
+          <a [ngClass]='{disabled: wifiPasswordForm.invalid}' type='submit' class='ui massive ok blue button' (click)='connect(currentConn.ssid, wifiPasswordForm.controls.password.value)'>Підтвердити</a>
+        </div>
+      </form>
+      <!--<br><br>-->
+      <a class="ui massive basic label" *ngFor='let ip_item of ips'>
+        {{ip_item.interface}} : {{ip_item.ip}}
+      </a>
       <div class="ui inverted dimmer ">
         <div class="ui large loader"></div>
       </div>
       <div class='btn-container'>
-        <button class='ui massive button blue' (click)='searchConnections()' tabindex="0">Пошук</button>
-        <button class='ui massive button blue' tabindex="0">Підтвердити</button>
+        <button [ngClass]='{disabled: checkWlan0(ips) }' class='ui massive button blue' (click)='disconnect()' tabindex="0">Відключити</button>
+        <button [ngClass]='{disabled: checkEth0(ips) }' class='ui massive button blue' (click)='searchConnections()'
+          tabindex="0">Пошук</button>
       </div>
 
     </div>
@@ -424,7 +437,7 @@
   <button class='ui button circular blue massive icon play-button' (click)='stopMonitoring()'><i class='icon stop'></i></button>
 </div>
 
-<div class='ui modal keyboard'>
+<div class='ui modal keyboard' onclick="event.stopPropagation()">
   <div class='content'>
     <div id="container">
       <textarea id="write" rows="6" cols="60" (click)='selectArea($event)'></textarea>

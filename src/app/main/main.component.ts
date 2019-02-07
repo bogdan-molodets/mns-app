@@ -19,6 +19,7 @@ declare const $: any;
   styleUrls: ['./main.component.css']
 })
 export class MainComponent implements OnInit {
+  showPasswordInput = false;
   initId: number = 101;
   initSessionId: number = 10;
   notification: string = '';
@@ -26,7 +27,8 @@ export class MainComponent implements OnInit {
   selectedSessionIdDelete = '';
   selectedSessionIdExport = '';
   lastMonitoringData = [];
-  symbols = ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '.'];
+  currentConn;
+  symbols = ['$', '`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '.'];
   alphabetUa = ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х', 'ї', 'ф', 'і', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'є', 'я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю'];
   alphabetEn = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm'];
   alphabets = {
@@ -44,6 +46,7 @@ export class MainComponent implements OnInit {
   userForm: FormGroup;
   sessionForm: FormGroup;
   sessionEditorForm: FormGroup;
+  wifiPasswordForm: FormGroup;
   keyboardSettings = {
     id: null,
     multipleLanguage: true,
@@ -93,6 +96,11 @@ export class MainComponent implements OnInit {
   target = {}
   ngOnInit() {
     // init semantic elements
+    this.configService.getIp().toPromise().then(ips => {
+      if (ips.status === 'Ok') {
+        this.ips = ips.if_list;
+      }
+    });
     $('.message .close')
       .on('click', function () {
         $(this)
@@ -242,6 +250,7 @@ export class MainComponent implements OnInit {
       dopusk: new FormControl(0.01, [Validators.required, Validators.min(0.001), Validators.max(0.9)]),
       description: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(100)])
     });
+    this.wifiPasswordForm = new FormGroup({password: new FormControl('', [Validators.maxLength(100), Validators.minLength(8), Validators.required])});
   }
 
   changeTargetType(type) {
@@ -795,7 +804,7 @@ export class MainComponent implements OnInit {
 
   showKeyboard(event, currentAlphabet, multipleLanguage, type, control = this.defaultControl) {
     console.log(this.deviceService);
-    if (this.deviceService.os != 'Android') {
+    if (this.deviceService.os == 'Android') {
       this.keyboardSettings.isNumber = (type == 'number' || type == 'real') ? true : false;
       this.keyboardSettings.isRealNumber = (type == 'real') ? true : false;
       this.keyboardSettings.currentControl = control;
@@ -943,8 +952,26 @@ export class MainComponent implements OnInit {
    * @param password 
    * @param ssid 
    */
-  connect(password: any, ssid: any) {
+  connect(ssid: any,password: any) {
     this.configService.connect(password, ssid).toPromise().then(conn => {
+      if (conn.status === 'Ok') {
+        this.showPasswordInput = false;
+        console.log(conn);
+        this.configService.getIp().toPromise().then(ips => {
+          if (ips.status === 'Ok') {
+            this.connections = [];
+            this.ips = ips.if_list;
+          }
+        });
+      }else{
+        console.log("Error!");
+      }
+
+    });
+  }
+
+  disconnect() {
+    this.configService.disconnect().toPromise().then(conn => {
       if (conn.status === 'Ok') {
         console.log(conn);
         this.configService.getIp().toPromise().then(ips => {
@@ -982,4 +1009,36 @@ export class MainComponent implements OnInit {
   trackByFn(index, item) {
     return index;
   }
+
+  checkWlan0(ips) {
+    return (!ips || (ips && ips[1] && !ips[1].hasOwnProperty('ip')));
+  }
+
+  checkEth0(ips) {
+    return (!ips || (ips && ips[1] && ips[1].hasOwnProperty('ip')));
+  }
+
+  getUnique(wifi) {
+    let unique = [''], res = [];
+    for (let i = 0; i < wifi.length; i++) {
+      if (unique.indexOf(wifi[i]['ssid']) > -1 || wifi[i]['ssid'] == '') {
+      } else {
+        unique.push(wifi[i]['ssid'])
+        res.push(wifi[i]);
+      }
+    }
+    return res;
+  }
+
+  selectWifi(conn){
+    this.showPasswordInput = false;
+    this.wifiPasswordForm.controls.password.setValue('');
+    this.currentConn = conn;
+    if(conn.encrypted){
+      this.showPasswordInput = true;
+    }else{
+
+    }
+  }
+
 }

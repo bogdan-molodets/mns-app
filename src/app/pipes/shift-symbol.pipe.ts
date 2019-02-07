@@ -7,6 +7,8 @@ export class ShiftSymbolPipe implements PipeTransform {
             return value
         } else {
             switch (value) {
+                case '$':
+                    return '#';
                 case '`':
                     return '@';
                 case '1':

@@ -66,6 +66,12 @@ input {
     right: 5px;
 }
 
+.bt-wifi-popup .ui.basic.label, .bt-wifi-popup .ui.form{
+    margin-top: 10px; 
+}
+.bt-wifi-popup .ui.form{
+    overflow: hidden;
+}
 .ui.menu {
     margin: 0 !important;
 }
