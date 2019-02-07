@@ -807,7 +807,7 @@ export class MainComponent implements OnInit {
 
   showKeyboard(event, currentAlphabet, multipleLanguage, type, control = this.defaultControl) {
     console.log(this.deviceService);
-    if (this.deviceService.os == 'Android') {
+    if (this.deviceService.os != 'Android') {
       this.keyboardSettings.isNumber = (type == 'number' || type == 'real') ? true : false;
       this.keyboardSettings.isRealNumber = (type == 'real') ? true : false;
       this.keyboardSettings.currentControl = control;
