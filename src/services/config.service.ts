@@ -56,4 +56,8 @@ export class ConfigService {
     return this.httpClient.get(`${this.apiUrl}/network/ifconfig`);
   }
 
+  shutdownSystem(): Observable<any> {
+    return this.httpClient.post(`${this.apiUrl}/system/shutdown`,{});
+  }
+
 }
