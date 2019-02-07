@@ -714,8 +714,8 @@ export class MainComponent implements OnInit {
           this.selectedSessionId = this.currentSession.session_id;
           this.updateTargetsTable();
           let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
-          let sessionUpdate = new Session(opened.session_id, opened.description, +opened.lat, +opened.lon, +opened.hgt, opened.timestamp, "string", opened.tolerance);
           if (opened) {
+            let sessionUpdate = new Session(opened.session_id, opened.description, +opened.lat, +opened.lon, +opened.hgt, opened.timestamp, "string", opened.tolerance);         
             this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
               console.log('update to string in create');
             });
@@ -797,6 +797,9 @@ export class MainComponent implements OnInit {
     this.sessionService.updateSession(sessionUpdate).toPromise().then(update => {
       if (update.stauts = "Ok") {
         // request to close computer
+        this.configService.shutdownSystem().toPromise().then(res => {
+          console.log('shutdown');
+        });
       }
 
     })
