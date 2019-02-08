@@ -449,6 +449,7 @@ export class MainComponent implements OnInit {
    * get targets list
    */
   openSession() {
+    $('.ui.selection.dropdown').dropdown('clear');
     this.sessionService.getSessions().toPromise().then(result => {
       this.currentSession = result.find(el => { return el.session_id == this.selectedSessionId });
       let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
@@ -738,10 +739,11 @@ export class MainComponent implements OnInit {
   }
 
   /**
-   * show modal confirms selected session deletion
+   * show modal confirms selected session deletion. clear delete dropdown
    */
   openDeleteConfirm() {
     $('.ui.modal.confirm').modal('show');
+    $('.ui.deletion.dropdown').dropdown('clear');
   }
 
   /**
@@ -749,7 +751,12 @@ export class MainComponent implements OnInit {
    */
   exportConfirm(e: any) {
     $("#export").attr('href', this.sessionService.getHistoryFileUrl(this.selectedSessionIdExport));
+    $('.ui.export.dropdown').dropdown('clear');
 
+  }
+
+  closeModal(selector:string) {
+    $(selector).modal('hide');
   }
 
   deleteSession() {

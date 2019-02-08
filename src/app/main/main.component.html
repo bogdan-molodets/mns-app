@@ -188,7 +188,7 @@
   </div>
   <div class='actions'>
     <a class='ui massive cancel blue button'>Створити нову сесію</a>
-    <a class='ui massive ok button'>Відкрити сесію з архіву</a>
+    <a class='ui massive ok button' (click)='closeModal("ui.modal.notification")'>Відкрити сесію з архіву</a>
   </div>
 </div>
 
@@ -212,7 +212,7 @@
 
   </div>
   <div class="actions">
-    <button *ngIf='currentSession != undefined' class='ui massive cancel button'>Відмінити</button>
+    <button *ngIf='currentSession != undefined' class='ui massive cancel button' (click)='closeModal("ui.modal.history")'>Відмінити</button>
     <button [disabled]='selectSessionId == undefined' class='ui massive ok blue button' (click)='openSession()'>Підтвердити</button>
   </div>
 </div>
@@ -239,7 +239,7 @@
   </div>
   <div class="actions">
     <a [ngClass]='{disabled: sessionForm.invalid}' type='submit' class='ui massive ok blue button' (click)='createSession()'>Підтвердити</a>
-    <a class='ui massive cancel button'>Відмінити</a>
+    <a class='ui massive cancel button' (click)='closeModal("ui.modal.creator")'>Відмінити</a>
   </div>
 </div>
 <div class='ui modal email'>
@@ -307,7 +307,7 @@
   </div>
   <div class="actions">
     <a [ngClass]='{disabled: userForm.invalid}' type='submit' class='ui massive ok blue button' (click)='editMail()'>Підтвердити</a>
-    <a class='ui massive cancel button'>Відмінити</a>
+    <a class='ui massive cancel button' (click)='closeModal("ui.modal.email")'>Відмінити</a>
     <!-- <a class='ui cancel button'>Повернутись</a> -->
   </div>
 </div>
@@ -332,7 +332,7 @@
   </div>
   <div class="actions">
     <a [ngClass]='{disabled: sessionEditorForm.invalid}' type='submit' class='ui massive ok blue button' (click)='editSession()'>Підтвердити</a>
-    <a class='ui massive cancel button'>Відмінити</a>
+    <a class='ui massive cancel button' (click)='closeModal("ui.modal.edit.session")'>Відмінити</a>
     <!-- <a class='ui cancel button'>Повернутись</a> -->
   </div>
 </div>
@@ -343,7 +343,7 @@
   </div>
   <div class='actions'>
     <a class='ui massive blue ok button' (click)='openOtherSession()'>Продовжити</a>
-    <a class='ui massive cancel button'>Відмінити</a>
+    <a class='ui massive cancel button' (click)='closeModal("ui.modal.warning")'>Відмінити</a>
   </div>
 </div>
 
@@ -354,7 +354,7 @@
   </div>
   <div class='actions'>
     <a class='ui massive blue ok button' (click)='closeSession()'>Продовжити</a>
-    <a class='ui massive cancel button'>Відмінити</a>
+    <a class='ui massive cancel button' (click)='closeModal("ui.modal.close")'>Відмінити</a>
   </div>
 </div>
 
@@ -365,7 +365,7 @@
   </div>
   <div class='actions'>
     <a class='ui massive blue ok button' (click)='deleteSession()'>Продовжити</a>
-    <a class='ui massive cancel button'>Відмінити</a>
+    <a class='ui massive cancel button' (click)='closeModal("ui.modal.confirm")'>Відмінити</a>
   </div>
 </div>
 
@@ -389,7 +389,7 @@
   </div>
   <div class='actions'>
     <a class='ui massive blue ok button' (click)='openDeleteConfirm()'>Видалити</a>
-    <a class='ui massive cancel button'>Відмінити</a>
+    <a class='ui massive cancel button' (click)='closeModal("ui.modal.delete")'>Відмінити</a>
   </div>
 </div>
 
@@ -413,7 +413,7 @@
   </div>
   <div class='actions'>
     <a class='ui massive blue ok button' id="export" href="#" (click)="exportConfirm($event)" download>Експортувати</a>
-    <a class='ui massive cancel button'>Відмінити</a>
+    <a class='ui massive cancel button' (click)='closeModal("ui.modal.export")'>Відмінити</a>
   </div>
 </div>
 
