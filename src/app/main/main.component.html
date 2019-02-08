@@ -13,10 +13,10 @@
       <h1>Мережеве з'єднання</h1>
       <i class='blue huge x icon' data-content='Top Right' dat-position='top right' (click)='closeWifiPopup()'></i>
       <!--<h3 *ngIf='currentConfig!=undefined'>Поточний прилад - {{currentConfig.bt_name}}</h3>-->
-      <div class="ui huge blue button" *ngFor='let conn of getUnique(connections); let i = index' [ngClass] = '{yellow: conn == currentConn}' id='{{i}}' (click)='selectWifi(conn)'>
+      <div class="ui huge blue button" *ngFor='let conn of getUnique(connections); let i = index' [ngClass] = '{yellow: conn == currentConn}' id='{{i}}' (click)='selectWifi(conn, i)'>
         <h2>{{conn.ssid}}</h2>
       </div>
-      <!--<br><br>-->
+      <br>
       <form *ngIf = 'showPasswordInput == true' class='ui form' [formGroup]="wifiPasswordForm" novalidate (submit)='onSubmit()'>
         <div class="ui input action field ">
           <!--<label>Ключ безпеки</label>-->
@@ -24,7 +24,7 @@
           <a [ngClass]='{disabled: wifiPasswordForm.invalid}' type='submit' class='ui massive ok blue button' (click)='connect(currentConn.ssid, wifiPasswordForm.controls.password.value)'>Підтвердити</a>
         </div>
       </form>
-      <!--<br><br>-->
+      <br>
       <a class="ui massive basic label" *ngFor='let ip_item of ips'>
         {{ip_item.interface}} : {{ip_item.ip}}
       </a>
@@ -32,8 +32,8 @@
         <div class="ui large loader"></div>
       </div>
       <div class='btn-container'>
-        <button [ngClass]='{disabled: checkWlan0(ips) }' class='ui massive button blue' (click)='disconnect()' tabindex="0">Відключити</button>
-        <button [ngClass]='{disabled: checkEth0(ips) }' class='ui massive button blue' (click)='searchConnections()'
+        <button [ngClass]='{disabled: checkWlan0(ips) }' class='ui massive button blue removeConnection' (click)='disconnect()' tabindex="0">Відключити</button>
+        <button [ngClass]='{disabled: checkEth0(ips) }' class='ui massive button blue searchConnection' (click)='searchConnections()'
           tabindex="0">Пошук</button>
       </div>
 
