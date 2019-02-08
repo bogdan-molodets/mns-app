@@ -931,15 +931,28 @@ export class MainComponent implements OnInit {
    * get list of available networks. If already connected connect with fake data and get list again
    */
   searchConnections() {
+    $('.searchConnection').addClass('loading');
+    $(`.bt-wifi-popup .ui.button:not(.removeConnection)`).addClass('disabled');
     this.configService.getConnections().toPromise().then(connections => {
       if (connections.status === 'Ok') {
         if (connections.wifi_list.length > 0) {
+          $('.searchConnection').removeClass('loading');
+          $(`.bt-wifi-popup .ui.button:not(.removeConnection)`).removeClass('disabled');
           this.connections = connections.wifi_list;
         } else {
-          this.configService.connect('123456789', 'lalka').pipe(timeout(3000)).subscribe(conn => {
+          this.configService.connect('123456789', 'lalka').toPromise().then(conn => {
             console.log(conn);
+            this.configService.getConnections().toPromise().then(connections => {
+              $('.searchConnection').removeClass('loading');
+              $(`.bt-wifi-popup .ui.button:not(.removeConnection)`).removeClass('disabled');
+              if (connections.wifi_list.length > 0) {
+                this.connections = connections.wifi_list;
+              }
+            });
           }, error => {
             this.configService.getConnections().toPromise().then(connections => {
+              $('.searchConnection').removeClass('loading');
+              $(`.bt-wifi-popup .ui.button:not(.removeConnection)`).removeClass('disabled');
               if (connections.wifi_list.length > 0) {
                 this.connections = connections.wifi_list;
               }
@@ -956,7 +969,11 @@ export class MainComponent implements OnInit {
    * @param ssid 
    */
   connect(ssid: any,password: any) {
+    $('.bt-wifi-popup .ui.form .ui.button').addClass('loading');
+    $('.bt-wifi-popup .ui.button').addClass('disabled');
     this.configService.connect(password, ssid).toPromise().then(conn => {
+      $('.bt-wifi-popup .ui.button').removeClass('loading');
+      $('.bt-wifi-popup .ui.button:not(.searchConnection)').addClass('disabled');
       if (conn.status === 'Ok') {
         this.showPasswordInput = false;
         console.log(conn);
@@ -970,11 +987,31 @@ export class MainComponent implements OnInit {
         console.log("Error!");
       }
 
+    },err=>{
+      this.configService.connect(password, ssid).toPromise().then(conn => {
+        $('.bt-wifi-popup .ui.button').removeClass('loading');
+        $('.bt-wifi-popup .ui.button:not(.searchConnection)').addClass('disabled');
+        if (conn.status === 'Ok') {
+          this.showPasswordInput = false;
+          console.log(conn);
+          this.configService.getIp().toPromise().then(ips => {
+            if (ips.status === 'Ok') {
+              this.connections = [];
+              this.ips = ips.if_list;
+            }
+          });
+        }
+      },err=>{
+        $('.bt-wifi-popup .ui.button').removeClass('loading').removeClass('yellow');
+        $('.bt-wifi-popup .ui.button:not(.searchConnection)').addClass('disabled');
+      });
     });
   }
 
   disconnect() {
+    $('.removeConnection').addClass('loading')
     this.configService.disconnect().toPromise().then(conn => {
+      $('.removeConnection').removeClass('loading')
       if (conn.status === 'Ok') {
         console.log(conn);
         this.configService.getIp().toPromise().then(ips => {
@@ -1033,14 +1070,15 @@ export class MainComponent implements OnInit {
     return res;
   }
 
-  selectWifi(conn){
+  selectWifi(conn, i){
     this.showPasswordInput = false;
     this.wifiPasswordForm.controls.password.setValue('');
     this.currentConn = conn;
     if(conn.encrypted){
       this.showPasswordInput = true;
     }else{
-
+      $(`.bt-wifi-popup #${i}`).addClass('loading');
+      this.connect(this.currentConn.ssid, '');
     }
   }
 
