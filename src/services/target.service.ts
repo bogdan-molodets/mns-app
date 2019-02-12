@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment.prod';
 import { Observable, of } from 'rxjs';
 import { Target } from 'src/models/target';
-import { createRes, targets, target } from 'src/models/mock';
+import {  targets, } from 'src/models/mock';
 @Injectable({
   providedIn: 'root'
 })
@@ -27,7 +27,8 @@ export class TargetService {
    * @param sessionId 
    */
   getTargetList(sessionId: string): Observable<any> {
-    return this.httpClient.get<any>(`${this.apiUrl}/session/${sessionId}/target`);
+    return of(targets)
+    //return this.httpClient.get<any>(`${this.apiUrl}/session/${sessionId}/target`);
   }
 
   /**
@@ -36,7 +37,7 @@ export class TargetService {
    * @param targetId 
    */
   getTargetState(sessionId: string, targetId: string): Observable<any> {
-    return of(target);
+    return of(null);
     // return this.httpClient.get(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`);
   }
 
@@ -47,7 +48,7 @@ export class TargetService {
    * @param target new Target object
    */
   updateTarget(sessionId: string, targetId: string, target: Target): Observable<any> {
-    return of(createRes);
+    return of(null);
     //return this.httpClient.put<any>(`${environment.apiUrl}/session/${sessionId}/target/${targetId}`, { target: target });
   }
 

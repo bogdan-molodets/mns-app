@@ -3,8 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment.prod';
 import { Observable, of } from 'rxjs';
 import { Session } from 'src/models/session';
-import { activeSession, archiveSessions } from 'src/models/mock';
+// import { activeSession, archiveSessions } from 'src/models/mock';
 import { filter, map } from 'rxjs/operators';
+import { sessions } from 'src/models/mock';
 @Injectable({
   providedIn: 'root'
 })
@@ -14,21 +15,11 @@ export class SessionService {
     this.apiUrl= window.location.origin + '/api'; 
   }
 
-  /**
-   * get active session
-   */
-  getActiveSession(): Observable<any> {
-    //return of(archiveSessions).pipe(map(val=>val.sessions.find(el => { return el.state == 'active' })))
-    return this.httpClient.get<any>(`${this.apiUrl}/session`).pipe(map(sessions => sessions.find(el => { return el.state == 'active' })))
-  }
-
-  getOpenedSession(): Observable<any> {
-    return this.httpClient.get<any>(`${this.apiUrl}/session`).pipe(map(sessions => sessions.find(el => { return el.state == 'opened' })))
-  }
+  
 
   getSessions(): Observable<any> {
-    return this.httpClient.get<any>(`${this.apiUrl}/session`);//.pipe(map(sessions=>sessions));
-    //return this.httpClient.get<any>(`${environment.apiUrl}/session`)
+    return of(sessions);
+    //return this.httpClient.get<any>(`${this.apiUrl}/session`);   
   }
 
 
