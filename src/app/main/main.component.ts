@@ -250,7 +250,7 @@ export class MainComponent implements OnInit {
       dopusk: new FormControl(0.01, [Validators.required, Validators.min(0.001), Validators.max(0.9)]),
       description: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(100)])
     });
-    this.wifiPasswordForm = new FormGroup({password: new FormControl('', [Validators.maxLength(100), Validators.minLength(8), Validators.required])});
+    this.wifiPasswordForm = new FormGroup({ password: new FormControl('', [Validators.maxLength(100), Validators.minLength(8), Validators.required]) });
   }
 
   changeTargetType(type) {
@@ -716,7 +716,7 @@ export class MainComponent implements OnInit {
           this.updateTargetsTable();
           let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
           if (opened) {
-            let sessionUpdate = new Session(opened.session_id, opened.description, +opened.lat, +opened.lon, +opened.hgt, opened.timestamp, "string", opened.tolerance);         
+            let sessionUpdate = new Session(opened.session_id, opened.description, +opened.lat, +opened.lon, +opened.hgt, opened.timestamp, "string", opened.tolerance);
             this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
               console.log('update to string in create');
             });
@@ -764,7 +764,7 @@ export class MainComponent implements OnInit {
 
   }
 
-  closeModal(selector:string) {
+  closeModal(selector: string) {
     $(selector).modal('hide');
   }
 
@@ -975,7 +975,7 @@ export class MainComponent implements OnInit {
    * @param password 
    * @param ssid 
    */
-  connect(ssid: any,password: any) {
+  connect(ssid: any, password: any) {
     $('.bt-wifi-popup .ui.form .ui.button').addClass('loading');
     $('.bt-wifi-popup .ui.button').addClass('disabled');
     this.configService.connect(password, ssid).toPromise().then(conn => {
@@ -988,13 +988,14 @@ export class MainComponent implements OnInit {
           if (ips.status === 'Ok') {
             this.connections = [];
             this.ips = ips.if_list;
+            this.runningCheck();
           }
         });
-      }else{
+      } else {
         console.log("Error!");
       }
 
-    },err=>{
+    }, err => {
       this.configService.connect(password, ssid).toPromise().then(conn => {
         $('.bt-wifi-popup .ui.button').removeClass('loading');
         $('.bt-wifi-popup .ui.button:not(.searchConnection)').addClass('disabled');
@@ -1005,14 +1006,24 @@ export class MainComponent implements OnInit {
             if (ips.status === 'Ok') {
               this.connections = [];
               this.ips = ips.if_list;
+              this.runningCheck();
             }
           });
         }
-      },err=>{
+      }, err => {
         $('.bt-wifi-popup .ui.button').removeClass('loading').removeClass('yellow');
         $('.bt-wifi-popup .ui.button:not(.searchConnection)').addClass('disabled');
       });
     });
+  }
+
+  runningCheck() {
+    let wlan = this.ips.find(el => {
+      return el.interface == "wlan0"
+    });
+    if (wlan && wlan['RUNNING'] == undefined) {
+      $('.bt-wifi-popup .ui.button:not(.removeConnection)').removeClass('disabled');
+    }
   }
 
   disconnect() {
@@ -1065,6 +1076,14 @@ export class MainComponent implements OnInit {
     return (!ips || (ips && ips[1] && ips[1].hasOwnProperty('ip')));
   }
 
+  updateIps() {
+    this.configService.getIp().toPromise().then(ips => {
+      if (ips.status === 'Ok') {
+        this.ips = ips.if_list;
+      }
+    });
+  }
+
   getUnique(wifi) {
     let unique = [''], res = [];
     for (let i = 0; i < wifi.length; i++) {
@@ -1077,13 +1096,13 @@ export class MainComponent implements OnInit {
     return res;
   }
 
-  selectWifi(conn, i){
+  selectWifi(conn, i) {
     this.showPasswordInput = false;
     this.wifiPasswordForm.controls.password.setValue('');
     this.currentConn = conn;
-    if(conn.encrypted){
+    if (conn.encrypted) {
       this.showPasswordInput = true;
-    }else{
+    } else {
       $(`.bt-wifi-popup #${i}`).addClass('loading');
       this.connect(this.currentConn.ssid, '');
     }

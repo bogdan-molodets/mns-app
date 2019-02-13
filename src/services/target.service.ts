@@ -27,8 +27,8 @@ export class TargetService {
    * @param sessionId 
    */
   getTargetList(sessionId: string): Observable<any> {
-    return of(targets)
-    //return this.httpClient.get<any>(`${this.apiUrl}/session/${sessionId}/target`);
+    //return of(targets)
+    return this.httpClient.get<any>(`${this.apiUrl}/session/${sessionId}/target`);
   }
 
   /**

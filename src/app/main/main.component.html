@@ -8,7 +8,7 @@
     <div *ngIf='state != "" ' class='ui item header'>Стан: {{state}}</div>
   </ng-container>
   <div class="right menu">
-    <button [attr.disabled]='isMonitoring?true:null' class='ui item header item bt-wifi'><i class='icon wifi'></i></button>
+    <button [attr.disabled]='isMonitoring?true:null' class='ui item header item bt-wifi' (click)='updateIps()'><i class='icon wifi'></i></button>
     <div class="ui fluid popup bottom left transition hidden bt-wifi-popup">
       <h1>Мережеве з'єднання</h1>
       <i class='blue huge x icon' data-content='Top Right' dat-position='top right' (click)='closeWifiPopup()'></i>
