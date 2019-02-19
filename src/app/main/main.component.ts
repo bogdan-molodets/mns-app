@@ -347,7 +347,7 @@ export class MainComponent implements OnInit {
         }
         $('.ui.modal.email').modal('show');
       });
-      
+
     }, 2000);
   }
 
@@ -551,83 +551,93 @@ export class MainComponent implements OnInit {
    * start monitoring process, getting its state,updating targets array. Updates session state from opened to active
    */
   runMonitoring() {
-    this.targetService.getTargetList(this.selectedSessionId).toPromise().then(res => {
-      this.targets = res;
-      $('.startWaiting').addClass('active');
-      $('.calcTarget.errors').removeClass('visible');
-      this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
-        if (res.status == 'Ok') {
 
-          let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
+    $('.startWaiting').addClass('active');
+    $('.calcTarget.errors').removeClass('visible');
+    this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
+      if (res.status == 'Ok') {
 
-          this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
-            console.log('update to active');
-          });
-          this.isGettingState = true;
-          if (this.targetMonprcSubscription && this.monprcStateSubscription) {
-            this.targetMonprcSubscription.unsubscribe();
-            this.monprcStateSubscription.unsubscribe();
-          }
-          this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets)
-          this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
-            this.state = st.state;
-            if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
-            if (this.state == "stop") {
-              this.stopMonitoring();
-            }
-          });
+        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
 
-          this.isMonitoring = true;
-          this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
-            this.targets = res;
-            let index = this.lastMonitoringData.findIndex((val, index, arr) => { return val.last_upd != this.targets[index].last_upd });
-            if (index != -1) {
-              $(`.target-table tr`).removeClass('updated');
-              $(`.target-table #${index}`).addClass('updated');
-            }
-            this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets);
-          });
+        this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
+          console.log('update to active');
+        });
+        this.isGettingState = true;
+        if (this.targetMonprcSubscription && this.monprcStateSubscription) {
+          this.targetMonprcSubscription.unsubscribe();
+          this.monprcStateSubscription.unsubscribe();
         }
-      })
+        this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets)
+        this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
+          this.state = st.state;
+          if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
+          if (this.state == "stop") {
+            this.stopMonitoring();
+          }
+        });
 
-    });
+        this.isMonitoring = true;
+        this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+          this.targets = res;
+          let index = this.lastMonitoringData.findIndex((val, index, arr) => {
+            if (val.last_upd && this.targets[index].last_upd) {
+              return val.last_upd != this.targets[index].last_upd
+            } else {
+              return false;
+            }
+          });
+          if (index != -1) {
+            $(`.target-table tr`).removeClass('updated');
+            $(`.target-table #${index}`).addClass('updated');
+          }
+          this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets);
+        });
+      }
+    })
+
+
   }
 
   /**
    * if user opens app from another client getting monitoring state,updating targets array. Updates session to active. 
    */
   runExistingMonitoring() {
-    this.targetService.getTargetList(this.selectedSessionId).toPromise().then(res => {
-      this.targets = res;
-      $('.calcTarget.errors').removeClass('visible');
-      console.log('run existing monitoring');
-      this.isGettingState = true;
 
-      if (this.targetMonprcSubscription && this.monprcStateSubscription) {
-        this.targetMonprcSubscription.unsubscribe();
-        this.monprcStateSubscription.unsubscribe();
+    $('.calcTarget.errors').removeClass('visible');
+    console.log('run existing monitoring');
+    this.isGettingState = true;
+
+    if (this.targetMonprcSubscription && this.monprcStateSubscription) {
+      this.targetMonprcSubscription.unsubscribe();
+      this.monprcStateSubscription.unsubscribe();
+    }
+    this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets)
+    this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
+      this.state = st.state;
+      console.log(st.state);
+      if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
+      if (this.state == "stop") {
+        this.stopMonitoring();
       }
-      this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets)
-      this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
-        this.state = st.state;
-        console.log(st.state);
-        if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
-        if (this.state == "stop") {
-          this.stopMonitoring();
-        }
-      });
-      this.isMonitoring = true;
-      this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
-        this.targets = res;
-        let index = this.lastMonitoringData.findIndex((val, index, arr) => { return val.last_upd != this.targets[index].last_upd });
-        if (index != -1) {
-          $(`.target-table tr`).removeClass('updated');
-          $(`.target-table #${index}`).addClass('updated');
-        }
-        this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets);
-      });
-
     });
+    this.isMonitoring = true;
+    this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+      this.targets = res;
+      let index = this.lastMonitoringData.findIndex((val, index, arr) => {
+        if (val.last_upd && this.targets[index].last_upd) {
+          return val.last_upd != this.targets[index].last_upd
+        } else {
+          return false;
+        }
+      });
+      if (index != -1) {
+        $(`.target-table tr`).removeClass('updated');
+        $(`.target-table #${index}`).addClass('updated');
+      }
+      this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets);
+    });
+
+
   }
 
 
