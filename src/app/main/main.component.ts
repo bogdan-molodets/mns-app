@@ -580,7 +580,7 @@ export class MainComponent implements OnInit {
         this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
           this.targets = res;
           let index = this.lastMonitoringData.findIndex((val, index, arr) => {
-            if (val.last_upd && this.targets[index].last_upd) {
+            if (val && this.targets[index]) {
               return val.last_upd != this.targets[index].last_upd
             } else {
               return false;
@@ -624,7 +624,7 @@ export class MainComponent implements OnInit {
     this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
       this.targets = res;
       let index = this.lastMonitoringData.findIndex((val, index, arr) => {
-        if (val.last_upd && this.targets[index].last_upd) {
+        if (val && this.targets[index]) {
           return val.last_upd != this.targets[index].last_upd
         } else {
           return false;
