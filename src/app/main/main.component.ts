@@ -554,13 +554,18 @@ export class MainComponent implements OnInit {
    * start monitoring process, getting its state,updating targets array. Updates session state from opened to active
    */
   runMonitoring() {
+    $('.startWaiting').addClass('active');
+    $('.calcTarget.errors').removeClass('visible');
     if (this.connectBT != true) {
       this.configService.selectBT(this.currentConfig.bt_addr).toPromise().then(bt => {
         if (bt.status == "Ok") {
           this.connectBT = true;
           this.monitoringProcess();
         }
-      }, err => { this.connectBT = false; });
+      }, err => {
+      this.connectBT = false;
+      $('.startWaiting').removeClass('active');
+      });
     } else {
       this.monitoringProcess();
 
@@ -568,8 +573,7 @@ export class MainComponent implements OnInit {
   }
 
   monitoringProcess() {
-    $('.startWaiting').addClass('active');
-    $('.calcTarget.errors').removeClass('visible');
+
     this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
       if (res.status == 'Ok') {
 
