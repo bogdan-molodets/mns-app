@@ -928,17 +928,13 @@ export class MainComponent implements OnInit {
     this.sessionService.getSessions().pipe(repeatWhen(() => interval(4000))).subscribe(session => {
       let active = session.find(el => { return el.state == 'active' });
       let opened = session.find(el => { return el.state == 'opened' });
-      if (active && active.session_id == this.selectedSessionId) {
+      if (active && active.session_id == this.selectedSessionId && (!this.isMonitoring && !this.isGettingState)) {
         console.log('current session become activated');
-        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "monitoring", this.currentSession.tolerance);
-
-        this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
-          console.log('update to monitoring');
-        });
+       
         this.currentSession = active;
         this.runExistingMonitoring();
       }
-      if (active && active.session_id != this.selectedSessionId) {
+      if (active && active.session_id != this.selectedSessionId && (!this.isMonitoring && !this.isGettingState)) {
         console.log('another session was activated');
         this.activateSession(active);
         this.runExistingMonitoring();
