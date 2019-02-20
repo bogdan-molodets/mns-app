@@ -203,9 +203,13 @@ export class MainComponent implements OnInit {
       // open active session and run monitoring
       if (res.find(el => { return el.state == 'active' || el.state == 'monitoring' })) {
         let session = res.find(el => { return el.state == 'active' || el.state == 'monitoring' });
+        // get config
+        this.configService.getCurrentConfig().toPromise().then(config => {
+          this.currentConfig = config;
+        });
         this.activateSession(session);
         this.runExistingMonitoring();
-      } else
+      } else {
         // open opened session and update targets table
         if (res.find(el => { return el.state == 'opened' })) {
           let session = res.find(el => { return el.state == 'opened' });
@@ -214,22 +218,19 @@ export class MainComponent implements OnInit {
         } else {
           $('.ui.modal.notification').modal('show');
         }
+        // get config and connect to BT
+        this.configService.getCurrentConfig().toPromise().then(config => {
+          this.currentConfig = config;
+          this.configService.selectBT(this.currentConfig.bt_addr).toPromise().then(bt => {
+            if (bt.status == "Ok") {
+              this.connectBT = true;
+            }
+          }, err => { this.connectBT = false; });
+        });
+      }
     });
 
-    //get config and try to connect to default BT
-    this.configService.getCurrentConfig().toPromise().then(config => {
-      this.currentConfig = config;
-      this.configService.selectBT(this.currentConfig.bt_addr).toPromise().then(bt => {
-        if (bt.status == "Ok") {
-          this.connectBT = true;
-        }
-
-      }, err => { this.connectBT = false; });
-      //this.configEmail = thi.email;
-      //console.log('get mail');
-    });
-
-    this.activeSessionSearch();
+     this.activeSessionSearch();
 
 
   }
@@ -529,19 +530,21 @@ export class MainComponent implements OnInit {
         $(`.target-table tr`).removeClass('updated');
         $('.startWaiting').removeClass('active');
         console.log("stopped");
-        this.isMonitoring = false;
-        this.isGettingState = false;
+        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
+
+        this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
+          console.log('update to opened');
+          this.isMonitoring = false;
+          this.isGettingState = false;
+        });
+
         this.updateTargetsTable();
         this.state = "";
         if (this.targetMonprcSubscription && this.monprcStateSubscription) {
           this.targetMonprcSubscription.unsubscribe();
           this.monprcStateSubscription.unsubscribe();
         }
-        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
 
-        this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
-          console.log('update to opened');
-        });
 
       }
     })
@@ -551,51 +554,57 @@ export class MainComponent implements OnInit {
    * start monitoring process, getting its state,updating targets array. Updates session state from opened to active
    */
   runMonitoring() {
-
-    $('.startWaiting').addClass('active');
-    $('.calcTarget.errors').removeClass('visible');
-    this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
-      if (res.status == 'Ok') {
-
-        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
-
-        this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
-          console.log('update to active');
-        });
-        this.isGettingState = true;
-        if (this.targetMonprcSubscription && this.monprcStateSubscription) {
-          this.targetMonprcSubscription.unsubscribe();
-          this.monprcStateSubscription.unsubscribe();
+    if (this.connectBT != true) {
+      this.configService.selectBT(this.currentConfig.bt_addr).toPromise().then(bt => {
+        if (bt.status == "Ok") {
+          this.connectBT = true;
         }
-        this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets)
-        this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
-          this.state = st.state;
-          if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
-          if (this.state == "stop") {
-            this.stopMonitoring();
-          }
-        });
+      }, err => { this.connectBT = false; });
+    } else {
+      $('.startWaiting').addClass('active');
+      $('.calcTarget.errors').removeClass('visible');
+      this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
+        if (res.status == 'Ok') {
 
-        this.isMonitoring = true;
-        this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
-          this.targets = res;
-          let index = this.lastMonitoringData.findIndex((val, index, arr) => {
-            if (val && this.targets[index]) {
-              return val.last_upd != this.targets[index].last_upd
-            } else {
-              return false;
+          let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
+
+          this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
+            console.log('update to active');
+          });
+          this.isGettingState = true;
+          if (this.targetMonprcSubscription && this.monprcStateSubscription) {
+            this.targetMonprcSubscription.unsubscribe();
+            this.monprcStateSubscription.unsubscribe();
+          }
+          this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets)
+          this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
+            this.state = st.state;
+            if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
+            if (this.state == "stop") {
+              this.stopMonitoring();
             }
           });
-          if (index != -1) {
-            $(`.target-table tr`).removeClass('updated');
-            $(`.target-table #${index}`).addClass('updated');
-          }
-          this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets);
-        });
-      }
-    })
 
+          this.isMonitoring = true;
+          this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+            this.targets = res;
+            let index = this.lastMonitoringData.findIndex((val, index, arr) => {
+              if (val && this.targets[index]) {
+                return val.last_upd != this.targets[index].last_upd
+              } else {
+                return false;
+              }
+            });
+            if (index != -1) {
+              $(`.target-table tr`).removeClass('updated');
+              $(`.target-table #${index}`).addClass('updated');
+            }
+            this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets);
+          });
+        }
+      })
 
+    }
   }
 
   /**
@@ -930,7 +939,7 @@ export class MainComponent implements OnInit {
       let opened = session.find(el => { return el.state == 'opened' });
       if (active && active.session_id == this.selectedSessionId && (!this.isMonitoring && !this.isGettingState)) {
         console.log('current session become activated');
-       
+
         this.currentSession = active;
         this.runExistingMonitoring();
       }
