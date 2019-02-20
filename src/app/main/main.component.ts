@@ -379,7 +379,7 @@ export class MainComponent implements OnInit {
     let sessionUpdate = new Session(this.currentSession.session_id, $("#editDescription").val(), +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, this.currentSession.state, +$("#editDopusk").val());
 
     this.sessionService.updateSession(sessionUpdate).toPromise().then(update => {
-      if (update.stauts = "Ok") {
+      if (update.status == "Ok") {
         this.currentSession.tolerance = +$("#editDopusk").val();
         this.currentSession.description = $("#editDescription").val();
       }
@@ -583,7 +583,7 @@ export class MainComponent implements OnInit {
       } else {
         let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "started", this.currentSession.tolerance);
         this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
-          if (res.stauts == "Ok") {
+          if (res.status == "Ok") {
             console.log('updated to started');
             this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
               console.log('init monprc');
@@ -865,7 +865,7 @@ export class MainComponent implements OnInit {
     let sessionUpdate = new Session(this.currentSession.session_id, $("#editDescription").val(), +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "string", +$("#editDopusk").val());
 
     this.sessionService.updateSession(sessionUpdate).toPromise().then(update => {
-      if (update.stauts = "Ok") {
+      if (update.status == "Ok") {
         // request to close computer
         this.configService.shutdownSystem().toPromise().then(res => {
           console.log('shutdown');
