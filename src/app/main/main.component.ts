@@ -625,6 +625,9 @@ export class MainComponent implements OnInit {
                   });
                 });
               }
+            },err=>{
+              $('.startWaiting').removeClass('active');
+              console.log('monprc already started');
             });
 
           } else {
