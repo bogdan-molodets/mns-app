@@ -574,67 +574,49 @@ export class MainComponent implements OnInit {
 
   monitoringProcess() {
     // check if there are started sessions 
-    this.sessionService.getSessions().toPromise().then(session => {
-      let started = session.find(el => { return el.state == "started" });
-      if (started) {
-        console.log('sessions have one with started status');
-        // forbid to start monprc
-        $('.startWaiting').removeClass('active');
-      } else {
-        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "started", this.currentSession.tolerance);
+    this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
+      console.log('init monprc');
+      if (res.status == 'Ok') {
+
+        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
+
         this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
-          if (res.status == "Ok") {
-            console.log('updated to started');
-            this.monitoringService.runMonitoringProcess(this.selectedSessionId, this.currentConfig.bt_addr).toPromise().then(res => {
-              console.log('init monprc');
-              if (res.status == 'Ok') {
-
-                let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "active", this.currentSession.tolerance);
-
-                this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
-                  console.log('update to active');
-                  this.isGettingState = true;
-                  if (this.targetMonprcSubscription && this.monprcStateSubscription) {
-                    this.targetMonprcSubscription.unsubscribe();
-                    this.monprcStateSubscription.unsubscribe();
-                  }
-                  this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets)
-                  this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
-                    this.state = st.state;
-                    if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
-                    if (this.state == "stop") {
-                      this.stopMonitoring();
-                    }
-                  });
-
-                  this.isMonitoring = true;
-                  this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
-                    this.targets = res;
-                    let index = this.lastMonitoringData.findIndex((val, index, arr) => {
-                      if (val && this.targets[index]) {
-                        return val.last_upd != this.targets[index].last_upd
-                      } else {
-                        return false;
-                      }
-                    });
-                    if (index != -1) {
-                      $(`.target-table tr`).removeClass('updated');
-                      $(`.target-table #${index}`).addClass('updated');
-                    }
-                    this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets);
-                  });
-                });
-              }
-            },err=>{
-              $('.startWaiting').removeClass('active');
-              console.log('monprc already started');
-            });
-
-          } else {
-            console.log('started session not updated to active');
+          console.log('update to active');
+          this.isGettingState = true;
+          if (this.targetMonprcSubscription && this.monprcStateSubscription) {
+            this.targetMonprcSubscription.unsubscribe();
+            this.monprcStateSubscription.unsubscribe();
           }
+          this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets)
+          this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
+            this.state = st.state;
+            if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
+            if (this.state == "stop") {
+              this.stopMonitoring();
+            }
+          });
+
+          this.isMonitoring = true;
+          this.targetMonprcSubscription = this.targetService.getTargetList(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isMonitoring)).subscribe(res => {
+            this.targets = res;
+            let index = this.lastMonitoringData.findIndex((val, index, arr) => {
+              if (val && this.targets[index]) {
+                return val.last_upd != this.targets[index].last_upd
+              } else {
+                return false;
+              }
+            });
+            if (index != -1) {
+              $(`.target-table tr`).removeClass('updated');
+              $(`.target-table #${index}`).addClass('updated');
+            }
+            this.lastMonitoringData = Object.assign(this.lastMonitoringData, this.targets);
+          });
         });
       }
+    }, err => {
+      $('.startWaiting').removeClass('active');
+      console.log('monprc already started');
     });
 
 
