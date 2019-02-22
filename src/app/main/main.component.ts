@@ -591,7 +591,7 @@ export class MainComponent implements OnInit {
           this.monprcStateSubscription = this.monitoringService.getMonitoringProcessState(this.selectedSessionId).pipe(repeatWhen(() => interval(1000)), takeWhile(() => this.isGettingState)).subscribe(st => {
             this.state = st.state;
             if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
-            if (this.state == "stop") {
+            if (this.state == "stopped") {
               this.stopMonitoring();
             }
           });
@@ -641,7 +641,7 @@ export class MainComponent implements OnInit {
       this.state = st.state;
       console.log(st.state);
       if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
-      if (this.state == "stop") {
+      if (this.state == "stopped") {
         this.stopMonitoring();
       }
     });
