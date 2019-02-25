@@ -17,13 +17,13 @@ export class ConfigService {
 
 
   getCurrentConfig(): Observable<any> {
-    return of(config)
-    // return this.httpClient.get<any>(`${this.apiUrl}/config`);
+    //return of(config)
+     return this.httpClient.get<any>(`${this.apiUrl}/config`);
   }
 
   getBT(): Observable<any> {
-    return of(bt)
-    // return this.httpClient.get<any>(`${this.apiUrl}/BT`);
+    //return of(bt)
+     return this.httpClient.get<any>(`${this.apiUrl}/BT`);
   }
 
   selectBT(mac_addr: string): Observable<any> {
@@ -44,8 +44,8 @@ export class ConfigService {
   }
 
   getConnections(): Observable<any> {
-    return of(wifi);
-    //return this.httpClient.get(`${this.apiUrl}/network/wifi`);
+    //return of(wifi);
+    return this.httpClient.get(`${this.apiUrl}/network/wifi`);
   }
 
   connect(password: any, ssid: any): Observable<any> {
@@ -56,8 +56,8 @@ export class ConfigService {
   }
 
   getIp(): Observable<any> {
-    return of(ips);
-    //return this.httpClient.get(`${this.apiUrl}/network/ifconfig`);
+    //return of(ips);
+    return this.httpClient.get(`${this.apiUrl}/network/ifconfig`);
   }
 
   shutdownSystem(): Observable<any> {

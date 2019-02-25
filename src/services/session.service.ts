@@ -18,8 +18,8 @@ export class SessionService {
   
 
   getSessions(): Observable<any> {
-    return of(sessions);
-    //return this.httpClient.get<any>(`${this.apiUrl}/session`);   
+    //return of(sessions);
+    return this.httpClient.get<any>(`${this.apiUrl}/session`);   
   }
 
 
