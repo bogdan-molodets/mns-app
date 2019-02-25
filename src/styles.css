@@ -21,6 +21,14 @@ input {
     font-weight: bold !important;
     color: #444 !important;
 }
+body ::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 20px!important;
+    height: 20px!important;
+}
+.ui.dropdown .menu{
+    width: 100%;
+}
 .ui.popup:before{
     display: none;
 }
@@ -281,5 +289,35 @@ tbody tr {
     .ui.table tr>td:nth-child(9),
     .ui.table tr>th:nth-child(9) {
         width: 90px !important;
+    }
+}
+
+@media only screen and (max-width: 767px){
+    .ui.table thead{
+        display: none !important;
+    }
+    .ui.segmant table tr{
+        display: table-row!important;
+    }
+    .ui.form .fields>.field {
+        margin-bottom: 5px!important;
+    }
+    .ui.form .fields>.field:not(.btn){
+        width: 100%;
+    }
+    app-main .ui.menu{
+        display: block!important;
+    }
+    app-main .ui.menu>.right.menu, app-main .ui.menu>.right.menu .ui.item{
+        display: inline-block!important;
+    }
+    app-main .ui.menu>.ui.item{
+        display: inline-block;
+    }
+
+    .bt-wifi-popup ,.bt-devices-popup {
+        width: calc(100% - 5px) !important;
+        right: 5px !important;
+        height: 450px;
     }
 }

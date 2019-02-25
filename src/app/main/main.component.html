@@ -104,21 +104,21 @@
             <input [(ngModel)]="params.h" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
               placeholder="H">
           </div>
-          <div class="field three">
+          <div class="field three btn">
             <button class='ui blue button massive' (click)='changeTargetType(params.type)'>{{params.type.slice(0,1) |
               uppercase}}</button>
           </div>
-          <div class="field four">
+          <div class="field four btn">
             <button class='ui blue button massive calcTargetButton' (click)='getCoordinates()'>Поміряти</button>
           </div>
-          <div class="field four">
+          <div class="field four btn">
             <button class='ui blue button massive addTargetButton' (click)='addTarget()'>Додати</button>
           </div>
         </div>
         <div class='calcTarget errors'><i class='icon exclamation circle'></i>Помилка з вимірами</div>
       </form>
 
-      <table *ngIf="targets!=undefined" class='ui blue small table stripped fixed target-table'>
+      <table *ngIf="targets!=undefined" class='ui blue small table stripped fixed target-table unstackable'>
         <thead>
           <tr class='center aligned'>
             <th></th>
@@ -385,7 +385,7 @@
 <div class='ui modal delete'>
   <div class="header">Видалення сесії</div>
   <div class='content'>
-    <div class="ui fluid deletion dropdown input massive">
+    <div class="ui fluid selection dropdown input massive deletion dropdown">
 
       <i class="dropdown icon"></i>
       <div class="default text">Оберіть Id сесії</div>
@@ -409,7 +409,7 @@
 <div class='ui modal export'>
   <div class="header">Експорт сесії</div>
   <div class='content'>
-    <div class="ui fluid export dropdown input massive">
+    <div class="ui fluid selection dropdown input massive export">
 
       <i class="dropdown icon"></i>
       <div class="default text">Оберіть Id сесії</div>
