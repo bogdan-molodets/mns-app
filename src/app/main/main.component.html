@@ -1,8 +1,8 @@
 <div class="ui massive menu icon  blue inverted">
   <a [ngClass]='{disabled:isMonitoring}' class="ui massive icon button item sidebarToggle"><i class='icon bars' id='sidebar-button'></i></a>
   <ng-container *ngIf='currentSession != undefined'>
-    <div class="ui header item">ID:{{currentSession.session_id}}</div>
-    <div class="ui header item"> Допуск: {{currentSession.tolerance}}</div>
+    <div class="ui header item session-id">ID:{{currentSession.session_id}}</div>
+    <div class="ui header item tolerance"> Допуск: {{currentSession.tolerance}}</div>
     <button [ngClass]='{disabled:isMonitoring}' class='ui massive button icon item ' (click)='openModalEditSession()'><i
         class='icon pencil'></i></button>
     <div *ngIf='state != "" ' class='ui item header'>Стан: {{state}}</div>
@@ -67,6 +67,8 @@
     <a class="item ui header sidebarToggle">
       <h1>Меню</h1>
     </a>
+    <a class="ui header item sidebarToggle session-id-mobile">ID:{{currentSession.session_id}}</a>
+    <a class="ui header item sidebarToggle tolerance-movile"> Допуск: {{currentSession.tolerance}}</a>
     <a class="item ui header sidebarToggle" (click)='openModalArchive()'>
       <h2>Відкрити</h2>
     </a>
@@ -105,8 +107,9 @@
               placeholder="H">
           </div>
           <div class="field three btn">
-            <button class='ui blue button massive' (click)='changeTargetType(params.type)'>{{params.type.slice(0,1) |
-              uppercase}}</button>
+            <!--<button class='ui blue button massive' (click)='changeTargetType(params.type)'>{{params.type.slice(0,1) |
+              uppercase}}</button>-->
+              <img [src]='"assets/"+params.type.slice(0,1)+".png"' (click)='changeTargetType(params.type)'>
           </div>
           <div class="field four btn">
             <button class='ui blue button massive calcTargetButton' (click)='getCoordinates()'>Поміряти</button>
