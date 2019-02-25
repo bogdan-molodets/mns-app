@@ -467,38 +467,45 @@ export class MainComponent implements OnInit {
   openSession() {
     $('.ui.selection.dropdown').dropdown('clear');
     this.sessionService.getSessions().toPromise().then(result => {
-      this.currentSession = result.find(el => { return el.session_id == this.selectedSessionId });
-      let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
+      if (result.find(el => { return el.state == 'active' })) {
+        console.log('can\'t open! session is active');
+        $('.ui.modal.history').modal('hide');
+      } else {
+        this.currentSession = result.find(el => { return el.session_id == this.selectedSessionId });
 
-      this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
-        console.log('update to opened');
-        this.sessionService.getSessions().toPromise().then(res => {
-          console.log('req on open');
-          this.currentSession = res.find(el => { return el.session_id == this.selectedSessionId });
-          this.selectedSessionId = this.currentSession.session_id;
-          // this.targetsSubscription.unsubscribe();
-          let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
-          if (opened) {
-            let sessionUpdate = new Session(opened.session_id, opened.description, +opened.lat, +opened.lon, +opened.hgt, opened.timestamp, "string", opened.tolerance);
-            this.sessionService.updateSession(sessionUpdate).toPromise().then(res => { });
-          }
+        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
 
+        this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
+          console.log('update to opened');
+          //this.targets = this.getTargets(this.selectedSessionId)
+          this.getTargets(this.selectedSessionId).then(res => {
+            if (res['length'] == 0) {
+              this.initId = 100;
+            } else {
+              this.initId = +res[res['length'] - 1].target_id;
+            }
+            console.log(this.initId);
+            this.targets = res;
+            $('.ui.modal.history').modal('hide');
+            this.updateTargetsTable();
+          });
+          this.sessionService.getSessions().toPromise().then(res => {
+            console.log('req on open');
+            this.currentSession = res.find(el => { return el.session_id == this.selectedSessionId });
+            this.selectedSessionId = this.currentSession.session_id;
+            // this.targetsSubscription.unsubscribe();
+            let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
+            if (opened) {
+              let sessionUpdate = new Session(opened.session_id, opened.description, +opened.lat, +opened.lon, +opened.hgt, opened.timestamp, "string", opened.tolerance);
+              this.sessionService.updateSession(sessionUpdate).toPromise().then(res => { });
+            }
+
+          });
         });
-      });
+      }
     })
 
-    //this.targets = this.getTargets(this.selectedSessionId)
-    this.getTargets(this.selectedSessionId).then(res => {
-      if (res['length'] == 0) {
-        this.initId = 100;
-      } else {
-        this.initId = +res[res['length'] - 1].target_id;
-      }
-      console.log(this.initId);
-      this.targets = res;
-      $('.ui.modal.history').modal('hide');
-      this.updateTargetsTable();
-    });
+
 
   }
 
@@ -744,33 +751,38 @@ export class MainComponent implements OnInit {
    */
   createSession() {
     this.sessionService.getSessions().toPromise().then(res => {
-      // if array has values, sort array by id ascending and generate new session id
-      if (res['length'] == 0) {
-        this.initSessionId = 10;
+      if (res.find(el => { return el.state == 'active' })) {
+        console.log('can\'t create! session is active');
+        $('.ui.modal.creator').modal('hide');
       } else {
-        res.sort(this.compare);
-        this.initSessionId = +res[res['length'] - 1].session_id;
-      }
+        // if array has values, sort array by id ascending and generate new session id
+        if (res['length'] == 0) {
+          this.initSessionId = 10;
+        } else {
+          res.sort(this.compare);
+          this.initSessionId = +res[res['length'] - 1].session_id;
+        }
 
-      let tmp = this.initSessionId + 1;
-      let session = new Session(tmp.toString(), $("#description").val(), 0, 0, 0, new Date(Date.now()).toLocaleString(), "opened", +$("#dopusk").val());
-      this.sessionService.createSession(session).toPromise().then(res => {
-        this.targets = [];
-        this.sessionService.getSessions().toPromise().then(res => {
-          this.archiveSessions = res;
-          console.log('req on create');
-          this.currentSession = res.find(el => { return el.session_id == session.session_id });
-          this.selectedSessionId = this.currentSession.session_id;
-          this.updateTargetsTable();
-          let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
-          if (opened) {
-            let sessionUpdate = new Session(opened.session_id, opened.description, +opened.lat, +opened.lon, +opened.hgt, opened.timestamp, "string", opened.tolerance);
-            this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
-              console.log('update to string in create');
-            });
-          }
+        let tmp = this.initSessionId + 1;
+        let session = new Session(tmp.toString(), $("#description").val(), 0, 0, 0, new Date(Date.now()).toLocaleString(), "opened", +$("#dopusk").val());
+        this.sessionService.createSession(session).toPromise().then(res => {
+          this.targets = [];
+          this.sessionService.getSessions().toPromise().then(res => {
+            this.archiveSessions = res;
+            console.log('req on create');
+            this.currentSession = res.find(el => { return el.session_id == session.session_id });
+            this.selectedSessionId = this.currentSession.session_id;
+            this.updateTargetsTable();
+            let opened = res.find(el => { return el.session_id != this.selectedSessionId && el.state == "opened" });
+            if (opened) {
+              let sessionUpdate = new Session(opened.session_id, opened.description, +opened.lat, +opened.lon, +opened.hgt, opened.timestamp, "string", opened.tolerance);
+              this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
+                console.log('update to string in create');
+              });
+            }
+          });
         });
-      });
+      }
     });
 
   }
