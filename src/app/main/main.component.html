@@ -106,7 +106,7 @@
             <input [(ngModel)]="params.h" [ngModelOptions]="{standalone: true}" pattern="[0-9]{1,4}" type="number"
               placeholder="H">
           </div>
-          <div class="field three btn">
+          <div class="field three btn target-type">
             <!--<button class='ui blue button massive' (click)='changeTargetType(params.type)'>{{params.type.slice(0,1) |
               uppercase}}</button>-->
               <img [src]='"assets/"+params.type.slice(0,1)+".png"' (click)='changeTargetType(params.type)'>
@@ -156,6 +156,36 @@
 
         </thead>
         <tbody [ngClass]='{fullWidth: isMonitoring}'>
+            <tr class='center aligned mobile-only'>
+                <th></th>
+                <th>
+                  <h5>#</h5>
+                </th>
+                <th>
+                  <h5>Тип</h5>
+                </th>
+                <th>
+                  <h5>X</h5>
+                </th>
+                <th>
+                  <h5>Y</h5>
+                </th>
+                <th>
+                  <h5>Z</h5>
+                </th>
+                <th>
+                  <h5>&#9651;X</h5>
+                </th>
+                <th>
+                  <h5>&#9651;Y</h5>
+                </th>
+                <th>
+                  <h5>&#9651;Z</h5>
+                </th>
+                <th>
+                  <h5>Час</h5>
+                </th>
+              </tr>
           <tr class='center aligned' *ngFor='let target of targets; let i = index; trackBy: trackByFn' [id]='i'
             [ngClass]='{error:checkDelta(target)}'>
             <td class="delete-col ">

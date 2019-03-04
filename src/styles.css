@@ -273,6 +273,14 @@ tbody tr {
     padding: 0 !important;
 }
 
+tr.mobile-only{
+    display: none;
+}
+.target-type{
+    background-color: #2185d0;
+    border-radius: .28571429rem;
+    padding: 0 0.1em;
+}
 @media screen and (max-width: 1100px) {
     .ui.table tr>td:first-child,
     .ui.table tr>th:first-child,
@@ -304,6 +312,9 @@ tbody tr {
     height: 100vh;
 }
 @media only screen and (max-width: 767px){
+    tr.mobile-only{
+        display: table;
+    }
     .session-id, .tolerance{
         display: none!important;
     }
