@@ -557,6 +557,25 @@ export class MainComponent implements OnInit {
     })
   }
 
+  stopExistingMonitoring() {
+    $(`.target-table tr`).removeClass('updated');
+    $('.startWaiting').removeClass('active');
+    console.log("stopped");
+    let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
+    this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
+      console.log('update to opened');
+      this.isMonitoring = false;
+      this.isGettingState = false;
+    });
+    this.updateTargetsTable();
+    this.state = "";
+    if (this.targetMonprcSubscription && this.monprcStateSubscription) {
+      this.targetMonprcSubscription.unsubscribe();
+      this.monprcStateSubscription.unsubscribe();
+    }
+
+  }
+
   /**
    * start monitoring process, getting its state,updating targets array. Updates session state from opened to active
    */
@@ -599,7 +618,7 @@ export class MainComponent implements OnInit {
             this.state = st.state;
             if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
             if (this.state == "stopped") {
-              this.stopMonitoring();
+              this.stopExistingMonitoring();
             }
           });
 
@@ -649,7 +668,7 @@ export class MainComponent implements OnInit {
       console.log(st.state);
       if (st.state == 'runing') { $('.startWaiting').removeClass('active'); }
       if (this.state == "stopped") {
-        this.stopMonitoring();
+        this.stopExistingMonitoring();
       }
     });
     this.isMonitoring = true;
