@@ -369,6 +369,7 @@ export class MainComponent implements OnInit {
    * @param session_id string
    */
   selectSessionId(session_id) {
+    console.log(session_id);
     this.selectedSessionId = session_id;
   }
 
@@ -471,10 +472,8 @@ export class MainComponent implements OnInit {
         console.log('can\'t open! session is active');
         $('.ui.modal.history').modal('hide');
       } else {
-        this.currentSession = result.find(el => { return el.session_id == this.selectedSessionId });
-
-        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
-
+        let foundSession = result.find(el => { return el.session_id == this.selectedSessionId });
+        let sessionUpdate = new Session(foundSession.session_id, foundSession.description, +foundSession.lat, +foundSession.lon, +foundSession.hgt, foundSession.timestamp, "opened", foundSession.tolerance);
         this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
           console.log('update to opened');
           //this.targets = this.getTargets(this.selectedSessionId)
