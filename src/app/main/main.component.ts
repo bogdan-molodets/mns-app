@@ -381,6 +381,7 @@ export class MainComponent implements OnInit {
 
     this.sessionService.updateSession(sessionUpdate).toPromise().then(update => {
       if (update.status == "Ok") {
+        $('.ui.modal.edit.session').modal('hide');
         this.currentSession.tolerance = +$("#editDopusk").val();
         this.currentSession.description = $("#editDescription").val();
       }
@@ -406,6 +407,7 @@ export class MainComponent implements OnInit {
       this.configService.getCurrentConfig().toPromise().then(config => {
         // console.log(config.email);
         this.currentConfig = config
+        $('.ui.modal.email').modal('hide');
         // this.configEmail = config.email;
         console.log('mail updated');
       });
@@ -788,6 +790,7 @@ export class MainComponent implements OnInit {
           this.sessionService.getSessions().toPromise().then(res => {
             this.archiveSessions = res;
             console.log('req on create');
+            $('.ui.modal.creator').modal('hide');
             this.currentSession = res.find(el => { return el.session_id == session.session_id });
             this.selectedSessionId = this.currentSession.session_id;
             this.updateTargetsTable();
