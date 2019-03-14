@@ -43,9 +43,10 @@ body ::-webkit-scrollbar {
 }
 
 .fields img{
-    height: 61px;
+    height: 62px;
     cursor: pointer;
-    width: 61px;
+    width: auto;
+    padding: .2em .1em;
 }
 
 .bt-wifi-popup ,.bt-devices-popup {
@@ -277,9 +278,12 @@ tr.mobile-only{
     display: none;
 }
 .target-type{
+    min-width: 91px;
+    display: flex;
+    justify-content: center;
     background-color: #2185d0;
     border-radius: .28571429rem;
-    padding: 0 0.1em;
+    /* padding: 0 0.1em; */
 }
 @media screen and (max-width: 1100px) {
     .ui.table tr>td:first-child,
