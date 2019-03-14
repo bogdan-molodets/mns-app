@@ -297,11 +297,15 @@ export class MainComponent implements OnInit {
 
   openModalArchive() {
     setTimeout(() => {
-      if (this.currentSession == undefined) {
-        $('.ui.modal.history').modal('show');
-      } else {
-        $('.ui.modal.warning').modal('show');
-      }
+      this.sessionService.getSessions().subscribe(res => {
+        this.archiveSessions = res;
+        if (this.currentSession == undefined) {
+
+          $('.ui.modal.history').modal('show');
+        } else {
+          $('.ui.modal.warning').modal('show');
+        }
+      });
     }, 2000)
 
 
@@ -369,6 +373,7 @@ export class MainComponent implements OnInit {
    * @param session_id string
    */
   selectSessionId(session_id) {
+    console.log(session_id);
     this.selectedSessionId = session_id;
   }
 
@@ -380,6 +385,7 @@ export class MainComponent implements OnInit {
 
     this.sessionService.updateSession(sessionUpdate).toPromise().then(update => {
       if (update.status == "Ok") {
+        $('.ui.modal.edit.session').modal('hide');
         this.currentSession.tolerance = +$("#editDopusk").val();
         this.currentSession.description = $("#editDescription").val();
       }
@@ -405,6 +411,7 @@ export class MainComponent implements OnInit {
       this.configService.getCurrentConfig().toPromise().then(config => {
         // console.log(config.email);
         this.currentConfig = config
+        $('.ui.modal.email').modal('hide');
         // this.configEmail = config.email;
         console.log('mail updated');
       });
@@ -471,10 +478,8 @@ export class MainComponent implements OnInit {
         console.log('can\'t open! session is active');
         $('.ui.modal.history').modal('hide');
       } else {
-        this.currentSession = result.find(el => { return el.session_id == this.selectedSessionId });
-
-        let sessionUpdate = new Session(this.currentSession.session_id, this.currentSession.description, +this.currentSession.lat, +this.currentSession.lon, +this.currentSession.hgt, this.currentSession.timestamp, "opened", this.currentSession.tolerance);
-
+        let foundSession = result.find(el => { return el.session_id == this.selectedSessionId });
+        let sessionUpdate = new Session(foundSession.session_id, foundSession.description, +foundSession.lat, +foundSession.lon, +foundSession.hgt, foundSession.timestamp, "opened", foundSession.tolerance);
         this.sessionService.updateSession(sessionUpdate).toPromise().then(res => {
           console.log('update to opened');
           //this.targets = this.getTargets(this.selectedSessionId)
@@ -789,6 +794,7 @@ export class MainComponent implements OnInit {
           this.sessionService.getSessions().toPromise().then(res => {
             this.archiveSessions = res;
             console.log('req on create');
+            $('.ui.modal.creator').modal('hide');
             this.currentSession = res.find(el => { return el.session_id == session.session_id });
             this.selectedSessionId = this.currentSession.session_id;
             this.updateTargetsTable();
@@ -816,14 +822,20 @@ export class MainComponent implements OnInit {
    * show modal requesting session deletion with session ids dropdown except current one
    */
   openSessionDeletion() {
-    $('.ui.modal.delete').modal('show');
+    this.sessionService.getSessions().subscribe(res => {
+      this.archiveSessions = res;
+      $('.ui.modal.delete').modal('show');
+    });
   }
 
   /**
    * show modal requesting session export with session ids dropdown 
    */
   openExport() {
-    $('.ui.modal.export').modal('show');
+    this.sessionService.getSessions().subscribe(res => {
+      this.archiveSessions = res;
+      $('.ui.modal.export').modal('show');
+    });
   }
 
   /**
