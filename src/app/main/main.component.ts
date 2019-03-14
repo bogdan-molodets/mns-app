@@ -297,11 +297,15 @@ export class MainComponent implements OnInit {
 
   openModalArchive() {
     setTimeout(() => {
-      if (this.currentSession == undefined) {
-        $('.ui.modal.history').modal('show');
-      } else {
-        $('.ui.modal.warning').modal('show');
-      }
+      this.sessionService.getSessions().subscribe(res => {
+        this.archiveSessions = res;
+        if (this.currentSession == undefined) {
+
+          $('.ui.modal.history').modal('show');
+        } else {
+          $('.ui.modal.warning').modal('show');
+        }
+      });
     }, 2000)
 
 
@@ -818,14 +822,20 @@ export class MainComponent implements OnInit {
    * show modal requesting session deletion with session ids dropdown except current one
    */
   openSessionDeletion() {
-    $('.ui.modal.delete').modal('show');
+    this.sessionService.getSessions().subscribe(res => {
+      this.archiveSessions = res;
+      $('.ui.modal.delete').modal('show');
+    });
   }
 
   /**
    * show modal requesting session export with session ids dropdown 
    */
   openExport() {
-    $('.ui.modal.export').modal('show');
+    this.sessionService.getSessions().subscribe(res => {
+      this.archiveSessions = res;
+      $('.ui.modal.export').modal('show');
+    });
   }
 
   /**
