@@ -67,8 +67,8 @@
     <a class="item ui header sidebarToggle">
       <h1>Меню</h1>
     </a>
-    <a class="ui header item sidebarToggle session-id-mobile">ID:{{currentSession.session_id}}</a>
-    <a class="ui header item sidebarToggle tolerance-movile"> Допуск: {{currentSession.tolerance}}</a>
+    <a *ngIf='currentSession != undefined' class="ui header item sidebarToggle session-id-mobile">ID:{{currentSession.session_id}}</a>
+    <a *ngIf='currentSession != undefined' class="ui header item sidebarToggle tolerance-movile"> Допуск: {{currentSession.tolerance}}</a>
     <a class="item ui header sidebarToggle" (click)='openModalArchive()'>
       <h2>Відкрити</h2>
     </a>
@@ -78,9 +78,6 @@
     <a class="item ui header sidebarToggle" (click)='openSessionDeletion()'>
       <h2>Видалити</h2>
     </a>
-    <a class="item ui header sidebarToggle" (click)='openSessionClosing()'>
-      <h2>Завершити роботу</h2>
-    </a>
     <a class="item ui header sidebarToggle" (click)='openExport()'>
       <h2>Експорт</h2>
     </a>
@@ -88,6 +85,9 @@
       <h2>Пошта</h2>
       <!-- <h5 *ngIf='currentConfig==undefined || currentConfig==null '>Додайте электронну пошту</h5>
       <h4 *ngIf='currentConfig!=undefined && currentConfig!=null '>{{currentConfig?.email}}</h4> -->
+    </a>
+    <a class="item ui header sidebarToggle exit" (click)='openSessionClosing()'>
+      <h2>Завершити роботу</h2>
     </a>
   </div>
   <div class='pusher'>
@@ -490,7 +490,7 @@
         <a [ngClass]='{disabled: keyboardSettings.currentControl.invalid}' class='ui teal huge circular button compact'
           (click)='approveChanges()'>OK</a>
         <a class='ui red huge circular button compact' (click)='cancelChanges()'>Назад</a>
-        <li *ngIf='!keyboardSettings.isNumber' class="space" (click)='addWhiteSpace()'>&nbsp;</li>
+        <li *ngIf='!keyboardSettings.isNumber' class="space" (click)='addWhiteSpace()'>Space</li>
       </ul>
     </div>
   </div>

@@ -7,6 +7,9 @@
     z-index: 1000;
 }
 
+.exit{
+    background-color: #14507d!important;
+}
 /**body ::-webkit-scrollbar {
     width: 50px!important;
 }**/
@@ -156,10 +159,12 @@ table th {
 
 .ui.modal.keyboard {
     margin-top: 0 !important;
+    position: absolute;
 }
 
 .ui.modal.keyboard .content {
     height: 550px;
+    display: flex;
 }
 
 /**virtual keyboard**/
@@ -167,14 +172,14 @@ table th {
 #container {
     transition: 1s linear;
     position: relative;
-    width: 800px;
+    /*width: 800px;*/
 }
 
 #write {
     border: 1px solid #85b7d9 !important;
     /*margin: 0 107px;*/
     padding: 5px;
-    width: 800px;
+    width: 100%!important;
     height: 120px;
     font: 1em/1.5 Verdana, Sans-Serif;
     background: #fff;
@@ -183,11 +188,13 @@ table th {
 }
 
 #keyboard {
-    width: 800px;
+    width: 100%!important;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
     padding: 7px 25px;
     background: #eee;
     height: auto;
-    position: fixed;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     list-style: none;
@@ -217,7 +224,12 @@ table th {
 
 #keyboard .space {
     clear: left;
-    width: 100%;
+    /* width: 100%; */
+    flex-grow: 1;
+}
+
+#keyboard a{
+    order: 1
 }
 
 #keyboard li:hover {
