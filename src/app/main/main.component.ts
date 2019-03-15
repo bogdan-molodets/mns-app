@@ -705,7 +705,7 @@ export class MainComponent implements OnInit {
     $('.calcTarget.errors').removeClass('visible');
     $('.calcTargetButton').addClass('disabled');
     $('.addTargetButton').addClass('loading').addClass('disabled');
-    this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0,new Date(Date.now()).toLocaleString(), this.params.type)).then(res => {
+    this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0,new Date(Date.now()).toString(), this.params.type)).then(res => {
       $('.calcTargetButton').removeClass('disabled');
       $('.addTargetButton').removeClass('loading').removeClass('disabled');
       if (res.status == 'Ok') {
