@@ -50,7 +50,11 @@ export class SessionService {
     return this.httpClient.put<any>(`${this.apiUrl}/session/${session.session_id}`, session);
   }
 
-  getHistoryFileUrl(sessionId: string) {    
-    return `${this.apiUrl}/session/${sessionId}/history`;
+  getHistoryFileUrl(sessionId: string) {
+    if (window.location.hostname == 'localhost') {
+      return `${this.apiUrl}/session/${sessionId}/history?local=true`;
+    } else {
+      return `${this.apiUrl}/session/${sessionId}/history`;
+    }
   }
 }
