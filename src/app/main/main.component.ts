@@ -834,6 +834,7 @@ export class MainComponent implements OnInit {
   openExport() {
     this.sessionService.getSessions().subscribe(res => {
       this.archiveSessions = res;
+      $('div.ui.negative.message').addClass('hidden');
       $('.ui.modal.export').modal('show');
     });
   }
@@ -850,25 +851,29 @@ export class MainComponent implements OnInit {
    * show modal confirms selected session export
    */
   exportConfirm(e: any) {
-    $('.ui.negative.message').addClass('hidden');
     if (window.location.hostname === 'localhost') {
+     e.preventDefault();
       this.sessionService.saveToUsb(this.selectedSessionIdExport).toPromise().then(res => {
         if (res.status == 200) {
-          $('.ui.negative.message').addClass('hidden');
+          $('div.ui.negative.message').addClass('hidden');
           this.closeModal(".ui.modal.export");
         }
       }, err => {
+       
         if (err.status == 404) {
-          $('.ui.negative.message').removeClass('hidden');
-          this.exportErrorMessage="Помилка експорту! USB пристрій не знайдено!"
+          $('div.ui.negative.message').removeClass('hidden');
+          this.exportErrorMessage="Помилка експорту! USB пристрій не знайдено!";
+          
         } else {
-          $('.ui.negative.message').removeClass('hidden');
-          this.exportErrorMessage="Помилка експорту! Повторіть спробу."
+          $('div.ui.negative.message').removeClass('hidden');
+          this.exportErrorMessage="Помилка експорту! Повторіть спробу.";
+         
         }
       });
     } else {
       $("#export").attr('href', this.sessionService.getHistoryFileUrl(this.selectedSessionIdExport));
       $('.ui.export.dropdown').dropdown('clear');
+      this.closeModal(".ui.modal.export");
     }
 
   }
