@@ -51,10 +51,11 @@ export class SessionService {
   }
 
   getHistoryFileUrl(sessionId: string) {
-    if (window.location.hostname == 'localhost') {
-      return `${this.apiUrl}/session/${sessionId}/history?local=true`;
-    } else {
-      return `${this.apiUrl}/session/${sessionId}/history`;
-    }
+    return `${this.apiUrl}/session/${sessionId}/history`;
   }
+
+  saveToUsb(sessionId: string) {
+    return this.httpClient.get<any>(`${this.apiUrl}/session/${sessionId}/history`, { params: { local: "true" }, observe: 'response' });
+  }
+
 }

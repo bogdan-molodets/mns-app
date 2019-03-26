@@ -73,7 +73,7 @@ export class MainComponent implements OnInit {
   state = "";
   monprcStateSubscription: Subscription;
   targetMonprcSubscription: Subscription;
-
+  exportErrorMessage: string = "Помилка експорту";
   connections: any[] = [];
   ips: any[] = [];
   constructor(private sessionService: SessionService,
@@ -705,7 +705,7 @@ export class MainComponent implements OnInit {
     $('.calcTarget.errors').removeClass('visible');
     $('.calcTargetButton').addClass('disabled');
     $('.addTargetButton').addClass('loading').addClass('disabled');
-    this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0,new Date(Date.now()).toString(), this.params.type)).then(res => {
+    this.targetService.createTarget(this.selectedSessionId, this.initId.toString(), new Target((++this.initId).toString(), this.params.x, this.params.y, this.params.h, this.params.ha, this.params.va, 0.0, 0.0, 0.0, new Date(Date.now()).toString(), this.params.type)).then(res => {
       $('.calcTargetButton').removeClass('disabled');
       $('.addTargetButton').removeClass('loading').removeClass('disabled');
       if (res.status == 'Ok') {
@@ -850,8 +850,26 @@ export class MainComponent implements OnInit {
    * show modal confirms selected session export
    */
   exportConfirm(e: any) {
-    $("#export").attr('href', this.sessionService.getHistoryFileUrl(this.selectedSessionIdExport));
-    $('.ui.export.dropdown').dropdown('clear');
+    $('.ui.negative.message').addClass('hidden');
+    if (window.location.hostname === 'localhost') {
+      this.sessionService.saveToUsb(this.selectedSessionIdExport).toPromise().then(res => {
+        if (res.status == 200) {
+          $('.ui.negative.message').addClass('hidden');
+          this.closeModal(".ui.modal.export");
+        }
+      }, err => {
+        if (err.status == 404) {
+          $('.ui.negative.message').removeClass('hidden');
+          this.exportErrorMessage="Помилка експорту! USB пристрій не знайдено!"
+        } else {
+          $('.ui.negative.message').removeClass('hidden');
+          this.exportErrorMessage="Помилка експорту! Повторіть спробу."
+        }
+      });
+    } else {
+      $("#export").attr('href', this.sessionService.getHistoryFileUrl(this.selectedSessionIdExport));
+      $('.ui.export.dropdown').dropdown('clear');
+    }
 
   }
 
