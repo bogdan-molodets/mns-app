@@ -853,24 +853,29 @@ export class MainComponent implements OnInit {
   exportConfirm(e: any) {
     if (window.location.hostname === 'localhost') {
      e.preventDefault();
+     $('#export').addClass('loading').addClass('disabled');
       this.sessionService.saveToUsb(this.selectedSessionIdExport).toPromise().then(res => {
         if (res.status == 200) {
           $('div.ui.negative.message').addClass('hidden');
+          $('#export').removeClass('loading').removeClass('disabled');
           this.closeModal(".ui.modal.export");
         }
       }, err => {
        
         if (err.status == 404) {
           $('div.ui.negative.message').removeClass('hidden');
+          $('#export').removeClass('loading').removeClass('disabled');
           this.exportErrorMessage="Помилка експорту! USB пристрій не знайдено!";
           
         } else {
           $('div.ui.negative.message').removeClass('hidden');
+          $('#export').removeClass('loading').removeClass('disabled');
           this.exportErrorMessage="Помилка експорту! Повторіть спробу.";
          
         }
       });
     } else {
+      $('#export').removeClass('loading').removeClass('disabled');
       $("#export").attr('href', this.sessionService.getHistoryFileUrl(this.selectedSessionIdExport));
       $('.ui.export.dropdown').dropdown('clear');
       this.closeModal(".ui.modal.export");
